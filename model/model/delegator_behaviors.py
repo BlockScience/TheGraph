@@ -5,7 +5,7 @@ def may_act_this_timestep(params, step, sL, s):
     acting_delegator_ids = []
     for id, delegator in s['delegators'].items():
         if delegator.will_act():
-            acting_delegator_ids.insert(id)
+            acting_delegator_ids.append(id)
 
     # randomize list.
     random.shuffle(acting_delegator_ids)
@@ -13,39 +13,37 @@ def may_act_this_timestep(params, step, sL, s):
     return {'acting_delegator_ids': acting_delegator_ids}
 
 
-def act(params, step, sL, s, inputs):    
-    #  loop through acting delegators id list
-    
-    for inputs['acting_delegator_ids']:
-        # within the loop, delegators will first
-        #   accounting of current state
 
-        #   previous actor will have changed it
+def act(params, step, sL, s, inputs):
+    #  loop through acting delegators id list
+    spot_price = s['spot_price']
+    reserve = s['reserve']
+    supply = s['supply']
+    owners_share = params['owners_share']
+    reserve_to_revenue_token_exchange_rate = params['reserve_to_revenue_token_exchange_rate']
+    mininum_required_price_pct_diff_to_act = params['mininum_required_price_pct_diff_to_act']
+
+
+    for delegator_id in inputs['acting_delegator_ids']:
+        #   accounting of current state (previous actor will have changed it)
         #   active delegator computes their evaluation (private price)
-        #   compare private price to spot price -- just changed
-        #  look at difference between spot and private price. 
-        #    if it's low, buy.  close, do nothing.  high, sell
-        #  if sell, compute amount of shares to burn such that realized price is equal to private price
-        #    if that amount is > amt i have, burn it all (no short sales)
+        delegator = s['delegators'][delegator_id]
+        
+        # created_shares and added_reserve will be positive on buy and negative for a sell.
+        created_shares, added_reserve = delegator.buy_or_sell(supply, reserve, owners_share, spot_price, 
+                            mininum_required_price_pct_diff_to_act, reserve_to_revenue_token_exchange_rate)
+        supply += created_shares
+        reserve += added_reserve
+        
+        spot_price = 0
+        if supply > 0:
+            spot_price = 2 * reserve / supply
+
+
         #  if buy, compute amount of reserve to add such that realized price is equal to private price
         #    if the amount is greater than reserve assets i have personally, then do it all
         # 
 
-
-
-    should_make_claims = inputs['should_make_claims']
-    # apply each claim
-
-
-
-
-    for broker_id, should_make_claim in should_make_claims.items():
-        if should_make_claim:
-            s['brokers'][broker_id].holdings += \
-                 s['brokers'][broker_id].claimable_funds
-            s['brokers'][broker_id].claimable_funds = 0
-
-    key = 'make_claims'
-    value = s['brokers']
+    key = 'delegators'
+    value = s['delegators']
     return key, value
-

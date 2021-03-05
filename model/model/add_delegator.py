@@ -6,13 +6,13 @@ import scipy.stats as stats
 # policy
 def should_instantiate_delegate(params, step, sL, s):
     # flip a coin (1 joins if there's room and random says to)
-    arrives = False
+    should_instantiate_delegate = False
 
     rng = random.random()
     if rng >= params['arrival_rate']:
-        arrives = True
+        should_instantiate_delegate = True
 
-    return {"arrives": arrives}
+    return {"should_instantiate_delegate": should_instantiate_delegate}
 
 
 # mechanism
@@ -33,7 +33,7 @@ def instantiate_delegate(params, step, sL, s, inputs):
 
     time_factor = 2
 
-    if inputs['should_join']:
+    if inputs['should_instantiate_delegate']:
         d = delegator.Delegator(shares, reserve_token_holdings, delegator_expected_revenue, 
                                 time_factor)
         s['delegators'][d.id] = d

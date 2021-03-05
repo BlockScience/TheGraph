@@ -25,6 +25,7 @@ simulation_config = configuration.utils.config_sim({
         "delegator_estimation_noise_variance": [1],  # proportional to expected_revenue
         "reserve_to_revenue_token_exchange_rate": [1],
         "delegator_activity_rate": [0.5],
+        "mininum_required_price_pct_diff_to_act": [0.02],
     }
 })
 
