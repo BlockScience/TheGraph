@@ -4,19 +4,19 @@ import scipy.stats as stats
 
 def revenue_amt(params, step, prev_state, state):
     revenue_amt = params["expected_revenue"] * stats.expon.rvs()
-
+    # print(f'{revenue_amt=}')
     return {'revenue_amt': revenue_amt}
 
 
 def store_revenue(params, step, sL, s, inputs):
-    key = 'revenue'
+    key = 'period_revenue'
     value = inputs['revenue_amt']
 
     return key, value
 
 
 def distribute_revenue(params, step, sL, s, inputs):
-    revenue = s['revenue']
+    revenue = s['period_revenue']
     owners_share = params['owners_share']
     supply = s['supply']
 

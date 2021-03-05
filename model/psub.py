@@ -6,7 +6,7 @@ from .model.delegator_behaviors_bookkeeping import (account_global_state_from_de
 from .model.add_delegator import instantiate_delegate, should_instantiate_delegate
 
 from .model.delegator_behaviors import (act,
-                           may_act_this_timestep)
+                                        may_act_this_timestep)
 
 from .model.revenue import revenue_amt, store_revenue, distribute_revenue
 
@@ -25,7 +25,7 @@ psubs = [
             'revenue_amt': revenue_amt  # how much is paid in.
         },
         'variables': {
-            'revenue': store_revenue
+            'period_revenue': store_revenue,
         },
     },
     {
@@ -51,7 +51,7 @@ psubs = [
         'label': 'Delegator Behaviors',
         'policies': {
             # outputs ordered list of acting delegatorIds this timestep
-            'may_act_this_timestep': may_act_this_timestep  
+            'may_act_this_timestep': may_act_this_timestep
         },
         'variables': {
             'delegators': act,

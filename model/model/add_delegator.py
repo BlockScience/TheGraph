@@ -27,15 +27,18 @@ def instantiate_delegate(params, step, sL, s, inputs):
         params['delegator_estimation_noise_mean']
 
     # this must be positive
+    print(f'{system_expected_revenue=}, {epsilon=}')
     delegator_expected_revenue = (1 + epsilon) * system_expected_revenue
     if delegator_expected_revenue < 0:
         delegator_expected_revenue = 0
-
-    time_factor = 2
+    print(f'{delegator_expected_revenue=}')
+    
+    # a discount_rate of 0.9 means the 2nd time period is worth 0.9 of the current period.
+    discount_rate = 0.9
 
     if inputs['should_instantiate_delegate']:
-        d = delegator.Delegator(shares, reserve_token_holdings, delegator_expected_revenue, 
-                                time_factor)
+        d = delegator.Delegator(shares, reserve_token_holdings, delegator_expected_revenue,
+                                discount_rate)
         s['delegators'][d.id] = d
 
     key = "delegators"
