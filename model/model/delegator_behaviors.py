@@ -28,10 +28,12 @@ def act(params, step, sL, s, inputs):
         #   accounting of current state (previous actor will have changed it)
         #   active delegator computes their evaluation (private price)
         delegator = s['delegators'][delegator_id]
-        
+        if delegator_id == 0:
+            minimum_shares = 
         # created_shares and added_reserve will be positive on buy and negative for a sell.
         created_shares, added_reserve = delegator.buy_or_sell(supply, reserve, owners_share, spot_price, 
-                            mininum_required_price_pct_diff_to_act, reserve_to_revenue_token_exchange_rate)
+                            mininum_required_price_pct_diff_to_act, reserve_to_revenue_token_exchange_rate,
+                            minimum_shares)
         supply += created_shares
         reserve += added_reserve
         
