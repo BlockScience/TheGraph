@@ -1,6 +1,6 @@
 from model.model import delegator
 
-# NOTE: shares and supply are used somewhat interchangeably.  
+# NOTE: shares and supply are used somewhat interchangeably.
 # shares are supply owned by an individual
 # and supply is the aggregate total.
 genesis_state = {

@@ -14,11 +14,11 @@ class Delegator:
 
         self.shares = shares
 
-        # Tokens the delegator is holding, but in the denomination the revenues are paid in.  
+        # Tokens the delegator is holding, but in the denomination the revenues are paid in.
         # (USD token or any other token)
         self.revenue_token_holdings = 0
 
-        # Amount of token the delegator is holding, in same denomination as Reserve (R). 
+        # Amount of token the delegator is holding, in same denomination as Reserve (R).
         # (DATA token for Streamr, GRT for theGRAPH)
         self.reserve_token_holdings = reserve_token_holdings
         self.expected_revenue = expected_revenue
@@ -52,7 +52,8 @@ class Delegator:
         reserve_asset_per_share_time_corrected = reserve_asset_per_period_per_share * \
             self.time_factor
 
-        print(f'{supply=}, {self.expected_revenue=}, {revenue_per_period_per_share=}, {reserve_asset_per_period_per_share=}, {reserve_asset_per_share_time_corrected=}')
+        print(f'dividend_value: {self.id=}, {supply=}, {self.expected_revenue=}, {revenue_per_period_per_share=}, \
+            {reserve_asset_per_period_per_share=}, {reserve_asset_per_share_time_corrected=}')
         return reserve_asset_per_share_time_corrected
 
     def will_act(self):
@@ -62,12 +63,12 @@ class Delegator:
 
     """
         compare private price to spot price -- just changed
-        look at difference between spot and private price. 
+        look at difference between spot and private price.
           if it's low, buy.  close, do nothing.  high, sell
           if sell, compute amount of shares to burn such that realized price is equal to private price
           if that amount is > amt i have, burn it all (no short sales)
     """
-    def buy_or_sell(self, supply, reserve, owners_share, spot_price, 
+    def buy_or_sell(self, supply, reserve, owners_share, spot_price,
                     mininum_required_price_pct_diff_to_act, reserve_to_revenue_token_exchange_rate,
                     risk_adjustment,
                     minimum_shares=0):
@@ -87,12 +88,13 @@ class Delegator:
 
         created_shares = 0
         added_reserve = 0
-        print(f'{private_price=}, {spot_price=}, {pct_price_diff=}')
+        print(f'buy_or_sell: {private_price=}, {spot_price=}, {pct_price_diff=}')
         if pct_price_diff >= mininum_required_price_pct_diff_to_act:
             # don't act.
             return created_shares, added_reserve
 
         if private_price > spot_price:
+            print(f'buy_or_sell: DELEGTOR {self.id} -- BUY')
             # BUY ###
             # figure out how much delegator spending, then buy it
 
@@ -102,17 +104,12 @@ class Delegator:
             # assert(private_price == realized_price)
 
             # this formula stops buying when spot_price is equal to private_price
-
             added_reserve = ((private_price ** 2) * (supply ** 2) - (4 * reserve ** 2)) / (4 * reserve)
 
             # can't spend reserve you don't have
             if added_reserve > self.reserve_token_holdings:
                 added_reserve = self.reserve_token_holdings
             created_shares = supply * ((1 + added_reserve / reserve) ** (1/2)) - supply
-            final_spot_price = (2 * (reserve + added_reserve)) / (supply + created_shares)
-            
-            acceptable_tolerance = 0.02
-            assert(abs(private_price - final_spot_price) < acceptable_tolerance)
 
             # then update the state
 
@@ -125,6 +122,7 @@ class Delegator:
 
         elif private_price < spot_price:
             # SELL ###
+            print(f'buy_or_sell: DELEGTOR {self.id} -- SELL')
             burned_shares = ((2 * reserve * supply) - (private_price * supply ** 2)) / (2 * reserve)
 
             # can't burn shares you don't have.
@@ -136,7 +134,6 @@ class Delegator:
                 burned_shares = self.shares - minimum_shares
 
             created_shares = -burned_shares
-
             # payout
             reserve_paid_out = reserve - reserve * (1 - burned_shares / supply) ** 2
             added_reserve = -reserve_paid_out
@@ -146,6 +143,11 @@ class Delegator:
             # system:
             #   decreasing total shares
             #   decreasing reserve
+        final_spot_price = (2 * (reserve + added_reserve)) / (supply + created_shares)
+        acceptable_tolerance = mininum_required_price_pct_diff_to_act
+        diff = abs(private_price - final_spot_price)
+        print(f'buy_or_sell: {private_price=}, {final_spot_price=}, {diff=}, {acceptable_tolerance=}')
+        assert(diff < acceptable_tolerance)
 
         self.reserve_token_holdings -= added_reserve
         self.shares += created_shares
