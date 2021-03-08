@@ -6,15 +6,15 @@ from .state import genesis_state
 # Parameters
 # Values are lists because they support sweeping.
 simulation_config = configuration.utils.config_sim({
-    "T": range(90),
+    "T": range(500),
     "N": 1,
     'M': {
         "initial_reserve": [10],
         "initial_supply": [10],
-        "expected_revenue": [3],
+        "expected_revenue": [7],
         "owners_share": [0.25],         # 1-theta  (theta is what all of the other delegators get)
         "arrival_rate": [0.5],
-        "expected_reserve_token_holdings": [5],
+        "expected_reserve_token_holdings": [25],
         "delegator_estimation_noise_mean": [0],
         "delegator_estimation_noise_variance": [1],  # proportional to expected_revenue
         "reserve_to_revenue_token_exchange_rate": [1],
