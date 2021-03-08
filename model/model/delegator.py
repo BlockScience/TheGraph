@@ -7,7 +7,7 @@ class Delegator:
     # autoincrementing id.
     delegate_counter = 0
 
-    def __init__(self, shares=0, reserve_token_holdings=0, expected_revenue=0, discount_rate=2,
+    def __init__(self, shares=0, reserve_token_holdings=0, expected_revenue=0, discount_rate=.9,
                  delegator_activity_rate=0.5, minimum_shares=0):
         # initialize broker state
         self.id = Delegator.delegate_counter
@@ -24,7 +24,7 @@ class Delegator:
         self.expected_revenue = expected_revenue
 
         # used to discount cash flows. 1 / (1 - discount_rate)
-        self.time_factor = 1 / discount_rate
+        self.time_factor = 1 / (1-discount_rate)
         self.delegator_activity_rate = delegator_activity_rate
 
         # increment counter for next delegator ID
@@ -80,6 +80,7 @@ class Delegator:
         share_value = 2 * reserve / supply
         risk_adjusted_share_value = share_value * risk_adjustment
 
+        #todo: can we factor this out as a method or attribute so we can plot it
         private_price = (dividend_value + risk_adjusted_share_value)
 
         pct_price_diff = 0
