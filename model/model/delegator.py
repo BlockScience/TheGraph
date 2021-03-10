@@ -19,12 +19,12 @@ class Delegator:
         self.revenue_token_holdings = 0
 
         # Amount of token the delegator is holding, in same denomination as Reserve (R).
-        # (DATA token for Streamr, GRT for theGRAPH)
+        # (e.g. DATA token for Streamr, GRT for theGRAPH)
         self.reserve_token_holdings = reserve_token_holdings
         self.expected_revenue = expected_revenue
 
         # used to discount cash flows. 1 / (1 - discount_rate)
-        self.time_factor = 1 / (1-discount_rate)
+        self.time_factor = 1 / (1 - discount_rate)
         self.delegator_activity_rate = delegator_activity_rate
 
         # increment counter for next delegator ID
