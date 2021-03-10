@@ -1,16 +1,5 @@
 import random
 
-# def update_time_attached(params, step, sL, s, inputs):
-
-#     for broker in s['brokers'].values():
-#         if broker.member:
-#             broker.time_attached += 1
-
-#     key = 'brokers'
-#     value = s['brokers']
-
-#     return key, value
-
 
 def account_global_state_from_delegator_states(params, step, sL, s):
     previous_supply = s['supply']
