@@ -24,7 +24,7 @@ def act(params, step, sL, s, inputs):
     risk_adjustment = params['risk_adjustment']
 
     acting_delegator_ids = inputs['acting_delegator_ids']
-    print(f'act: {acting_delegator_ids=}')
+    # print(f'act: {acting_delegator_ids=}')
     for delegator_id in acting_delegator_ids:
         #   accounting of current state (previous actor will have changed it)
         #   active delegator computes their evaluation (private price)
@@ -35,13 +35,13 @@ def act(params, step, sL, s, inputs):
         if delegator_id == 0:
             minimum_shares = params['initial_supply']
         # created_shares and added_reserve will be positive on buy and negative for a sell.
-        print(f'act: {delegator.shares=}')
+        # print(f'act: {delegator.shares=}')
         created_shares, added_reserve = delegator.buy_or_sell(supply, reserve, owners_share, spot_price,
                                                               mininum_required_price_pct_diff_to_act,
                                                               reserve_to_revenue_token_exchange_rate,
                                                               risk_adjustment,
                                                               minimum_shares)
-        print(f'act: {delegator_id=}, {created_shares=}, {added_reserve=}')
+        # print(f'act: {delegator_id=}, {created_shares=}, {added_reserve=}')
         supply += created_shares
         reserve += added_reserve
 
