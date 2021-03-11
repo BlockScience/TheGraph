@@ -11,5 +11,5 @@ genesis_state = {
     # id=0 is the original provider of 10 reserve and owns 10 supply
     "delegators": {0: delegator.Delegator(shares=10, minimum_shares=10)},
     "period_revenue": 0,  # this is passed directly to the delegators
-    "spot_price": 0,
+    "spot_price": 2,
 }
