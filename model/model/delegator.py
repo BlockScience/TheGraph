@@ -21,6 +21,7 @@ class Delegator:
         # Amount of token the delegator is holding, in same denomination as Reserve (R).
         # (e.g. DATA token for Streamr, GRT for theGRAPH)
         self.reserve_token_holdings = reserve_token_holdings
+
         self.expected_revenue = expected_revenue
 
         # used to discount cash flows. 1 / (1 - discount_rate)
@@ -33,10 +34,12 @@ class Delegator:
         # increment counter for next delegator ID
         Delegator.delegate_counter += 1
 
+    
     # member of the sharing pool (True/False)
     def is_member(self):
         return self.shares > 0
 
+    
     def dividend_value(self, supply, owners_share, reserve_to_revenue_token_exchange_rate):
         """ take belief of revenue * your shares / total shares """
         revenue_per_period_per_share = 0
@@ -59,33 +62,24 @@ class Delegator:
         #     {reserve_asset_per_period_per_share=}, {reserve_asset_per_share_time_corrected=}')
         return reserve_asset_per_share_time_corrected
 
+    
     def will_act(self):
         # flip a uniform random variable, compare to activity, rate, if it's below, then set to act.
         rng = random.random()
         return rng < self.delegator_activity_rate
 
-    """
-        compare private price to spot price -- just changed
-        look at difference between spot and private price.
-          if it's low, buy.  close, do nothing.  high, sell
-          if sell, compute amount of shares to burn such that realized price is equal to private price
-          if that amount is > amt i have, burn it all (no short sales)
-    """
-    def buy_or_sell(self, supply, reserve, owners_share, spot_price,
-                    mininum_required_price_pct_diff_to_act, reserve_to_revenue_token_exchange_rate,
-                    risk_adjustment, timestep,
-                    minimum_shares=0):
 
-        # this is the discounted value of the dividends
-        dividend_value = self.dividend_value(supply, owners_share, reserve_to_revenue_token_exchange_rate)
-
-        # NOTE: this is the current spot price from the invariant
-        share_value = 2 * reserve / supply
-        risk_adjusted_share_value = share_value * risk_adjustment
-
-        #todo: can we factor this out as a method or attribute so we can plot it
-        private_price = (dividend_value + risk_adjusted_share_value)
-        self.private_prices[timestep] = private_price
+    def buy_or_sell(self, supply, reserve, spot_price,
+                    mininum_required_price_pct_diff_to_act,
+                    timestep, minimum_shares=0):
+        """
+            compare private price to spot price -- just changed
+            look at difference between spot and private price.
+            if it's low, buy.  close, do nothing.  high, sell
+            if sell, compute amount of shares to burn such that realized price is equal to private price
+            if that amount is > amt i have, burn it all (no short sales)
+        """                    
+        private_price = self.private_prices[timestep]
         pct_price_diff = 0
         if spot_price > 0:
             pct_price_diff = abs((private_price - spot_price) / spot_price)
@@ -148,9 +142,10 @@ class Delegator:
             # system:
             #   decreasing total shares
             #   decreasing reserve
-        final_spot_price = (2 * (reserve + added_reserve)) / (supply + created_shares)
-        acceptable_tolerance = mininum_required_price_pct_diff_to_act
-        diff = abs(private_price - final_spot_price)
+        
+        # final_spot_price = (2 * (reserve + added_reserve)) / (supply + created_shares)
+        # acceptable_tolerance = mininum_required_price_pct_diff_to_act
+        # diff = abs(private_price - final_spot_price)
         # print(f'buy_or_sell: DELEGATOR {self.id} -- {private_price=}, {final_spot_price=}, {diff=}, {acceptable_tolerance=}')
         
         # NOTE: we cannot assert(diff < acceptable_tolerance) for all cases because the diff won't be less than acceptable_tolerance in all cases
