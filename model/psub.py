@@ -10,6 +10,8 @@ from .model.delegator_behaviors import (act,
 
 from .model.revenue import revenue_amt, store_revenue, distribute_revenue
 
+from .model.private_price import compute_and_store_private_prices
+
 psubs = [
     # {
     #     'label': 'Update Time Attached',
@@ -46,6 +48,14 @@ psubs = [
         'variables': {
             'delegators': instantiate_delegate,
             },
+    },
+    {
+        'label': 'Compute and Store Private Prices',
+        'policies': {            
+        },
+        'variables': {
+            'delegators': compute_and_store_private_prices,
+        },
     },
     {
         'label': 'Delegator Behaviors',

@@ -9,6 +9,7 @@ def revenue_amt(params, step, prev_state, state):
 
 
 def store_revenue(params, step, sL, s, inputs):
+    # print('storing revenue')
     key = 'period_revenue'
     value = inputs['revenue_amt']
 
