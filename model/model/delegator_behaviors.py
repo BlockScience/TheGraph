@@ -18,6 +18,7 @@ def act(params, step, sL, s, inputs):
     spot_price = s['spot_price']
     reserve = s['reserve']
     supply = s['supply']
+    timestep = s['timestep']
     owners_share = params['owners_share']
     reserve_to_revenue_token_exchange_rate = params['reserve_to_revenue_token_exchange_rate']
     mininum_required_price_pct_diff_to_act = params['mininum_required_price_pct_diff_to_act']
@@ -39,7 +40,7 @@ def act(params, step, sL, s, inputs):
         created_shares, added_reserve = delegator.buy_or_sell(supply, reserve, owners_share, spot_price,
                                                               mininum_required_price_pct_diff_to_act,
                                                               reserve_to_revenue_token_exchange_rate,
-                                                              risk_adjustment,
+                                                              risk_adjustment, timestep,
                                                               minimum_shares)
         # print(f'act: {delegator_id=}, {created_shares=}, {added_reserve=}')
         supply += created_shares
