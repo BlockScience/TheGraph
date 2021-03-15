@@ -27,6 +27,9 @@ class Delegator:
         self.time_factor = 1 / (1 - discount_rate)
         self.delegator_activity_rate = delegator_activity_rate
 
+        # dict -- {key=timestep, value=price}
+        self.private_prices = {}
+
         # increment counter for next delegator ID
         Delegator.delegate_counter += 1
 
@@ -70,7 +73,7 @@ class Delegator:
     """
     def buy_or_sell(self, supply, reserve, owners_share, spot_price,
                     mininum_required_price_pct_diff_to_act, reserve_to_revenue_token_exchange_rate,
-                    risk_adjustment,
+                    risk_adjustment, timestep,
                     minimum_shares=0):
 
         # this is the discounted value of the dividends
@@ -82,7 +85,7 @@ class Delegator:
 
         #todo: can we factor this out as a method or attribute so we can plot it
         private_price = (dividend_value + risk_adjusted_share_value)
-
+        self.private_prices[timestep] = private_price
         pct_price_diff = 0
         if spot_price > 0:
             pct_price_diff = abs((private_price - spot_price) / spot_price)
