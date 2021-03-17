@@ -1,7 +1,3 @@
-from .model.delegator_behaviors_bookkeeping import (account_global_state_from_delegator_states, 
-                                                    store_reserve,
-                                                    store_supply,
-                                                    store_spot_price)
 
 from .model.add_delegator import instantiate_delegate, should_instantiate_delegate
 
@@ -11,6 +7,12 @@ from .model.delegator_behaviors import (act,
 from .model.revenue import revenue_amt, store_revenue, distribute_revenue
 
 from .model.private_price import compute_and_store_private_prices
+
+from .model.delegator_behaviors_bookkeeping import (account_global_state_from_delegator_states, 
+                                                    store_reserve,
+                                                    store_supply,
+                                                    store_spot_price)
+
 
 psubs = [
     # {

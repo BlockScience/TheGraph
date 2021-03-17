@@ -11,8 +11,8 @@ def account_global_state_from_delegator_states(params, step, sL, s):
     if previous_reserve > 0:
         invariant = (previous_supply ** 2) / previous_reserve
 
-    # sum the supply of all delegators
-    supply = sum([d.shares for d in s['delegators'].values()])
+    # sum the share supply of all delegators
+    supply = sum([d.shares() for d in s['delegators'].values()])
 
     # back out the reserve using the same invariant/function as above.
     reserve = 0

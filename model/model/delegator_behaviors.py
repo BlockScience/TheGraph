@@ -29,15 +29,11 @@ def act(params, step, sL, s, inputs):
         #   active delegator computes their evaluation (private price)
         delegator = s['delegators'][delegator_id]
 
-        # normally, minimum_shares is 0.  delegator_id 0 has a non-zero value.
-        minimum_shares = 0
-        if delegator_id == 0:
-            minimum_shares = params['initial_supply']
         # created_shares and added_reserve will be positive on buy and negative for a sell.
         # print(f'act: {delegator.shares=}')
         created_shares, added_reserve = delegator.buy_or_sell(supply, reserve, spot_price,
                                                               mininum_required_price_pct_diff_to_act,                                                              
-                                                              timestep, minimum_shares)
+                                                              timestep)
         # print(f'act: {delegator_id=}, {created_shares=}, {added_reserve=}')
         supply += created_shares
         reserve += added_reserve
