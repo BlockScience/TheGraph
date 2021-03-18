@@ -24,8 +24,8 @@ psubs = [
         'policies': {
         },
         'variables': {
-            'delegators': compute_half_life_vested_shares  
-            # 'delegators': compute_cliff_vested_shares
+            # 'delegators': compute_half_life_vested_shares  
+            'delegators': compute_cliff_vested_shares
         }
     },
     {
