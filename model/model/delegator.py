@@ -3,7 +3,7 @@ import random
 for shares in the revenue stream. """
 
 
-class Delegator:
+class Delegator(object):
     # autoincrementing id.
     delegate_counter = 0
 
@@ -13,8 +13,10 @@ class Delegator:
         self.id = Delegator.delegate_counter
 
         # these can vest--either cliff, or half-life 
-        # shares is stored as dict, {key=timestep, value=num_shares} for vesting purposes.
-        self._shares = {0: shares}
+        # shares is stored as dict, {key=timestep, value=num_shares} for cliff vesting purposes.
+        self._unvested_shares = {0: shares}
+
+        self.vested_shares = 0
 
         # Tokens the delegator is holding, but in the denomination the revenues are paid in.
         # (USD token or any other token)
@@ -43,27 +45,17 @@ class Delegator:
     def is_member(self):
         return self.shares > 0
 
-    
+    # property tag makes it so you can call it without parentheses ()
+    @property
+    def unvested_shares(self):
+        return sum(s for s in self._unvested_shares.values())
+
+    @property
     def shares(self):
-        return sum(s for s in self._shares.values())
+        return self.unvested_shares + self.vested_shares
 
     def set_shares(self, timestep, shares):
-        self._shares[timestep] = shares
-
-    # select vesting function here.
-    def vested_shares(self):
-        return self.vested_shares_cliff
-
-   
-    def vested_shares_cliff(self):
-        """ calculate how many shares are vested using cliff vesting """
-        return self._vested_shares
-
-    
-    def vested_shares_half_life(self):
-        """ calculate how many shares are vested using half_life vesting """
-        return self._vested_shares
-
+        self._unvested_shares[timestep] = shares
 
     def dividend_value(self, supply, owners_share, reserve_to_revenue_token_exchange_rate):
         """ take belief of revenue * your shares / total shares """
@@ -133,7 +125,7 @@ class Delegator:
             if added_reserve > self.reserve_token_holdings:
                 added_reserve = self.reserve_token_holdings
             created_shares = supply * ((1 + added_reserve / reserve) ** (1/2)) - supply
-
+            self._unvested_shares[timestep] = created_shares
 
             # then update the state
 
@@ -149,7 +141,9 @@ class Delegator:
             # print(f'buy_or_sell: DELEGATOR {self.id} -- WANTS TO SELL')
             burned_shares = ((2 * reserve * supply) - (private_price * supply ** 2)) / (2 * reserve)
 
-            shares_count = self.shares()
+            # can only sell vested shares
+            shares_count = self.vested_shares
+
             # can't burn shares you don't have.
             if burned_shares > shares_count:
                 burned_shares = shares_count
@@ -162,6 +156,9 @@ class Delegator:
             # payout
             reserve_paid_out = reserve - reserve * (1 - burned_shares / supply) ** 2
             added_reserve = -reserve_paid_out
+
+            self.vested_shares -= burned_shares
+            
             # delegator:
             #   decreasing shares
             #   increasing reserve_token_holdings
@@ -179,7 +176,6 @@ class Delegator:
         # assert(diff < acceptable_tolerance)
 
         self.reserve_token_holdings -= added_reserve
-        self.set_shares(timestep, created_shares)
 
         # if created_shares > 0:
         #     print(f'buy_or_sell: DELEGATOR {self.id} -- BOUGHT {created_shares=} for {added_reserve=}')

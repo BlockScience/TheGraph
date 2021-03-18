@@ -21,6 +21,8 @@ simulation_config = configuration.utils.config_sim({
         "delegator_activity_rate": [0.5],
         "mininum_required_price_pct_diff_to_act": [0.02],
         "risk_adjustment": [0.7],  # cut 30% of the value off due to risk
+        "half_life_vesting_rate": [0.5], # this is the fraction of shares that vest each timestep if using half life vesting
+        "cliff_vesting_timesteps": [3], # this is the number of timesteps until shares are fully vested
     }
 })
 
