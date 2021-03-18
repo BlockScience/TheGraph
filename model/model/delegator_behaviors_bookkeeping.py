@@ -58,11 +58,20 @@ def compute_cliff_vested_shares(params, step, sL, s, inputs):
     """ calculate how many shares are vested using cliff vesting """
     key = 'delegators'
     delegators = s['delegators']
+    timestep = s['timestep']
 
-    cliff_vesting_timesteps = params['cliff_vesting_timesteps']
+    cliff_vesting_timestep = timestep - params['cliff_vesting_timesteps']
+    
+    for delegator in delegators.values():
+        if cliff_vesting_timestep in delegator._unvested_shares:
+            shares_vesting_this_period = delegator._unvested_shares[cliff_vesting_timestep]
+            delegator.vested_shares += shares_vesting_this_period
+            delegator._unvested_shares[cliff_vesting_timestep] = 0
+            # print(f'{shares_vesting_this_period=}, {delegator.vested_shares=}, {delegator._unvested_shares=}')
+        else:
+            # no shares are being vested this timestep
+            pass
 
-    # for delegator in 
-    # TODO: implement this
     value = delegators
     return key, value
 
