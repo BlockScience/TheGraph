@@ -1,4 +1,5 @@
 import random
+import numpy
 """ A Delegator is an actor who delegates native tokens to the revenue sharing pool
 for shares in the revenue stream. """
 
@@ -12,7 +13,7 @@ class Delegator(object):
         # initialize delegator state
         self.id = Delegator.delegate_counter
 
-        # these can vest--either cliff, or half-life 
+        # these can vest--either cliff, or half-life
         # shares is stored as dict, {key=timestep, value=num_shares} for cliff vesting purposes.
         self._unvested_shares = {0: shares}
 
@@ -31,16 +32,19 @@ class Delegator(object):
         self.time_factor = 1 / (1 - discount_rate)
         self.delegator_activity_rate = delegator_activity_rate
 
-        # dict -- {key=timestep, value=price}
-        self.private_prices = {}
-
         self.minimum_shares = minimum_shares
+
+        # dicts -- {key=timestep, value=price}
+        self.regression_to_mean_prices = {}
+        self.value_private_prices = {}
+        self.trendline_prices = {}
+
+        self.component_weights = get_component_weights()
+        self.private_prices = {}
 
         # increment counter for next delegator ID
         Delegator.delegate_counter += 1
 
-    
-   
     # member of the sharing pool (True/False)
     def is_member(self):
         return self.shares > 0
@@ -79,12 +83,10 @@ class Delegator(object):
         #     {reserve_asset_per_period_per_share=}, {reserve_asset_per_share_time_corrected=}')
         return reserve_asset_per_share_time_corrected
 
-    
     def will_act(self):
         # flip a uniform random variable, compare to activity, rate, if it's below, then set to act.
         rng = random.random()
         return rng < self.delegator_activity_rate
-
 
     def buy_or_sell(self, supply, reserve, spot_price,
                     mininum_required_price_pct_diff_to_act,
@@ -95,7 +97,7 @@ class Delegator(object):
             if it's low, buy.  close, do nothing.  high, sell
             if sell, compute amount of shares to burn such that realized price is equal to private price
             if that amount is > amt i have, burn it all (no short sales)
-        """                    
+        """
         private_price = self.private_prices[timestep]
         pct_price_diff = 0
         if spot_price > 0:
@@ -158,19 +160,19 @@ class Delegator(object):
             added_reserve = -reserve_paid_out
 
             self.vested_shares -= burned_shares
-            
+
             # delegator:
             #   decreasing shares
             #   increasing reserve_token_holdings
             # system:
             #   decreasing total shares
             #   decreasing reserve
-        
+
         # final_spot_price = (2 * (reserve + added_reserve)) / (supply + created_shares)
         # acceptable_tolerance = mininum_required_price_pct_diff_to_act
         # diff = abs(private_price - final_spot_price)
         # print(f'buy_or_sell: DELEGATOR {self.id} -- {private_price=}, {final_spot_price=}, {diff=}, {acceptable_tolerance=}')
-        
+
         # NOTE: we cannot assert(diff < acceptable_tolerance) for all cases because the diff won't be less than acceptable_tolerance in all cases
         # for example: the delegator is not allowed to sell due to a minimum number of shares.
         # assert(diff < acceptable_tolerance)
@@ -184,4 +186,23 @@ class Delegator(object):
 
         return created_shares, added_reserve
 
-# test that i input a value of dR, i get the right value of dS
+
+def get_component_weights():
+    # get 3 weights, from 0-1
+    weights = numpy.random.uniform(0, 1, 3)
+    normalized_weights = weights / sum(weights)
+    return normalized_weights
+
+
+def test_weights_normalized():
+    w = get_component_weights()
+    print(w)
+    print(f'{sum(w)=}')
+    tolerance = 0.0001
+    assert(sum(w) - 1.0 < tolerance)
+
+
+if __name__ == "__main__":
+    test_weights_normalized()
+
+    print("Everything passed")
