@@ -5,10 +5,8 @@ from .state import genesis_state
 
 # Parameters
 # Values are lists because they support sweeping.
-simulation_config = configuration.utils.config_sim({
-    'T': range(500),
-    'N': 1,
-    'M': {
+
+params = {
         'initial_reserve': [10],
         'initial_supply': [10],
         'expected_revenue': [7],
@@ -25,7 +23,13 @@ simulation_config = configuration.utils.config_sim({
         'cliff_vesting_timesteps': [14],  # this is the number of timesteps until shares are fully vested
         'num_days_for_trends': [14],  # this is the number of days to consider for private price calculation's regression to mean price
         'halflife': [0.5],  # halflife for trend analysis
+        'smoothing_factor': [0.5],  # alpha for trend analysis
     }
+
+simulation_config = configuration.utils.config_sim({
+    'T': range(500),
+    'N': 1,
+    'M': params
 })
 
 exp = configuration.Experiment()

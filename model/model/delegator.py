@@ -34,9 +34,8 @@ class Delegator(object):
 
         self.minimum_shares = minimum_shares
 
-        # dicts -- {key=timestep, value=price}
-        self.regression_to_mean_prices = {}
-        self.value_private_prices = {}
+        self.regression_to_mean_price = {}
+        self.value_private_price = {}
         self.trendline_prices = {}
 
         self.component_weights = get_component_weights()
