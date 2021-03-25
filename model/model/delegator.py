@@ -34,12 +34,12 @@ class Delegator(object):
 
         self.minimum_shares = minimum_shares
 
-        self.regression_to_mean_price = {}
-        self.value_private_price = {}
-        self.trendline_prices = {}
+        self.regression_to_mean_price = 0
+        self.value_private_price = 0
+        self.trendline_price = 0
 
         self.component_weights = get_component_weights()
-        self.private_prices = {}
+        self.private_price = 0
 
         # increment counter for next delegator ID
         Delegator.delegate_counter += 1
@@ -97,10 +97,9 @@ class Delegator(object):
             if sell, compute amount of shares to burn such that realized price is equal to private price
             if that amount is > amt i have, burn it all (no short sales)
         """
-        private_price = self.private_prices[timestep]
         pct_price_diff = 0
         if spot_price > 0:
-            pct_price_diff = abs((private_price - spot_price) / spot_price)
+            pct_price_diff = abs((self.private_price - spot_price) / spot_price)
 
         created_shares = 0
         added_reserve = 0
@@ -109,7 +108,7 @@ class Delegator(object):
             # don't act.
             return created_shares, added_reserve
 
-        if private_price > spot_price:
+        if self.private_price > spot_price:
             # print(f'buy_or_sell: DELEGATOR {self.id} -- WANTS TO BUY')
             # BUY ###
             # figure out how much delegator spending, then buy it
@@ -120,7 +119,7 @@ class Delegator(object):
             # assert(private_price == realized_price)
 
             # this formula stops buying when spot_price is equal to private_price
-            added_reserve = ((private_price ** 2) * (supply ** 2) - (4 * reserve ** 2)) / (4 * reserve)
+            added_reserve = ((self.private_price ** 2) * (supply ** 2) - (4 * reserve ** 2)) / (4 * reserve)
 
             # can't spend reserve you don't have
             if added_reserve > self.reserve_token_holdings:
@@ -137,10 +136,10 @@ class Delegator(object):
             #   increasing total shares
             #   increasing reserve
 
-        elif private_price < spot_price:
+        elif self.private_price < spot_price:
             # SELL ###
             # print(f'buy_or_sell: DELEGATOR {self.id} -- WANTS TO SELL')
-            burned_shares = ((2 * reserve * supply) - (private_price * supply ** 2)) / (2 * reserve)
+            burned_shares = ((2 * reserve * supply) - (self.private_price * supply ** 2)) / (2 * reserve)
 
             # can only sell vested shares
             shares_count = self.vested_shares

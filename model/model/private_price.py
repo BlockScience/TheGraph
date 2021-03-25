@@ -67,32 +67,34 @@ def compute_and_store_private_prices(params, step, sL, s, inputs):
     # # -1 is last substep
     # last_n_spot_prices_list = [state[-1]['spot_price'] for state in sL[earliest_index:-1]]
     # last_n_spot_prices = pd.DataFrame({'spot_price': last_n_spot_prices_list})
+    delegators_previous_timestep = sL[-1][-1]['delegators']
     for delegator in delegators.values():
         # non-time series calculations
-        delegator.value_private_prices[timestep] = get_value_private_price(delegator, supply, owners_share,
-                                                                           reserve_to_revenue_token_exchange_rate, reserve, risk_adjustment)
-        # print(f'{delegator.value_private_prices[timestep]=}')
+        delegator.value_private_price = get_value_private_price(delegator, supply, owners_share,
+                                                                reserve_to_revenue_token_exchange_rate, reserve, risk_adjustment)
+        # print(f'{delegator.value_private_price=}')
 
         # time series_calculations
-        if timestep-1 in delegator.regression_to_mean_prices:
-            previous_avg_price = delegator.regression_to_mean_prices[timestep-1]
-            delegator.regression_to_mean_prices[timestep] = get_regression_to_mean_price(previous_avg_price, spot_price, smoothing_factor)
+        if delegator.id in delegators_previous_timestep:
+            previous_avg_price = delegators_previous_timestep[delegator.id].regression_to_mean_price
 
-            delegator.trendline_prices[timestep] = get_trendline_price(spot_price, delegator.regression_to_mean_prices[timestep])
+            delegator.regression_to_mean_price = get_regression_to_mean_price(previous_avg_price, spot_price, smoothing_factor)
 
-            delegator.private_prices[timestep] = (delegator.regression_to_mean_prices[timestep] * delegator.component_weights[0] +
-                                                  delegator.value_private_prices[timestep] * delegator.component_weights[1] +
-                                                  delegator.trendline_prices[timestep] * delegator.component_weights[2])
+            delegator.trendline_price = get_trendline_price(spot_price, delegator.regression_to_mean_price)
 
-            # print(f'{delegator.regression_to_mean_prices[timestep]=}')
-            # print(f'{delegator.trendline_prices[timestep]=}')
-            # print(f'{delegator.private_prices[timestep]=}')
+            delegator.private_price = (delegator.regression_to_mean_price * delegator.component_weights[0] +
+                                       delegator.value_private_price * delegator.component_weights[1] +
+                                       delegator.trendline_price * delegator.component_weights[2])
+
+            # print(f'{delegator.regression_to_mean_price=}')
+            # print(f'{delegator.trendline_price=}')
+            # print(f'{delegator.private_price=}')
 
         else:
             # NOTE: have to initialize this somehow or it is never calculated as it's based on prior values.
-            delegator.regression_to_mean_prices[timestep] = spot_price
+            delegator.regression_to_mean_price = spot_price
 
-            delegator.private_prices[timestep] = delegator.value_private_prices[timestep]
+            delegator.private_price = delegator.value_private_price
 
     # print(delegators)
     key = 'delegators'
