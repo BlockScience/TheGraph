@@ -57,17 +57,17 @@ class Delegator(object):
     def set_shares(self, timestep, shares):
         self._unvested_shares[timestep] = shares
 
-    def dividend_value(self, supply, owners_share, reserve_to_revenue_token_exchange_rate):
+    def dividend_value(self, supply, indexer_revenue_cut, reserve_to_revenue_token_exchange_rate):
         """ take belief of revenue * your shares / total shares """
         revenue_per_period_per_share = 0
         # if supply > 0:
         #     # this is always 0 if self.shares = 0
-        #     revenue_per_period_per_share = self.expected_revenue * (1 - owners_share) * self.shares / supply
+        #     revenue_per_period_per_share = self.expected_revenue * (1 - indexer_revenue_cut) * self.shares / supply
 
         assert(supply > 0)
 
         # owners share is resolved before any share percentage calculation
-        revenue_per_period_per_share = self.expected_revenue * (1 - owners_share) / supply
+        revenue_per_period_per_share = self.expected_revenue * (1 - indexer_revenue_cut) / supply
 
         reserve_asset_per_period_per_share = revenue_per_period_per_share * \
             reserve_to_revenue_token_exchange_rate

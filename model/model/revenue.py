@@ -18,17 +18,17 @@ def store_revenue(params, step, sL, s, inputs):
 
 def distribute_revenue(params, step, sL, s, inputs):
     revenue = s['period_revenue']
-    owners_share = params['owners_share']
+    indexer_revenue_cut = params['indexer_revenue_cut']
     supply = s['supply']
 
     # step 1: collect revenue from the state
-    non_owners_share = ((1-owners_share) * revenue)
-    revenue_per_share = non_owners_share / supply
+    non_indexer_revenue_cut = ((1-indexer_revenue_cut) * revenue)
+    revenue_per_share = non_indexer_revenue_cut / supply
 
     for id, delegator in s['delegators'].items():
         if id == 0:
             # step 2: get owners share, theta
-            delegator.revenue_token_holdings += owners_share * revenue
+            delegator.revenue_token_holdings += indexer_revenue_cut * revenue
         
         #  step 3: distribute non-owners share
         # print(f'{delegator.shares=}')
