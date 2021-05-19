@@ -3,7 +3,7 @@
 
 from .parts.add_delegator import instantiate_delegate, should_instantiate_delegate
 
-from .parts.delegator_behaviors import (act,
+from .parts.delegator_behaviors import (act,delegate_act,
                                         may_act_this_timestep)
 
 from .parts.revenue import revenue_amt, store_revenue, distribute_revenue
@@ -71,7 +71,7 @@ psubs = [
             'may_act_this_timestep': may_act_this_timestep
         },
         'variables': {
-            'delegators': act,
+            'delegators': delegate_act,
         },
     },
     {

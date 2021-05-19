@@ -184,4 +184,102 @@ class Delegator(object):
 
         return created_shares, added_reserve
 
+    def buy_shares(self, supply, reserve, spot_price,
+                    mininum_required_price_pct_diff_to_act,
+                    timestep, BETA_del):
+        """
+            compare private price to spot price -- just changed
+            look at difference between spot and private price.
+            if it's low, buy.  close, do nothing.  high, sell
+            if sell, compute amount of shares to burn such that realized price is equal to private price
+            if that amount is > amt i have, burn it all (no short sales)
+        """                    
+        private_price = self.private_prices[timestep]
+        pct_price_diff = 0
+        if spot_price > 0:
+            pct_price_diff = abs((private_price - spot_price) / spot_price)
+
+        created_shares = 0
+        added_reserve = 0
+        # print(f'buy_or_sell: DELEGATOR {self.id} -- {private_price=}, {spot_price=}, {pct_price_diff=}, {self.reserve_token_holdings=}, {self.shares=}')
+        if pct_price_diff < mininum_required_price_pct_diff_to_act:
+            # don't act.
+            return created_shares, added_reserve
+
+        if private_price > spot_price:
+            # print(f'buy_or_sell: DELEGATOR {self.id} -- WANTS TO BUY')
+            # BUY ###
+            # figure out how much delegator spending, then buy it
+
+            # this formula, not used, is when the delegator buys until private_price == realized_price
+            # added_reserve = (private_price * supply * (private_price * supply - 2 * reserve))/reserve
+            # created_shares = supply * ((1 + added_reserve / reserve) ^ (1/2)) - supply
+            # assert(private_price == realized_price)
+
+            # this formula stops buying when spot_price is equal to private_price
+            added_reserve = ((private_price ** 2) * (supply ** 2) - (4 * reserve ** 2)) / (4 * reserve)
+
+            # can't spend reserve you don't have
+            if added_reserve > self.reserve_token_holdings:
+                added_reserve = self.reserve_token_holdings
+            created_shares = supply * ((1 + added_reserve / reserve) ** (1/2)) - supply
+            self._unvested_shares[timestep] = created_shares
+
+            # then update the state
+
+            # delegator:
+            #   increasing shares
+            #   decreasing reserve_token_holdings
+            # system:
+            #   increasing total shares
+            #   increasing reserve
+
+        elif private_price < spot_price:
+            # SELL ###
+            # print(f'buy_or_sell: DELEGATOR {self.id} -- WANTS TO SELL')
+            burned_shares = ((2 * reserve * supply) - (private_price * supply ** 2)) / (2 * reserve)
+
+            # can only sell vested shares
+            shares_count = self.vested_shares
+
+            # can't burn shares you don't have.
+            if burned_shares > shares_count:
+                burned_shares = shares_count
+
+            # can't burn shares you're not allowed to burn (original delegator's 10)
+            if shares_count - burned_shares < self.minimum_shares:
+                burned_shares = shares_count - self.minimum_shares
+
+            created_shares = -burned_shares
+            # payout
+            reserve_paid_out = reserve - reserve * (1 - burned_shares / supply) ** 2
+            added_reserve = -reserve_paid_out
+
+            self.vested_shares -= burned_shares
+            
+            # delegator:
+            #   decreasing shares
+            #   increasing reserve_token_holdings
+            # system:
+            #   decreasing total shares
+            #   decreasing reserve
+        
+        # final_spot_price = (2 * (reserve + added_reserve)) / (supply + created_shares)
+        # acceptable_tolerance = mininum_required_price_pct_diff_to_act
+        # diff = abs(private_price - final_spot_price)
+        # print(f'buy_or_sell: DELEGATOR {self.id} -- {private_price=}, {final_spot_price=}, {diff=}, {acceptable_tolerance=}')
+        
+        # NOTE: we cannot assert(diff < acceptable_tolerance) for all cases because the diff won't be less than acceptable_tolerance in all cases
+        # for example: the delegator is not allowed to sell due to a minimum number of shares.
+        # assert(diff < acceptable_tolerance)
+
+        self.reserve_token_holdings -= added_reserve
+
+        # if created_shares > 0:
+        #     print(f'buy_or_sell: DELEGATOR {self.id} -- BOUGHT {created_shares=} for {added_reserve=}')
+        # elif created_shares < 0:
+        #     print(f'buy_or_sell: DELEGATOR {self.id} -- SOLD {created_shares=} for {added_reserve=}')
+
+        return created_shares, added_reserve
+
 # test that i input a value of dR, i get the right value of dS
