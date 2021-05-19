@@ -3,7 +3,7 @@ import pandas as pd
 # from model import config 
 from cadCAD.engine import ExecutionMode, ExecutionContext,Executor
 from cadCAD import configs
-
+print(configs)
 def run():
     '''
     Definition:
