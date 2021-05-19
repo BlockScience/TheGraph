@@ -21,7 +21,6 @@ def act(params, step, sL, s, inputs):
     timestep = s['timestep']
     mininum_required_price_pct_diff_to_act = params['mininum_required_price_pct_diff_to_act']
 
-
     acting_delegator_ids = inputs['acting_delegator_ids']
     # print(f'act: {acting_delegator_ids=}')
     for delegator_id in acting_delegator_ids:

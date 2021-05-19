@@ -1,18 +1,4 @@
-"""
-Model parameters.
 
-We set:
-- trade types
-- liquidity action
-- multiple asset action
-- composite asset action type
-- asymetric vs symetric liquidity action type
-
-In addition to that, we define:
-- asset initial values
-- fees
-- as well as the above parameters
-"""
 
 params = {
         "r_del": [10],        #	Indexer’s initial delegated stake
