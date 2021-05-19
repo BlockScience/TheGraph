@@ -16,6 +16,7 @@ def account_global_state_from_delegator_states(params, step, sL, s):
     if invariant > 0:
         reserve = (supply ** 2) / invariant
 
+
     # spot price is the derivative at the point of the curve where we are
     spot_price = 0
     if supply > 0:
