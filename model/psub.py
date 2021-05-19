@@ -1,14 +1,14 @@
-from .model.delegator_behaviors_bookkeeping import (account_global_state_from_delegator_states, 
+from .parts.delegator_behaviors_bookkeeping import (account_global_state_from_delegator_states, 
                                                     store_reserve,
                                                     store_supply,
                                                     store_spot_price)
 
-from .model.add_delegator import instantiate_delegate, should_instantiate_delegate
+from .parts.add_delegator import instantiate_delegate, should_instantiate_delegate
 
-from .model.delegator_behaviors import (act,
+from .parts.delegator_behaviors import (act,
                            may_act_this_timestep)
 
-from .model.revenue import revenue_amt, store_revenue, distribute_revenue
+from .parts.revenue import revenue_amt, store_revenue, distribute_revenue
 
 psubs = [
     # {
