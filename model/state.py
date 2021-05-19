@@ -1,4 +1,5 @@
-from model.model import delegator
+# from model.parts import delegator
+from .parts.delegator import Delegator
 
 # NOTE: shares and supply are used somewhat interchangeably.
 # shares are supply owned by an individual
@@ -11,7 +12,7 @@ genesis_state = {
     # id=0 is the original provider of 10 reserve and owns 10 supply
     
     # TODO: use minimum_shares=params['s_del']
-    "delegators": {0: delegator.Delegator(shares=10, minimum_shares=10)},
+    "delegators": {0: Delegator(shares=10, minimum_shares=10)},
     "period_revenue": 0,  # this is passed directly to the delegators
     "spot_price": 2,
 }
