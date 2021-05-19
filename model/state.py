@@ -4,6 +4,9 @@ from .parts.delegator import Delegator
 # NOTE: shares and supply are used somewhat interchangeably.
 # shares are supply owned by an individual
 # and supply is the aggregate total.
+
+GRT = 1000000.0 
+
 genesis_state = {
     # NOTE: make these a parameter
     # NOTE: cannot import config because of circular import.
@@ -15,4 +18,5 @@ genesis_state = {
     "delegators": {0: Delegator(shares=10, minimum_shares=10)},
     "period_revenue": 0,  # this is passed directly to the delegators
     "spot_price": 2,
+    'GRT': GRT,
 }
