@@ -1,16 +1,16 @@
 
 
 
-from .model.add_delegator import instantiate_delegate, should_instantiate_delegate
+from .parts.add_delegator import instantiate_delegate, should_instantiate_delegate
 
-from .model.delegator_behaviors import (act,
+from .parts.delegator_behaviors import (act,
                                         may_act_this_timestep)
 
-from .model.revenue import revenue_amt, store_revenue, distribute_revenue
+from .parts.revenue import revenue_amt, store_revenue, distribute_revenue
 
-from .model.private_price import compute_and_store_private_prices
+from .parts.private_price import compute_and_store_private_prices
 
-from .model.delegator_behaviors_bookkeeping import (compute_half_life_vested_shares,
+from .parts.delegator_behaviors_bookkeeping import (compute_half_life_vested_shares,
                                                     compute_cliff_vested_shares,
                                                     account_global_state_from_delegator_states, 
                                                     store_reserve,
