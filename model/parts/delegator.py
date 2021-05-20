@@ -217,12 +217,12 @@ class Delegator(object):
             # assert(private_price == realized_price)
 
             # this formula stops buying when spot_price is equal to private_price
-            added_reserve = ((private_price ** 2) * (supply ** 2) - (4 * reserve ** 2)) / (4 * reserve)
+            added_reserve = (private_price * supply) - reserve
 
             # can't spend reserve you don't have
             if added_reserve > self.reserve_token_holdings:
                 added_reserve = self.reserve_token_holdings
-            created_shares = supply * ((1 + added_reserve / reserve) ** (1/2)) - supply
+            created_shares = supply * (added_reserve * (1 - BETA_del)) / reserve
             self._unvested_shares[timestep] = created_shares
 
             # then update the state
