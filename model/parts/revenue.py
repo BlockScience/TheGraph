@@ -19,11 +19,11 @@ def store_revenue(params, step, sL, s, inputs):
 def distribute_revenue(params, step, sL, s, inputs):
     revenue = s['period_revenue']
     indexer_revenue_cut = params['indexer_revenue_cut']
-    supply = s['supply']
+    shares = s['shares']
 
     # step 1: collect revenue from the state
     non_indexer_revenue_cut = ((1-indexer_revenue_cut) * revenue)
-    revenue_per_share = non_indexer_revenue_cut / supply
+    revenue_per_share = non_indexer_revenue_cut / shares
 
     for id, delegator in s['delegators'].items():
         if id == 0:
