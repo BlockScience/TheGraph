@@ -5,7 +5,7 @@ from .parts.delegator import Delegator
 # shares are shares owned by an individual
 # and shares is the aggregate total.
 
-GRT = 1000000.0 
+GRT = 10000000.0 
 DELEGATED = 10000
 SHARES = 10000
 

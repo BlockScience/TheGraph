@@ -3,6 +3,8 @@ R_i_rate = [0.03]
 blocks_per_day = 100
 unbonding_days = 28
 
+allocation_days = [28]
+
 BETA_del = [0.005]
 unbonding_timeblock = [unbonding_days*blocks_per_day]
 delegation_leverage = [16]
@@ -26,6 +28,8 @@ params = {
         'unbonding_timeblock': unbonding_timeblock, # time unbonded tokens are frozen from being eligibble to be withdrawn
         'delegation_leverage': delegation_leverage, # tax percentage from delegated tokens to be burned
         'R_i_rate': R_i_rate, # indexer reward revenue rate (inflationary rewards)
+        'allocation_days': allocation_days, # indexer reward revenue rate (inflationary rewards)
+
 
 
 }
