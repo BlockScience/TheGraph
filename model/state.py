@@ -7,6 +7,7 @@ from .parts.delegator import Delegator
 
 GRT = 1000000.0 
 
+
 genesis_state = {
     # NOTE: make these a parameter
     # NOTE: cannot import config because of circular import.

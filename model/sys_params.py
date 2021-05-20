@@ -1,5 +1,10 @@
 
+blocks_per_day = 100
+unbonding_days = 28
+
 BETA_del = [0.003]
+unbonding_timeblock = [unbonding_days*blocks_per_day]
+delegation_leverage = [16]
 
 params = {
         "r_del": [10],        #	Indexer’s initial delegated stake
@@ -17,4 +22,8 @@ params = {
         "half_life_vesting_rate": [0.5], # this is the fraction of shares that vest each timestep if using half life vesting
         "cliff_vesting_timesteps": [3], # this is the number of timesteps until shares are fully vested
         'BETA_del': BETA_del, # tax percentage from delegated tokens to be burned
+        'unbonding_timeblock': unbonding_timeblock, # tax percentage from delegated tokens to be burned
+        'delegation_leverage': delegation_leverage, # tax percentage from delegated tokens to be burned
+
+
 }
