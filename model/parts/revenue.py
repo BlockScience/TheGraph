@@ -2,12 +2,27 @@
 import scipy.stats as stats
 
 
-def revenue_amt(params, step, prev_state, state):
+def revenue_amt(params, step, sL, prev_state):
+    # placeholder for query fee revenue
     revenue_amt = params["expected_revenue"] * stats.expon.rvs()
     # print(f'{revenue_amt=}')
-    return {'revenue_amt': revenue_amt}
+    R_i_rate = params['R_i_rate']
+    allocation_days = params['allocation_days']
+    GRT = prev_state['GRT']
+    indexing_revenue = GRT * R_i_rate * allocation_days / 365 # annual inflation
+    return {'revenue_amt': revenue_amt, 'indexing_revenue': indexing_revenue}
+
+def mint_GRT(params, step, sL, prev_state, inputs):
+    # print('storing revenue')
+    key = 'GRT'
+    GRT = prev_state['GRT']
+    
+    delta = inputs['indexing_revenue']
+    
+    return key, GRT + delta
 
 
+    return key, value
 def store_revenue(params, step, sL, s, inputs):
     # print('storing revenue')
     key = 'period_revenue'
