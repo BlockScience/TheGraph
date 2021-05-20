@@ -6,7 +6,7 @@ def account_global_state_from_delegator_states(params, step, sL, s):
     # NOTE: previous_reserve == 0 might be a bad condition?
     invariant = 0
     if previous_reserve > 0:
-        invariant = (previous_supply ** 2) / previous_reserve
+        invariant = previous_supply / previous_reserve
 
     # sum the share supply of all delegators
     supply = sum([d.shares for d in s['delegators'].values()])
@@ -14,13 +14,13 @@ def account_global_state_from_delegator_states(params, step, sL, s):
     # back out the reserve using the same invariant/function as above.
     reserve = 0
     if invariant > 0:
-        reserve = (supply ** 2) / invariant
+        reserve = supply / invariant
 
 
     # spot price is the derivative at the point of the curve where we are
     spot_price = 0
     if supply > 0:
-        spot_price = 2 * reserve / supply
+        spot_price = reserve / supply
 
     return {'supply': supply,
             'reserve': reserve,
