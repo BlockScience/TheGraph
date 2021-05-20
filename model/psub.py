@@ -13,8 +13,8 @@ from .parts.private_price import compute_and_store_private_prices
 from .parts.delegator_behaviors_bookkeeping import (compute_half_life_vested_shares,
                                                     compute_cliff_vested_shares,
                                                     account_global_state_from_delegator_states, 
-                                                    store_reserve,
-                                                    store_supply,
+                                                    store_total_delegated_stake,
+                                                    store_shares,
                                                     store_spot_price)
 
 
@@ -80,8 +80,8 @@ psubs = [
             'account_global_state_from_delegator_states': account_global_state_from_delegator_states
         },
         'variables': {
-            'reserve': store_reserve,
-            'supply': store_supply,
+            'total_delegated_stake': store_total_delegated_stake,
+            'shares': store_shares,
             'spot_price': store_spot_price,
         },
     },

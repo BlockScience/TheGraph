@@ -7,7 +7,7 @@ class Delegator(object):
     # autoincrementing id.
     delegate_counter = 0
 
-    def __init__(self, shares=0, reserve_token_holdings=0, expected_revenue=0, discount_rate=.9,
+    def __init__(self, shares=0, total_delegated_stake_token_holdings=0, expected_revenue=0, discount_rate=.9,
                  delegator_activity_rate=0.5, minimum_shares=0):
         # initialize delegator state
         self.id = Delegator.delegate_counter
@@ -22,8 +22,8 @@ class Delegator(object):
         # (USD token or any other token)
         self.revenue_token_holdings = 0
 
-        # Amount of token the delegator is holding, in same denomination as Reserve (R).
-        self.reserve_token_holdings = reserve_token_holdings
+        # Amount of token the delegator is holding, in same denomination as total_delegated_stake (R).
+        self.total_delegated_stake_token_holdings = total_delegated_stake_token_holdings
 
         self.expected_revenue = expected_revenue
 
@@ -57,27 +57,27 @@ class Delegator(object):
     def set_shares(self, timestep, shares):
         self._unvested_shares[timestep] = shares
 
-    def dividend_value(self, supply, indexer_revenue_cut, reserve_to_revenue_token_exchange_rate):
+    def dividend_value(self, shares, indexer_revenue_cut, total_delegated_stake_to_revenue_token_exchange_rate):
         """ take belief of revenue * your shares / total shares """
         revenue_per_period_per_share = 0
-        # if supply > 0:
+        # if shares > 0:
         #     # this is always 0 if self.shares = 0
-        #     revenue_per_period_per_share = self.expected_revenue * (1 - indexer_revenue_cut) * self.shares / supply
+        #     revenue_per_period_per_share = self.expected_revenue * (1 - indexer_revenue_cut) * self.shares / shares
 
-        assert(supply > 0)
+        assert(shares > 0)
 
         # owners share is resolved before any share percentage calculation
-        revenue_per_period_per_share = self.expected_revenue * (1 - indexer_revenue_cut) / supply
+        revenue_per_period_per_share = self.expected_revenue * (1 - indexer_revenue_cut) / shares
 
-        reserve_asset_per_period_per_share = revenue_per_period_per_share * \
-            reserve_to_revenue_token_exchange_rate
+        total_delegated_stake_asset_per_period_per_share = revenue_per_period_per_share * \
+            total_delegated_stake_to_revenue_token_exchange_rate
 
-        reserve_asset_per_share_time_corrected = reserve_asset_per_period_per_share * \
+        total_delegated_stake_asset_per_share_time_corrected = total_delegated_stake_asset_per_period_per_share * \
             self.time_factor
 
-        # print(f'dividend_value: {self.id=}, {supply=}, {self.expected_revenue=}, {revenue_per_period_per_share=}, \
-        #     {reserve_asset_per_period_per_share=}, {reserve_asset_per_share_time_corrected=}')
-        return reserve_asset_per_share_time_corrected
+        # print(f'dividend_value: {self.id=}, {shares=}, {self.expected_revenue=}, {revenue_per_period_per_share=}, \
+        #     {total_delegated_stake_asset_per_period_per_share=}, {total_delegated_stake_asset_per_share_time_corrected=}')
+        return total_delegated_stake_asset_per_share_time_corrected
 
     
     def will_act(self):
@@ -86,7 +86,7 @@ class Delegator(object):
         return rng < self.delegator_activity_rate
 
 
-    def buy_or_sell(self, supply, reserve, spot_price,
+    def buy_or_sell(self, shares, total_delegated_stake, spot_price,
                     mininum_required_price_pct_diff_to_act,
                     timestep):
         """
@@ -102,11 +102,11 @@ class Delegator(object):
             pct_price_diff = abs((private_price - spot_price) / spot_price)
 
         created_shares = 0
-        added_reserve = 0
-        # print(f'buy_or_sell: DELEGATOR {self.id} -- {private_price=}, {spot_price=}, {pct_price_diff=}, {self.reserve_token_holdings=}, {self.shares=}')
+        added_total_delegated_stake = 0
+        # print(f'buy_or_sell: DELEGATOR {self.id} -- {private_price=}, {spot_price=}, {pct_price_diff=}, {self.total_delegated_stake_token_holdings=}, {self.shares=}')
         if pct_price_diff < mininum_required_price_pct_diff_to_act:
             # don't act.
-            return created_shares, added_reserve
+            return created_shares, added_total_delegated_stake
 
         if private_price > spot_price:
             # print(f'buy_or_sell: DELEGATOR {self.id} -- WANTS TO BUY')
@@ -114,32 +114,32 @@ class Delegator(object):
             # figure out how much delegator spending, then buy it
 
             # this formula, not used, is when the delegator buys until private_price == realized_price
-            # added_reserve = (private_price * supply * (private_price * supply - 2 * reserve))/reserve
-            # created_shares = supply * ((1 + added_reserve / reserve) ^ (1/2)) - supply
+            # added_total_delegated_stake = (private_price * shares * (private_price * shares - 2 * total_delegated_stake))/total_delegated_stake
+            # created_shares = shares * ((1 + added_total_delegated_stake / total_delegated_stake) ^ (1/2)) - shares
             # assert(private_price == realized_price)
 
             # this formula stops buying when spot_price is equal to private_price
-            added_reserve = ((private_price ** 2) * (supply ** 2) - (4 * reserve ** 2)) / (4 * reserve)
+            added_total_delegated_stake = ((private_price ** 2) * (shares ** 2) - (4 * total_delegated_stake ** 2)) / (4 * total_delegated_stake)
 
-            # can't spend reserve you don't have
-            if added_reserve > self.reserve_token_holdings:
-                added_reserve = self.reserve_token_holdings
-            created_shares = supply * ((1 + added_reserve / reserve) ** (1/2)) - supply
+            # can't spend total_delegated_stake you don't have
+            if added_total_delegated_stake > self.total_delegated_stake_token_holdings:
+                added_total_delegated_stake = self.total_delegated_stake_token_holdings
+            created_shares = shares * ((1 + added_total_delegated_stake / total_delegated_stake) ** (1/2)) - shares
             self._unvested_shares[timestep] = created_shares
-
+            print('shares',shares)
             # then update the state
 
             # delegator:
             #   increasing shares
-            #   decreasing reserve_token_holdings
+            #   decreasing total_delegated_stake_token_holdings
             # system:
             #   increasing total shares
-            #   increasing reserve
+            #   increasing total_delegated_stake
 
         elif private_price < spot_price:
             # SELL ###
             # print(f'buy_or_sell: DELEGATOR {self.id} -- WANTS TO SELL')
-            burned_shares = ((2 * reserve * supply) - (private_price * supply ** 2)) / (2 * reserve)
+            burned_shares = ((2 * total_delegated_stake * shares) - (private_price * shares ** 2)) / (2 * total_delegated_stake)
 
             # can only sell vested shares
             shares_count = self.vested_shares
@@ -154,19 +154,19 @@ class Delegator(object):
 
             created_shares = -burned_shares
             # payout
-            reserve_paid_out = reserve - reserve * (1 - burned_shares / supply) ** 2
-            added_reserve = -reserve_paid_out
+            total_delegated_stake_paid_out = total_delegated_stake - total_delegated_stake * (1 - burned_shares / shares) ** 2
+            added_total_delegated_stake = -total_delegated_stake_paid_out
 
             self.vested_shares -= burned_shares
             
             # delegator:
             #   decreasing shares
-            #   increasing reserve_token_holdings
+            #   increasing total_delegated_stake_token_holdings
             # system:
             #   decreasing total shares
-            #   decreasing reserve
+            #   decreasing total_delegated_stake
         
-        # final_spot_price = (2 * (reserve + added_reserve)) / (supply + created_shares)
+        # final_spot_price = (2 * (total_delegated_stake + added_total_delegated_stake)) / (shares + created_shares)
         # acceptable_tolerance = mininum_required_price_pct_diff_to_act
         # diff = abs(private_price - final_spot_price)
         # print(f'buy_or_sell: DELEGATOR {self.id} -- {private_price=}, {final_spot_price=}, {diff=}, {acceptable_tolerance=}')
@@ -175,16 +175,16 @@ class Delegator(object):
         # for example: the delegator is not allowed to sell due to a minimum number of shares.
         # assert(diff < acceptable_tolerance)
 
-        self.reserve_token_holdings -= added_reserve
+        self.total_delegated_stake_token_holdings -= added_total_delegated_stake
 
         # if created_shares > 0:
-        #     print(f'buy_or_sell: DELEGATOR {self.id} -- BOUGHT {created_shares=} for {added_reserve=}')
+        #     print(f'buy_or_sell: DELEGATOR {self.id} -- BOUGHT {created_shares=} for {added_total_delegated_stake=}')
         # elif created_shares < 0:
-        #     print(f'buy_or_sell: DELEGATOR {self.id} -- SOLD {created_shares=} for {added_reserve=}')
+        #     print(f'buy_or_sell: DELEGATOR {self.id} -- SOLD {created_shares=} for {added_total_delegated_stake=}')
 
-        return created_shares, added_reserve
+        return created_shares, added_total_delegated_stake
 
-    def buy_shares(self, supply, reserve, spot_price,
+    def buy_shares(self, shares, total_delegated_stake, spot_price,
                     mininum_required_price_pct_diff_to_act,
                     timestep, BETA_del):
         """
@@ -200,11 +200,11 @@ class Delegator(object):
             pct_price_diff = abs((private_price - spot_price) / spot_price)
 
         created_shares = 0
-        added_reserve = 0
-        # print(f'buy_or_sell: DELEGATOR {self.id} -- {private_price=}, {spot_price=}, {pct_price_diff=}, {self.reserve_token_holdings=}, {self.shares=}')
+        added_total_delegated_stake = 0
+        # print(f'buy_or_sell: DELEGATOR {self.id} -- {private_price=}, {spot_price=}, {pct_price_diff=}, {self.total_delegated_stake_token_holdings=}, {self.shares=}')
         if pct_price_diff < mininum_required_price_pct_diff_to_act:
             # don't act.
-            return created_shares, added_reserve
+            return created_shares, added_total_delegated_stake
 
         if private_price > spot_price:
             # print(f'buy_or_sell: DELEGATOR {self.id} -- WANTS TO BUY')
@@ -212,32 +212,33 @@ class Delegator(object):
             # figure out how much delegator spending, then buy it
 
             # this formula, not used, is when the delegator buys until private_price == realized_price
-            # added_reserve = (private_price * supply * (private_price * supply - 2 * reserve))/reserve
-            # created_shares = supply * ((1 + added_reserve / reserve) ^ (1/2)) - supply
+            # added_total_delegated_stake = (private_price * shares * (private_price * shares - 2 * total_delegated_stake))/total_delegated_stake
+            # created_shares = shares * ((1 + added_total_delegated_stake / total_delegated_stake) ^ (1/2)) - shares
             # assert(private_price == realized_price)
 
             # this formula stops buying when spot_price is equal to private_price
-            added_reserve = (private_price * supply) - reserve
+            added_total_delegated_stake = (private_price * shares) - total_delegated_stake
 
-            # can't spend reserve you don't have
-            if added_reserve > self.reserve_token_holdings:
-                added_reserve = self.reserve_token_holdings
-            created_shares = supply * (added_reserve * (1 - BETA_del)) / reserve
+            # can't spend total_delegated_stake you don't have
+            if added_total_delegated_stake > self.total_delegated_stake_token_holdings:
+                added_total_delegated_stake = self.total_delegated_stake_token_holdings
+            created_shares = shares * (added_total_delegated_stake * (1 - BETA_del)) / total_delegated_stake
             self._unvested_shares[timestep] = created_shares
+            # print('shares',shares)
 
             # then update the state
 
             # delegator:
             #   increasing shares
-            #   decreasing reserve_token_holdings
+            #   decreasing total_delegated_stake_token_holdings
             # system:
             #   increasing total shares
-            #   increasing reserve
+            #   increasing total_delegated_stake
 
         elif private_price < spot_price:
             # SELL ###
             # print(f'buy_or_sell: DELEGATOR {self.id} -- WANTS TO SELL')
-            burned_shares = ((2 * reserve * supply) - (private_price * supply ** 2)) / (2 * reserve)
+            burned_shares = ((2 * total_delegated_stake * shares) - (private_price * shares ** 2)) / (2 * total_delegated_stake)
 
             # can only sell vested shares
             shares_count = self.vested_shares
@@ -252,19 +253,19 @@ class Delegator(object):
 
             created_shares = -burned_shares
             # payout
-            reserve_paid_out = reserve - reserve * (1 - burned_shares / supply) ** 2
-            added_reserve = -reserve_paid_out
+            total_delegated_stake_paid_out = total_delegated_stake - total_delegated_stake * (1 - burned_shares / shares) ** 2
+            added_total_delegated_stake = -total_delegated_stake_paid_out
 
             self.vested_shares -= burned_shares
             
             # delegator:
             #   decreasing shares
-            #   increasing reserve_token_holdings
+            #   increasing total_delegated_stake_token_holdings
             # system:
             #   decreasing total shares
-            #   decreasing reserve
+            #   decreasing total_delegated_stake
         
-        # final_spot_price = (2 * (reserve + added_reserve)) / (supply + created_shares)
+        # final_spot_price = (2 * (total_delegated_stake + added_total_delegated_stake)) / (shares + created_shares)
         # acceptable_tolerance = mininum_required_price_pct_diff_to_act
         # diff = abs(private_price - final_spot_price)
         # print(f'buy_or_sell: DELEGATOR {self.id} -- {private_price=}, {final_spot_price=}, {diff=}, {acceptable_tolerance=}')
@@ -273,13 +274,13 @@ class Delegator(object):
         # for example: the delegator is not allowed to sell due to a minimum number of shares.
         # assert(diff < acceptable_tolerance)
 
-        self.reserve_token_holdings -= added_reserve
+        self.total_delegated_stake_token_holdings -= added_total_delegated_stake
 
         # if created_shares > 0:
-        #     print(f'buy_or_sell: DELEGATOR {self.id} -- BOUGHT {created_shares=} for {added_reserve=}')
+        #     print(f'buy_or_sell: DELEGATOR {self.id} -- BOUGHT {created_shares=} for {added_total_delegated_stake=}')
         # elif created_shares < 0:
-        #     print(f'buy_or_sell: DELEGATOR {self.id} -- SOLD {created_shares=} for {added_reserve=}')
+        #     print(f'buy_or_sell: DELEGATOR {self.id} -- SOLD {created_shares=} for {added_total_delegated_stake=}')
 
-        return created_shares, added_reserve
+        return created_shares, added_total_delegated_stake
 
 # test that i input a value of dR, i get the right value of dS
