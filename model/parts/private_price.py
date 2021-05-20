@@ -13,7 +13,7 @@ def compute_and_store_private_prices(params, step, sL, s, inputs):
         dividend_value = delegator.dividend_value(supply, indexer_revenue_cut, reserve_to_revenue_token_exchange_rate)
         
         # NOTE: this is the current spot price, from the invariant
-        share_value = 2 * reserve / supply
+        share_value = reserve / supply
         
         risk_adjusted_share_value = share_value * risk_adjustment
         
