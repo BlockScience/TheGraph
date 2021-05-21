@@ -8,27 +8,49 @@ def revenue_amt(params, step, sL, prev_state):
     # print(f'{revenue_amt=}')
     R_i_rate = params['R_i_rate']
     allocation_days = params['allocation_days']
-    GRT = prev_state['GRT']
-    indexing_revenue = GRT * R_i_rate * allocation_days / 365 # annual inflation
-    return {'revenue_amt': revenue_amt, 'indexing_revenue': indexing_revenue}
+    timestep = prev_state['timestep']
+    if timestep % allocation_days == 0:
+        GRT = prev_state['GRT']
+        minted_rewards = GRT * R_i_rate * allocation_days/ 365 # annual inflation
+    else:
+        minted_rewards = 0
+    return {'revenue_amt': revenue_amt, 'minted_rewards': minted_rewards}
 
 def mint_GRT(params, step, sL, prev_state, inputs):
     # print('storing revenue')
     key = 'GRT'
     GRT = prev_state['GRT']
     
-    delta = inputs['indexing_revenue']
+    delta = inputs['minted_rewards']
     
     return key, GRT + delta
 
+def store_query_revenue(params, step, sL, s, inputs):
+    # print('storing revenue')
+    key = 'query_revenue'
+    # indexer_allocation_rate = params['indexer_allocation_rate']
+    query_fees =  inputs['revenue_amt']
 
-    return key, value
+    return key, query_fees
+
+def store_indexing_revenue(params, step, sL, s, inputs):
+    # print('storing revenue')
+    key = 'indexing_revenue'
+    indexer_allocation_rate = params['indexer_allocation_rate']
+    minted_rewards = inputs['minted_rewards']
+    indexer_rewards = minted_rewards * indexer_allocation_rate
+
+    return key, indexer_rewards
+
 def store_revenue(params, step, sL, s, inputs):
     # print('storing revenue')
     key = 'period_revenue'
-    value = inputs['revenue_amt']
+    indexer_allocation_rate = params['indexer_allocation_rate']
+    query_fees =  inputs['revenue_amt']
+    minted_rewards = inputs['minted_rewards']
+    indexer_rewards = minted_rewards * indexer_allocation_rate
 
-    return key, value
+    return key, indexer_rewards + query_fees
 
 
 def distribute_revenue(params, step, sL, s, inputs):

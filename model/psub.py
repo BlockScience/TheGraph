@@ -6,7 +6,9 @@ from .parts.add_delegator import instantiate_delegate, should_instantiate_delega
 from .parts.delegator_behaviors import (act,delegate_act,
                                         may_act_this_timestep)
 
-from .parts.revenue import revenue_amt, store_revenue, distribute_revenue, mint_GRT
+from .parts.revenue import (revenue_amt, store_revenue, distribute_revenue, mint_GRT,
+                                                    store_indexing_revenue,
+                                                    store_query_revenue)
 
 from .parts.private_price import compute_and_store_private_prices
 
@@ -35,7 +37,9 @@ psubs = [
         },
         'variables': {
             'period_revenue': store_revenue,
-            'GRT': mint_GRT,           
+            'GRT': mint_GRT,
+            'indexing_revenue': store_indexing_revenue, 
+            'query_revenue': store_query_revenue,         
         },
     },
     {
