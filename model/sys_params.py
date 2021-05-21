@@ -1,6 +1,6 @@
 R_i_rate = [0.03]
 
-indexer_allocation_rate = [0.010]  # ASSUMED share of minted by subgraph by indexer
+indexer_allocation_rate = [0.0050]  # ASSUMED share of minted by subgraph by indexer
 blocks_per_day = 100
 unbonding_days = 28
 
