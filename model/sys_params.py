@@ -1,5 +1,6 @@
 R_i_rate = [0.03]
 
+indexer_allocation_rate = [0.010]  # ASSUMED share of minted by subgraph by indexer
 blocks_per_day = 100
 unbonding_days = 28
 
@@ -8,6 +9,8 @@ allocation_days = [28]
 BETA_del = [0.005]
 unbonding_timeblock = [unbonding_days*blocks_per_day]
 delegation_leverage = [16]
+
+queryFeeCut = [0.10]
 
 params = {
         "r_del": [10],        #	Indexer’s initial delegated stake
@@ -28,7 +31,9 @@ params = {
         'unbonding_timeblock': unbonding_timeblock, # time unbonded tokens are frozen from being eligibble to be withdrawn
         'delegation_leverage': delegation_leverage, # tax percentage from delegated tokens to be burned
         'R_i_rate': R_i_rate, # indexer reward revenue rate (inflationary rewards)
-        'allocation_days': allocation_days, # indexer reward revenue rate (inflationary rewards)
+        'allocation_days': allocation_days, # time for allocation
+        'indexer_allocation_rate': indexer_allocation_rate, # ASSUMED share of minted by subgraph by indexer
+        'queryFeeCut': queryFeeCut, # query fee indexer cut rate
 
 
 

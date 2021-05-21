@@ -8,7 +8,8 @@ from .parts.delegator import Delegator
 GRT = 10000000.0 
 DELEGATED = 10000
 SHARES = 10000
-
+indexing_revenue = 0
+query_revenue = 0
 LOCKED = 0
 WITHDRAWN = 0
 
@@ -26,6 +27,7 @@ genesis_state = {
     'GRT': GRT,
     'Locked': LOCKED,
     'Withdrawn': WITHDRAWN,
-
+    'indexing_revenue': indexing_revenue,
+    'query_revenue': query_revenue,
     
 }
