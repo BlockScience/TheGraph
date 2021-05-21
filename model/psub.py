@@ -8,7 +8,8 @@ from .parts.delegator_behaviors import (act,delegate_act,
 
 from .parts.revenue import (revenue_amt, store_revenue, distribute_revenue, mint_GRT,
                                                     store_indexing_revenue,
-                                                    store_query_revenue)
+                                                    store_query_revenue,
+                                                    distribute_indexer_revenue)
 
 from .parts.private_price import compute_and_store_private_prices
 
@@ -48,6 +49,8 @@ psubs = [
         },
         'variables': {
             'delegators': distribute_revenue,
+            'indexer_revenue': distribute_indexer_revenue,
+
         }
     },
     {
