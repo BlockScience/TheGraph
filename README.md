@@ -1,7 +1,7 @@
 # BlockScience collaboration with TheGraph
 Delegator Subsystem Model
 
-## Model initially from first iteration Draft Math Spec from TheGraph Solodity Code:
+## POC Model from first iteration Draft Math Spec from TheGraph Solidity Code:
 1.  [Draft Preliminary Math Spec](https://hackmd.io/7UvPze36RbyjfJ9-F9mHTQ?both)
 
 ## Ongoing work to assess validation of performance under varied ordering scenarios
