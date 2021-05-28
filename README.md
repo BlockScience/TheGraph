@@ -1,9 +1,8 @@
 # BlockScience collaboration with TheGraph
 Delegator Subsystem Model
 
-## Model initially for verifying margin trading system specified in two jointly, related documents:
+## Model initially from first iteration Draft Math Spec from TheGraph Solodity Code:
 1.  [Draft Preliminary Math Spec](https://hackmd.io/7UvPze36RbyjfJ9-F9mHTQ?both)
-
 
 ## Ongoing work to assess validation of performance under varied ordering scenarios
 ## Model employs cadCAD simulation framework
