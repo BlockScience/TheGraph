@@ -2,8 +2,8 @@
 Delegator Subsystem Model
 
 ## Model initially for verifying margin trading system specified in two jointly, related documents:
-1.  [Preliminary Math Spec](https://hackmd.io/maG-kkCeRbKOcup5gfxSWg)
-2.  [Mechanism Specification](https://hackmd.io/e2K_VzC-TFyC8MDjqHwczA)
+1.  [Draft Preliminary Math Spec](https://hackmd.io/7UvPze36RbyjfJ9-F9mHTQ?both)
+
 
 ## Ongoing work to assess validation of performance under varied ordering scenarios
 ## Model employs cadCAD simulation framework

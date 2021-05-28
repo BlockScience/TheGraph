@@ -26,6 +26,9 @@ def account_global_state_from_delegator_states(params, step, sL, s):
         spot_price = total_delegated_stake / shares
     print('shares',shares)
 
+    # total_delegated_stake_token_holdings = sum([d.total_delegated_stake_token_holdings for d in s['delegators'].values()])
+    # revenue_token_holdings = sum([d.revenue_token_holdings for d in s['delegators'].values()])
+    
     return {'shares': shares,
             'total_delegated_stake': total_delegated_stake,
             'spot_price': spot_price}
