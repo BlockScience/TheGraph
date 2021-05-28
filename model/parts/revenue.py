@@ -91,8 +91,8 @@ def distribute_revenue(params, step, sL, s, inputs):
   # indexer stake Special Rules ? 
         if id == 0:
             # step 2: get owners share, theta
-            delegator.revenue_token_holdings += indexer_revenue_cut * non_indexer_revenue_net
-        
+            # delegator.revenue_token_holdings += indexer_revenue_cut * non_indexer_revenue_net
+            pass
         #  step 3: distribute non-owners share
         # print(f'{delegator.shares=}')
         delegator.revenue_token_holdings += delegator.shares * revenue_per_share
@@ -100,3 +100,25 @@ def distribute_revenue(params, step, sL, s, inputs):
     key = 'delegators'
     value = s['delegators']
     return key, value
+
+def distribute_revenue_to_pool(params, step, sL, s, inputs):
+    total_delegated_stake = s['total_delegated_stake']
+
+    indexer_revenue = s['indexer_revenue']
+    indexing_revenue = s['indexing_revenue']
+    query_revenue = s['query_revenue']   
+
+    queryFeeCut = params['queryFeeCut']
+    indexing_revenue_cut = params['indexer_revenue_cut']
+
+    # step 1: collect revenue from the state
+    indexer_revenue_cut = indexing_revenue_cut * indexing_revenue
+    indexer_query_fee_cut = queryFeeCut * query_revenue
+
+    # step 1: collect revenue from the state
+    non_indexer_revenue_cut = (1-indexing_revenue_cut) * indexing_revenue
+    non_indexer_query_fee_cut = (1 - queryFeeCut) * query_revenue
+    non_indexer_revenue_net = non_indexer_revenue_cut + non_indexer_query_fee_cut
+   
+    key = 'total_delegated_stake'
+    return key, total_delegated_stake + non_indexer_revenue_net
