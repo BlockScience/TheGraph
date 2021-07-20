@@ -12,7 +12,7 @@ from .parts.revenue import (revenue_amt, store_revenue, distribute_revenue, mint
                                                     distribute_indexer_revenue,
                                                     distribute_revenue_to_pool)
 
-from .parts.private_price import compute_and_store_private_prices
+# from .parts.private_price import compute_and_store_private_prices
 
 from .parts.delegator_behaviors_bookkeeping import (compute_half_life_vested_shares,
                                                     compute_cliff_vested_shares,
@@ -66,14 +66,14 @@ psubs = [
             'delegators': instantiate_delegate,
             },
     },
-    {
-        'label': 'Compute and Store Private Prices',
-        'policies': {            
-        },
-        'variables': {
-            'delegators': compute_and_store_private_prices,
-        },
-    },
+    # {
+    #     'label': 'Compute and Store Private Prices',
+    #     'policies': {            
+    #     },
+    #     'variables': {
+    #         'delegators': compute_and_store_private_prices,
+    #     },
+    # },
     {
         'label': 'Delegator Behaviors',
         'policies': {
