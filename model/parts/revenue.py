@@ -11,7 +11,7 @@ def revenue_amt(params, step, sL, prev_state):
     timestep = prev_state['timestep']
     if timestep % allocation_days == 0:
         GRT = prev_state['GRT']
-        minted_rewards = GRT * R_i_rate * allocation_days/ 365 # annual inflation
+        minted_rewards = GRT * R_i_rate * allocation_days / 365 # annual inflation
     else:
         minted_rewards = 0
     return {'revenue_amt': revenue_amt, 'minted_rewards': minted_rewards}
@@ -57,12 +57,15 @@ def distribute_indexer_revenue(params, step, sL, s, inputs):
     indexing_revenue = s['indexing_revenue']
     query_revenue = s['query_revenue']   
 
-    queryFeeCut = params['queryFeeCut']
+    query_fee_cut = params['query_fee_cut']
     indexing_revenue_cut = params['indexer_revenue_cut']
 
     # step 1: collect revenue from the state
+    # 5.1 Indexing Rewards: Ir = Ir + Ri * alpha
     indexer_revenue_cut = indexing_revenue_cut * indexing_revenue
-    indexer_query_fee_cut = queryFeeCut * query_revenue
+    
+    # 5.2 Query Fee: I+r = Ir + Ri * phi
+    indexer_query_fee_cut = query_fee_cut * query_revenue
     
     key = 'indexer_revenue'
     return key, indexer_revenue + indexer_revenue_cut + indexer_query_fee_cut
@@ -70,25 +73,22 @@ def distribute_indexer_revenue(params, step, sL, s, inputs):
 def distribute_revenue(params, step, sL, s, inputs):
     shares = s['shares']
 
-    indexer_revenue = s['indexer_revenue']
     indexing_revenue = s['indexing_revenue']
     query_revenue = s['query_revenue']   
 
-    queryFeeCut = params['queryFeeCut']
+    query_fee_cut = params['query_fee_cut']
     indexing_revenue_cut = params['indexer_revenue_cut']
 
     # step 1: collect revenue from the state
-    indexer_revenue_cut = indexing_revenue_cut * indexing_revenue
-    indexer_query_fee_cut = queryFeeCut * query_revenue
-
-    # step 1: collect revenue from the state
-    non_indexer_revenue_cut = (1-indexing_revenue_cut) * indexing_revenue
-    non_indexer_query_fee_cut = (1 - queryFeeCut) * query_revenue
+    non_indexer_revenue_cut = (1 - indexing_revenue_cut) * indexing_revenue
+    
+    # 5.2 D+ = D + Ri * (1 - phi)
+    non_indexer_query_fee_cut = (1 - query_fee_cut) * query_revenue
     non_indexer_revenue_net = non_indexer_revenue_cut + non_indexer_query_fee_cut
     revenue_per_share = non_indexer_revenue_net / shares
 
     for id, delegator in s['delegators'].items():
-  # indexer stake Special Rules ? 
+    # indexer stake Special Rules ? 
         if id == 0:
             # step 2: get owners share, theta
             # delegator.revenue_token_holdings += indexer_revenue_cut * non_indexer_revenue_net
@@ -104,20 +104,15 @@ def distribute_revenue(params, step, sL, s, inputs):
 def distribute_revenue_to_pool(params, step, sL, s, inputs):
     total_delegated_stake = s['total_delegated_stake']
 
-    indexer_revenue = s['indexer_revenue']
     indexing_revenue = s['indexing_revenue']
     query_revenue = s['query_revenue']   
 
-    queryFeeCut = params['queryFeeCut']
+    query_fee_cut = params['query_fee_cut']
     indexing_revenue_cut = params['indexer_revenue_cut']
 
     # step 1: collect revenue from the state
-    indexer_revenue_cut = indexing_revenue_cut * indexing_revenue
-    indexer_query_fee_cut = queryFeeCut * query_revenue
-
-    # step 1: collect revenue from the state
     non_indexer_revenue_cut = (1-indexing_revenue_cut) * indexing_revenue
-    non_indexer_query_fee_cut = (1 - queryFeeCut) * query_revenue
+    non_indexer_query_fee_cut = (1 - query_fee_cut) * query_revenue
     non_indexer_revenue_net = non_indexer_revenue_cut + non_indexer_query_fee_cut
    
     key = 'total_delegated_stake'
