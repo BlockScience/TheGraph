@@ -70,7 +70,9 @@ def distribute_indexer_revenue(params, step, sL, s, inputs):
     key = 'indexer_revenue'
     return key, indexer_revenue + indexer_revenue_cut + indexer_query_fee_cut
 
+
 def distribute_revenue(params, step, sL, s, inputs):
+    """ Calculate and distribute query and indexing rewards to delegators """
     shares = s['shares']
 
     indexing_revenue = s['indexing_revenue']
@@ -90,19 +92,20 @@ def distribute_revenue(params, step, sL, s, inputs):
     for id, delegator in s['delegators'].items():
     # indexer stake Special Rules ? 
         if id == 0:
-            # step 2: get owners share, theta
-            # delegator.revenue_token_holdings += indexer_revenue_cut * non_indexer_revenue_net
+            # skip pool reward, handle that in distribute_revenue_to_pool
             pass
         #  step 3: distribute non-owners share
         # print(f'{delegator.shares=}')
-        delegator.revenue_token_holdings += delegator.shares * revenue_per_share
+        delegator.holdings += delegator.shares * revenue_per_share
     
     key = 'delegators'
     value = s['delegators']
     return key, value
 
+
 def distribute_revenue_to_pool(params, step, sL, s, inputs):
-    total_delegated_stake = s['total_delegated_stake']
+    """ Calculate and distribute query and indexing rewards to indexer pool """
+    pool_delegated_stake = s['pool_delegated_stake']
 
     indexing_revenue = s['indexing_revenue']
     query_revenue = s['query_revenue']   
@@ -111,9 +114,9 @@ def distribute_revenue_to_pool(params, step, sL, s, inputs):
     indexing_revenue_cut = params['indexer_revenue_cut']
 
     # step 1: collect revenue from the state
-    non_indexer_revenue_cut = (1-indexing_revenue_cut) * indexing_revenue
+    non_indexer_revenue_cut = (1 - indexing_revenue_cut) * indexing_revenue
     non_indexer_query_fee_cut = (1 - query_fee_cut) * query_revenue
     non_indexer_revenue_net = non_indexer_revenue_cut + non_indexer_query_fee_cut
    
-    key = 'total_delegated_stake'
-    return key, total_delegated_stake + non_indexer_revenue_net
+    key = 'pool_delegated_stake'
+    return key, pool_delegated_stake + non_indexer_revenue_net
