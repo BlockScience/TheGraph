@@ -3,8 +3,9 @@
 
 from .parts.add_delegator import instantiate_delegate, should_instantiate_delegate
 
-from .parts.delegator_behaviors import (act,delegate_act,
-                                        may_act_this_timestep)
+from .parts.delegator_behaviors import (delegate, undelegate, withdraw,
+                                        may_act_this_timestep, delegator_action,
+                                        account_for_tax)
 
 from .parts.revenue import (revenue_amt, store_revenue, distribute_revenue, mint_GRT,
                                                     store_indexing_revenue,
@@ -12,26 +13,13 @@ from .parts.revenue import (revenue_amt, store_revenue, distribute_revenue, mint
                                                     distribute_indexer_revenue,
                                                     distribute_revenue_to_pool)
 
-from .parts.private_price import compute_and_store_private_prices
+# from .parts.private_price import compute_and_store_private_prices
 
-from .parts.delegator_behaviors_bookkeeping import (compute_half_life_vested_shares,
-                                                    compute_cliff_vested_shares,
-                                                    account_global_state_from_delegator_states, 
-                                                    store_total_delegated_stake,
-                                                    store_shares,
-                                                    store_spot_price)
+from .parts.delegator_behaviors_bookkeeping import (store_pool_delegated_stake,
+                                                    store_shares, increment_epoch)
 
 
 psubs = [
-    {
-        'label': 'Update Vested Shares',
-        'policies': {
-        },
-        'variables': {
-            # 'delegators': compute_half_life_vested_shares  
-            'delegators': compute_cliff_vested_shares
-        }
-    },
     {
         'label': 'Revenue Arrival Process',
         'policies': {
@@ -51,7 +39,7 @@ psubs = [
         'variables': {
             'delegators': distribute_revenue,
             'indexer_revenue': distribute_indexer_revenue,
-            'total_delegated_stake': distribute_revenue_to_pool,
+            'pool_delegated_stake': distribute_revenue_to_pool,
 
         }
     },
@@ -67,32 +55,48 @@ psubs = [
             },
     },
     {
-        'label': 'Compute and Store Private Prices',
-        'policies': {            
+        'label': 'Delegate',
+        'policies': {
+            # outputs ordered list of acting delegatorIds this timestep
+            'may_act_this_timestep': may_act_this_timestep,
+            'delegator_action': delegator_action
         },
         'variables': {
-            'delegators': compute_and_store_private_prices,
+            'delegators': delegate,
+            'GRT': account_for_tax,
         },
     },
     {
-        'label': 'Delegator Behaviors',
+        'label': 'Undelegate',
         'policies': {
             # outputs ordered list of acting delegatorIds this timestep
-            'may_act_this_timestep': may_act_this_timestep
+            'may_act_this_timestep': may_act_this_timestep,
+            'delegator_action': delegator_action
         },
         'variables': {
-            'delegators': delegate_act,
+            'delegators': undelegate,
         },
-    },
+    },    
+    {
+        'label': 'Withdraw',
+        'policies': {
+            # outputs ordered list of acting delegatorIds this timestep
+            'may_act_this_timestep': may_act_this_timestep,
+            'delegator_action': delegator_action
+        },
+        'variables': {
+            'delegators': withdraw,
+        },
+    },        
     {
         'label': 'Delegator Behaviors Bookkeeping',
         'policies': {
-            'account_global_state_from_delegator_states': account_global_state_from_delegator_states
+            # 'account_global_state_from_delegator_states': account_global_state_from_delegator_states
         },
         'variables': {
-            'total_delegated_stake': store_total_delegated_stake,
+            'pool_delegated_stake': store_pool_delegated_stake,
             'shares': store_shares,
-            'spot_price': store_spot_price,
+            'epoch': increment_epoch,
         },
     },
 ]

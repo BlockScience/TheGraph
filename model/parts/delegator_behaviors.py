@@ -12,72 +12,99 @@ def may_act_this_timestep(params, step, sL, s):
 
     return {'acting_delegator_ids': acting_delegator_ids}
 
-def delegate_act(params, step, sL, s, inputs):
+# NOTE: this most likely needs to be changed, but i put it here so tax can be taken at same level
+def delegator_action(params, step, sL, s):
+    # who delegates, 
+    # how many tokens.
+    delegation_tokens_quantity = params['delegation_tokens_quantity']
+    undelegation_shares_quantity = params['undelegation_shares_quantity']
+    withdraw_tokens_quantity = params['withdraw_tokens_quantity']
+    return {'delegation_tokens_quantity': delegation_tokens_quantity,
+            'undelegation_shares_quantity': undelegation_shares_quantity,
+            'withdraw_tokens_quantity': withdraw_tokens_quantity}
+
+def delegate(params, step, sL, s, inputs):
     #  loop through acting delegators id list
-    spot_price = s['spot_price']
-    total_delegated_stake = s['total_delegated_stake']
+    pool_delegated_stake = s['pool_delegated_stake']
     shares = s['shares']
-    timestep = s['timestep']
-    mininum_required_price_pct_diff_to_act = params['mininum_required_price_pct_diff_to_act']
-    BETA_del = params['BETA_del']
+    delegation_tax_rate = params['delegation_tax_rate']
     acting_delegator_ids = inputs['acting_delegator_ids']
+    delegation_tokens_quantity = inputs['delegation_tokens_quantity']
+
     # print(f'act: {acting_delegator_ids=}')
     for delegator_id in acting_delegator_ids:
-        #   accounting of current state (previous actor will have changed it)
-        #   active delegator computes their evaluation (private price)
+        # accounting of current state (previous actor will have changed it)
+        # NOTE: order of purchase doesn't matter, so we don't need updated pool state to calculate.
         delegator = s['delegators'][delegator_id]
-
-        # created_shares and added_total_delegated_stake will be positive on buy and negative for a sell.
-        # print(f'act: {delegator.shares=}')
-        created_shares, added_total_delegated_stake = delegator.buy_shares(shares, total_delegated_stake, spot_price,
-                                                              mininum_required_price_pct_diff_to_act,                                                              
-                                                              timestep,BETA_del)
-        # print(f'act: {delegator_id=}, {created_shares=}, {added_total_delegated_stake=}')
-        shares += created_shares
-        total_delegated_stake += added_total_delegated_stake
-
-        spot_price = 0
-        if shares > 0:
-            spot_price = 2 * total_delegated_stake / shares
-
-        #  if buy, compute amount of total_delegated_stake to add such that realized price is equal to private price
-        #    if the amount is greater than total_delegated_stake assets i have personally, then do it all
-
+        
+        if delegation_tokens_quantity >= delegator.holdings:
+            delegation_tokens_quantity = delegator.holdings
+        
+        delegator.holdings -= delegation_tokens_quantity
+        delegator.delegated_tokens += delegation_tokens_quantity
+        
+        new_shares = ((delegation_tokens_quantity * (1 - delegation_tax_rate)) / pool_delegated_stake) * shares
+        delegator.shares += new_shares
+        
     key = 'delegators'
     value = s['delegators']
     return key, value
 
-def act(params, step, sL, s, inputs):
+def account_for_tax(params, step, sL, s, inputs):
+    key = 'GRT'
+    delegation_tokens_quantity = inputs['delegation_tokens_quantity']
+    delegation_tax_rate = params['delegation_tax_rate']
+    
+    tax = delegation_tax_rate * delegation_tokens_quantity
+    value = s['GRT'] - tax
+    return key, value
+
+def undelegate(params, step, sL, s, inputs):
     #  loop through acting delegators id list
-    spot_price = s['spot_price']
-    total_delegated_stake = s['total_delegated_stake']
+    pool_delegated_stake = s['pool_delegated_stake']
     shares = s['shares']
     timestep = s['timestep']
-    mininum_required_price_pct_diff_to_act = params['mininum_required_price_pct_diff_to_act']
+    acting_delegator_ids = inputs['acting_delegator_ids']
+    undelegation_shares_quantity = inputs['undelegation_shares_quantity']
+    # print(f'act: {acting_delegator_ids=}')
+    
+    for delegator_id in acting_delegator_ids:
+        delegator = s['delegators'][delegator_id]
+        if undelegation_shares_quantity < 0:
+            # require a non-zero amount of shares
+            continue
 
+        if undelegation_shares_quantity > delegator.shares:
+            # require delegator to have enough shares in the pool to undelegate
+            continue
+
+        # Withdraw tokens if available
+        withdrawableDelegatedTokens = delegator.getWithdrawableDelegatedTokens(timestep)
+        if withdrawableDelegatedTokens > 0:
+            delegator.withdraw()
+
+        undelegated_tokens = undelegation_shares_quantity * pool_delegated_stake / shares
+        unbonding_timestep = params['unbonding_timeblock'] + timestep
+        delegator.set_undelegated_tokens(unbonding_timestep, undelegated_tokens)
+        delegator.delegated_tokens -= undelegation_shares_quantity
+        delegator.shares -= undelegation_shares_quantity
+    key = 'delegators'
+    value = s['delegators']
+    return key, value
+
+def withdraw(params, step, sL, s, inputs):
+    #  loop through acting delegators id list
+    timestep = s['timestep']
     acting_delegator_ids = inputs['acting_delegator_ids']
     # print(f'act: {acting_delegator_ids=}')
+    
     for delegator_id in acting_delegator_ids:
-        #   accounting of current state (previous actor will have changed it)
-        #   active delegator computes their evaluation (private price)
         delegator = s['delegators'][delegator_id]
-
-        # created_shares and added_total_delegated_stake will be positive on buy and negative for a sell.
-        # print(f'act: {delegator.shares=}')
-        created_shares, added_total_delegated_stake = delegator.buy_or_sell(shares, total_delegated_stake, spot_price,
-                                                              mininum_required_price_pct_diff_to_act,                                                              
-                                                              timestep)
-        # print(f'act: {delegator_id=}, {created_shares=}, {added_total_delegated_stake=}')
-        shares += created_shares
-        total_delegated_stake += added_total_delegated_stake
-
-        spot_price = 0
-        if shares > 0:
-            spot_price = 2 * total_delegated_stake / shares
-
-        #  if buy, compute amount of total_delegated_stake to add such that realized price is equal to private price
-        #    if the amount is greater than total_delegated_stake assets i have personally, then do it all
-
+        
+        # Validatrion
+        withdrawableDelegatedTokens = delegator.getWithdrawableDelegatedTokens(timestep)
+        if withdrawableDelegatedTokens > 0:
+            delegator.withdraw()
     key = 'delegators'
     value = s['delegators']
     return key, value
