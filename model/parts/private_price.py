@@ -1,19 +1,19 @@
 def compute_and_store_private_prices(params, step, sL, s, inputs):
     delegators = s['delegators']
-    supply = s['supply']
-    reserve = s['reserve']
+    shares = s['shares']
+    total_delegated_stake = s['total_delegated_stake']
     timestep = s['timestep']
     indexer_revenue_cut = params['indexer_revenue_cut']
     risk_adjustment = params['risk_adjustment']
-    reserve_to_revenue_token_exchange_rate = params['reserve_to_revenue_token_exchange_rate']
+    total_delegated_stake_to_revenue_token_exchange_rate = params['total_delegated_stake_to_revenue_token_exchange_rate']
     private_price = 0
     
     for delegator in delegators.values():
         # NOTE: this is the discounted value of the dividends
-        dividend_value = delegator.dividend_value(supply, indexer_revenue_cut, reserve_to_revenue_token_exchange_rate)
+        dividend_value = delegator.dividend_value(shares, indexer_revenue_cut, total_delegated_stake_to_revenue_token_exchange_rate)
         
         # NOTE: this is the current spot price, from the invariant
-        share_value = 2 * reserve / supply
+        share_value = total_delegated_stake / shares
         
         risk_adjusted_share_value = share_value * risk_adjustment
         
