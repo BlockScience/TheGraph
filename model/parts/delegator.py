@@ -45,6 +45,8 @@ class Delegator(object):
     def getWithdrawableDelegatedTokens(self, timestep):
         if timestep > self.locked_until:
             return self.undelegated_tokens
+        else:
+            return 0
 
     def withdraw(self):
         self.holdings += self.undelegated_tokens

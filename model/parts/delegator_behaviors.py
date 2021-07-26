@@ -37,8 +37,8 @@ def delegate(params, step, sL, s, inputs):
         # NOTE: order of purchase doesn't matter, so we don't need updated pool state to calculate.
         delegator = s['delegators'][delegator_id]
         
-        if amount_delegated >= delegator.holdings:
-            amount_delegated = delegator.holdings
+        if delegation_tokens_quantity >= delegator.holdings:
+            delegation_tokens_quantity = delegator.holdings
         
         delegator.holdings -= delegation_tokens_quantity
         delegator.delegated_tokens += delegation_tokens_quantity
@@ -57,6 +57,7 @@ def account_for_tax(params, step, sL, s, inputs):
     
     tax = delegation_tax_rate * delegation_tokens_quantity
     value = s['GRT'] - tax
+    return key, value
 
 def undelegate(params, step, sL, s, inputs):
     #  loop through acting delegators id list
@@ -87,6 +88,9 @@ def undelegate(params, step, sL, s, inputs):
         delegator.set_undelegated_tokens(unbonding_timestep, undelegated_tokens)
         delegator.delegated_tokens -= undelegation_shares_quantity
         delegator.shares -= undelegation_shares_quantity
+    key = 'delegators'
+    value = s['delegators']
+    return key, value
 
 def withdraw(params, step, sL, s, inputs):
     #  loop through acting delegators id list
@@ -101,3 +105,6 @@ def withdraw(params, step, sL, s, inputs):
         withdrawableDelegatedTokens = delegator.getWithdrawableDelegatedTokens(timestep)
         if withdrawableDelegatedTokens > 0:
             delegator.withdraw()
+    key = 'delegators'
+    value = s['delegators']
+    return key, value
