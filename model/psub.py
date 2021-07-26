@@ -1,20 +1,24 @@
 
 
 
-from .model.add_delegator import instantiate_delegate, should_instantiate_delegate
+from .parts.add_delegator import instantiate_delegate, should_instantiate_delegate
 
-from .model.delegator_behaviors import (act,
+from .parts.delegator_behaviors import (act,delegate_act,
                                         may_act_this_timestep)
 
-from .model.revenue import revenue_amt, store_revenue, distribute_revenue
+from .parts.revenue import (revenue_amt, store_revenue, distribute_revenue, mint_GRT,
+                                                    store_indexing_revenue,
+                                                    store_query_revenue,
+                                                    distribute_indexer_revenue,
+                                                    distribute_revenue_to_pool)
 
-from .model.private_price import compute_and_store_private_prices
+from .parts.private_price import compute_and_store_private_prices
 
-from .model.delegator_behaviors_bookkeeping import (compute_half_life_vested_shares,
+from .parts.delegator_behaviors_bookkeeping import (compute_half_life_vested_shares,
                                                     compute_cliff_vested_shares,
                                                     account_global_state_from_delegator_states, 
-                                                    store_reserve,
-                                                    store_supply,
+                                                    store_total_delegated_stake,
+                                                    store_shares,
                                                     store_spot_price)
 
 
@@ -35,6 +39,9 @@ psubs = [
         },
         'variables': {
             'period_revenue': store_revenue,
+            'GRT': mint_GRT,
+            'indexing_revenue': store_indexing_revenue, 
+            'query_revenue': store_query_revenue,         
         },
     },
     {
@@ -43,6 +50,9 @@ psubs = [
         },
         'variables': {
             'delegators': distribute_revenue,
+            'indexer_revenue': distribute_indexer_revenue,
+            'total_delegated_stake': distribute_revenue_to_pool,
+
         }
     },
     {
@@ -71,7 +81,7 @@ psubs = [
             'may_act_this_timestep': may_act_this_timestep
         },
         'variables': {
-            'delegators': act,
+            'delegators': delegate_act,
         },
     },
     {
@@ -80,8 +90,8 @@ psubs = [
             'account_global_state_from_delegator_states': account_global_state_from_delegator_states
         },
         'variables': {
-            'reserve': store_reserve,
-            'supply': store_supply,
+            'total_delegated_stake': store_total_delegated_stake,
+            'shares': store_shares,
             'spot_price': store_spot_price,
         },
     },

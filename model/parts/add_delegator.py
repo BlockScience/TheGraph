@@ -20,7 +20,7 @@ def instantiate_delegate(params, step, sL, s, inputs):
     if inputs['should_instantiate_delegate']:
         # add new members
         shares = 0
-        reserve_token_holdings = params['expected_reserve_token_holdings'] * stats.expon.rvs()
+        total_delegated_stake_token_holdings = params['expected_total_delegated_stake_token_holdings'] * stats.expon.rvs()
         system_expected_revenue = params['expected_revenue']
 
         # epsion is the noise in the delegator's estimate of the expectation
@@ -36,7 +36,7 @@ def instantiate_delegate(params, step, sL, s, inputs):
         
         # a discount_rate of 0.9 means the 2nd time period is worth 0.9 of the current period.
         discount_rate = 0.9        
-        d = delegator.Delegator(shares, reserve_token_holdings, delegator_expected_revenue,
+        d = delegator.Delegator(shares, total_delegated_stake_token_holdings, delegator_expected_revenue,
                                 discount_rate)
         s['delegators'][d.id] = d
 
