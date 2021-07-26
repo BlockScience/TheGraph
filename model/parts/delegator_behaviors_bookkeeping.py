@@ -1,28 +1,36 @@
 def account_global_state_from_delegator_states(params, step, sL, s):
-    previous_supply = s['supply']
-    previous_reserve = s['reserve']
+    previous_shares = s['shares']
+    print('previous_shares',previous_shares)
+
+    previous_total_delegated_stake = s['total_delegated_stake']
 
     # invariant is the value of function V that doesn't change. always S**2/R
-    # NOTE: previous_reserve == 0 might be a bad condition?
+    # NOTE: previous_total_delegated_stake == 0 might be a bad condition?
     invariant = 0
-    if previous_reserve > 0:
-        invariant = (previous_supply ** 2) / previous_reserve
+    if previous_total_delegated_stake > 0:
+        invariant = previous_shares / previous_total_delegated_stake
 
-    # sum the share supply of all delegators
-    supply = sum([d.shares for d in s['delegators'].values()])
+    # sum the share shares of all delegators
+    shares = sum([d.shares for d in s['delegators'].values()])
+    print('shares',shares)
 
-    # back out the reserve using the same invariant/function as above.
-    reserve = 0
+    # back out the total_delegated_stake using the same invariant/function as above.
+    total_delegated_stake = 0
     if invariant > 0:
-        reserve = (supply ** 2) / invariant
+        total_delegated_stake = shares / invariant
+
 
     # spot price is the derivative at the point of the curve where we are
     spot_price = 0
-    if supply > 0:
-        spot_price = 2 * reserve / supply
+    if shares > 0:
+        spot_price = total_delegated_stake / shares
+    print('shares',shares)
 
-    return {'supply': supply,
-            'reserve': reserve,
+    # total_delegated_stake_token_holdings = sum([d.total_delegated_stake_token_holdings for d in s['delegators'].values()])
+    # revenue_token_holdings = sum([d.revenue_token_holdings for d in s['delegators'].values()])
+    
+    return {'shares': shares,
+            'total_delegated_stake': total_delegated_stake,
             'spot_price': spot_price}
 
 
@@ -76,15 +84,15 @@ def compute_cliff_vested_shares(params, step, sL, s, inputs):
     return key, value
 
     
-def store_supply(params, step, sL, s, inputs):
-    key = 'supply'
-    value = inputs['supply']
+def store_shares(params, step, sL, s, inputs):
+    key = 'shares'
+    value = inputs['shares']
     return key, value
 
 
-def store_reserve(params, step, sL, s, inputs):
-    key = 'reserve'
-    value = inputs['reserve']
+def store_total_delegated_stake(params, step, sL, s, inputs):
+    key = 'total_delegated_stake'
+    value = inputs['total_delegated_stake']
     return key, value
 
 
