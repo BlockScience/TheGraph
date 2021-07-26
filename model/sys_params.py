@@ -23,7 +23,6 @@ params = {
         "delegator_estimation_noise_mean": [0],
         "delegator_estimation_noise_variance": [1],  # proportional to expected_revenue
         "pool_delegated_stake_to_revenue_token_exchange_rate": [1],
-        "delegator_activity_rate": [0.5],
         "mininum_required_price_pct_diff_to_act": [0.02],
         "risk_adjustment": [0.7],  # cut 30% of the value off due to risk
         'delegation_tax_rate': delegation_tax_rate, # Beta_del: tax percentage from delegated tokens to be burned
@@ -36,7 +35,4 @@ params = {
         'delegation_tokens_quantity': [5],
         'undelegation_shares_quantity': [5],
         'withdraw_tokens_quantity': [5],
-
-
-
 }

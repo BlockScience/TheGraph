@@ -8,7 +8,7 @@ class Delegator(object):
     delegate_counter = 0
 
     def __init__(self, shares=0, holdings=0, expected_revenue=0, discount_rate=.9,
-                 delegator_activity_rate=0.5, minimum_shares=0):
+                 minimum_shares=0):
         # initialize delegator state
         self.id = Delegator.delegate_counter
 
@@ -31,8 +31,6 @@ class Delegator(object):
         # used to discount cash flows. 1 / (1 - discount_rate)
         self.time_factor = 1 / (1 - discount_rate)
         
-        # self.delegator_activity_rate = delegator_activity_rate
-
         self.minimum_shares = minimum_shares
 
         # increment counter for next delegator ID
@@ -59,12 +57,5 @@ class Delegator(object):
         self.locked_until = unbonding_timeblock
    
     def will_act(self):
-        # flip a uniform random variable, compare to activity, rate, if it's below, then set to act.
-        rng = random.random()
-        return rng < self.delegator_activity_rate
-
-    def collectDelegationQueryRewards(self):
-        return 0
-    def collectDelegationIndexingRewards(self):
-        return 0
+        return 1
 
