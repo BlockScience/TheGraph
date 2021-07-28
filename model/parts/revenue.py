@@ -80,7 +80,7 @@ def distribute_revenue(params, step, sL, s, inputs):
 
     query_fee_cut = params['query_fee_cut']
     indexing_revenue_cut = params['indexer_revenue_cut']
-
+    delegation_tax_rate = params['delegation_tax_rate']
     # step 1: collect revenue from the state
     non_indexer_revenue_cut = (1 - indexing_revenue_cut) * indexing_revenue
     
@@ -88,15 +88,32 @@ def distribute_revenue(params, step, sL, s, inputs):
     non_indexer_query_fee_cut = (1 - query_fee_cut) * query_revenue
     non_indexer_revenue_net = non_indexer_revenue_cut + non_indexer_query_fee_cut
     revenue_per_share = non_indexer_revenue_net / shares
+    pool_delegated_stake = sum([d.delegated_tokens for d in s['delegators'].values()])
 
     for id, delegator in s['delegators'].items():
+        print(f'{id=}, {s["timestep"]=}, {delegator.shares=}')
     # indexer stake Special Rules ? 
         if id == 0:
             # skip pool reward, handle that in distribute_revenue_to_pool
-            pass
+            continue
         #  step 3: distribute non-owners share
         # print(f'{delegator.shares=}')
-        delegator.holdings += delegator.shares * revenue_per_share
+        
+        # WRONG: this would be if we don't redelegate
+        delegation_tokens_quantity = delegator.shares * revenue_per_share
+
+        delegator.delegated_tokens += delegation_tokens_quantity * (1 - delegation_tax_rate)
+        
+        # 5 * (0.995) / 10 * 10 = 4.975
+        print(f'{pool_delegated_stake=}, {shares=}')
+        new_shares = ((delegation_tokens_quantity * (1 - delegation_tax_rate)) / pool_delegated_stake) * shares
+        delegator.shares += new_shares
+        # store shares locally only--it has to be recomputed each action block because we don't save it until bookkeeping
+        shares += new_shares 
+        pool_delegated_stake += delegation_tokens_quantity * (1 - delegation_tax_rate)
+        # TODO: run this whole shebang through delegation code instead of increasing holdings without shares.
+        # make it autoredelegate
+        #delegator_behaviors.delegate(
     
     key = 'delegators'
     value = s['delegators']

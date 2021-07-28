@@ -3,10 +3,11 @@ R_i_rate = [0.03]
 indexer_allocation_rate = [0.0050]  # ASSUMED share of minted by subgraph by indexer
 
 # 100 timesteps/blocks per day/epoch
-blocks_per_epoch = 100
+blocks_per_epoch = 6500
 unbonding_days = 28
 allocation_days = [28]
 unbonding_timeblock = [unbonding_days*blocks_per_epoch]
+
 
 delegation_tax_rate = [0.005]
 delegation_leverage = [16]
@@ -33,6 +34,6 @@ params = {
         'indexer_allocation_rate': indexer_allocation_rate, # ASSUMED share of minted by subgraph by indexer
         'query_fee_cut': query_fee_cut, # query fee indexer cut rate
         'delegation_tokens_quantity': [5],
-        'undelegation_shares_quantity': [5],
-        'withdraw_tokens_quantity': [5],
+        # 'undelegation_shares_quantity': [5],
+        # 'withdraw_tokens_quantity': [5],
 }

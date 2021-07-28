@@ -39,6 +39,7 @@ def instantiate_delegate(params, step, sL, s, inputs):
         d = delegator.Delegator(shares, initial_holdings, delegator_expected_revenue,
                                 discount_rate)
         s['delegators'][d.id] = d
+        print(f'NEW DELEGATOR INSTANTIATED: {d.id=}, {shares=}, {initial_holdings=}')
 
     key = "delegators"
     value = s['delegators']
