@@ -2,6 +2,7 @@ def store_shares(params, step, sL, s, inputs):
     key = 'shares'
     # add shares of all delegators
     shares = sum([d.shares for d in s['delegators'].values()])    
+    # print(f'{shares=}')
     return key, shares
 
 
