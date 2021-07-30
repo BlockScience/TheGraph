@@ -1,19 +1,32 @@
 
 import scipy.stats as stats
-
+from model.parts.delegator_behaviors import process_delegation_event
 
 def revenue_amt(params, step, sL, prev_state):
     # placeholder for query fee revenue
-    revenue_amt = params["expected_revenue"] * stats.expon.rvs()
+    # revenue_amt = params["expected_revenue"] * stats.expon.rvs()
+    
     # print(f'{revenue_amt=}')
-    R_i_rate = params['R_i_rate']
-    allocation_days = params['allocation_days']
+    # R_i_rate = params['R_i_rate']
+    # allocation_days = params['allocation_days']
     timestep = prev_state['timestep']
-    if timestep % allocation_days == 0:
-        GRT = prev_state['GRT']
-        minted_rewards = GRT * R_i_rate * allocation_days / 365 # annual inflation
-    else:
+    
+    # TODO: Check this logic    
+    allocation_collected_events = params['allocation_collected_events'].get(timestep)
+    if allocation_collected_events is None:
+        revenue_amt = 0
         minted_rewards = 0
+    else:
+        # print(f'{allocation_collected_events=}')
+        revenue_amt = sum([int(e['tokens']) for e in allocation_collected_events])
+        minted_rewards = revenue_amt
+
+    
+    # if timestep % allocation_days == 0:
+    #     GRT = prev_state['GRT']
+    #     minted_rewards = GRT * R_i_rate * allocation_days / 365 # annual inflation
+    # else:
+    #     minted_rewards = 0
     return {'revenue_amt': revenue_amt, 'minted_rewards': minted_rewards}
 
 def mint_GRT(params, step, sL, prev_state, inputs):
@@ -73,14 +86,15 @@ def distribute_indexer_revenue(params, step, sL, s, inputs):
 
 def distribute_revenue(params, step, sL, s, inputs):
     """ Calculate and distribute query and indexing rewards to delegators """
-    shares = s['shares']
-
+    shares = sum([d.shares for d in s['delegators'].values()])
     indexing_revenue = s['indexing_revenue']
     query_revenue = s['query_revenue']   
 
     query_fee_cut = params['query_fee_cut']
     indexing_revenue_cut = params['indexer_revenue_cut']
     delegation_tax_rate = params['delegation_tax_rate']
+    initial_holdings = params['delegator_initial_holdings']
+    delegators = s['delegators']
     # step 1: collect revenue from the state
     non_indexer_revenue_cut = (1 - indexing_revenue_cut) * indexing_revenue
     
@@ -92,29 +106,23 @@ def distribute_revenue(params, step, sL, s, inputs):
 
     for id, delegator in s['delegators'].items():
         print(f'{id=}, {s["timestep"]=}, {delegator.shares=}')
-    # indexer stake Special Rules ? 
-        if id == 0:
+        if id == 'indexer':
+            # step 2: distribute indexer share IN ADDITION to indexer's delegator share.
             # skip pool reward, handle that in distribute_revenue_to_pool
-            continue
-        #  step 3: distribute non-owners share
-        # print(f'{delegator.shares=}')
-        
-        # WRONG: this would be if we don't redelegate
+            revenue_to_indexer = calculate_revenue_to_indexer(pool_delegated_stake, indexing_revenue, query_revenue, query_fee_cut, indexing_revenue_cut)
+            delegator.holdings += revenue_to_indexer
+            # TODO: should indexer auto delegate to his own pool?
+            
+        # step 3: distribute delegator share
         delegation_tokens_quantity = delegator.shares * revenue_per_share
-
-        delegator.delegated_tokens += delegation_tokens_quantity * (1 - delegation_tax_rate)
+        delegation = {'delegator':id, 
+                        'tokens':delegation_tokens_quantity}
         
-        # 5 * (0.995) / 10 * 10 = 4.975
-        print(f'{pool_delegated_stake=}, {shares=}')
-        new_shares = ((delegation_tokens_quantity * (1 - delegation_tax_rate)) / pool_delegated_stake) * shares
-        delegator.shares += new_shares
-        # store shares locally only--it has to be recomputed each action block because we don't save it until bookkeeping
-        shares += new_shares 
-        pool_delegated_stake += delegation_tokens_quantity * (1 - delegation_tax_rate)
-        # TODO: run this whole shebang through delegation code instead of increasing holdings without shares.
-        # make it autoredelegate
-        #delegator_behaviors.delegate(
-    
+        # and autoredelegate.
+        pool_delegated_stake, shares = process_delegation_event(delegation, delegators, initial_holdings, 
+                                delegation_tax_rate, pool_delegated_stake, shares)     
+            
+        
     key = 'delegators'
     value = s['delegators']
     return key, value
@@ -131,9 +139,16 @@ def distribute_revenue_to_pool(params, step, sL, s, inputs):
     indexing_revenue_cut = params['indexer_revenue_cut']
 
     # step 1: collect revenue from the state
+    revenue_to_indexer = calculate_revenue_to_indexer(pool_delegated_stake, indexing_revenue, query_revenue, query_fee_cut, indexing_revenue_cut)
+    print(f'{revenue_to_indexer=}')
+    key = 'pool_delegated_stake'
+    return key, revenue_to_indexer
+
+def calculate_revenue_to_indexer(pool_delegated_stake, indexing_revenue, query_revenue, query_fee_cut, indexing_revenue_cut):
+    """ Calculate and distribute query and indexing rewards to indexer pool """
+    # step 1: collect revenue from the state
     non_indexer_revenue_cut = (1 - indexing_revenue_cut) * indexing_revenue
     non_indexer_query_fee_cut = (1 - query_fee_cut) * query_revenue
     non_indexer_revenue_net = non_indexer_revenue_cut + non_indexer_query_fee_cut
    
-    key = 'pool_delegated_stake'
-    return key, pool_delegated_stake + non_indexer_revenue_net
+    return pool_delegated_stake + non_indexer_revenue_net    

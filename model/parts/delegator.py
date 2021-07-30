@@ -4,18 +4,15 @@ for shares in the revenue stream. """
 
 
 class Delegator(object):
-    # autoincrementing id.
-    delegate_counter = 0
-
-    def __init__(self, shares=0, holdings=0, expected_revenue=0, discount_rate=.9,
-                 minimum_shares=0):
+    def __init__(self, id, shares=0, holdings=0, discount_rate=.9,
+                 minimum_shares=0, delegated_tokens=0):
         # initialize delegator state
-        self.id = Delegator.delegate_counter
+        self.id = id
 
         self.shares = shares
 
         # Tokens locked in delegation, d
-        self.delegated_tokens = 0
+        self.delegated_tokens = delegated_tokens
         
         # Tokens locked in undelegation, l  
         self.undelegated_tokens = 0
@@ -31,12 +28,8 @@ class Delegator(object):
         # used to discount cash flows. 1 / (1 - discount_rate)
         self.time_factor = 1 / (1 - discount_rate)
         
-        self.minimum_shares = minimum_shares
-
-        # increment counter for next delegator ID
-        Delegator.delegate_counter += 1
-
     
+        self.minimum_shares = minimum_shares
    
     # member of the sharing pool (True/False)
     def is_member(self):
@@ -48,9 +41,9 @@ class Delegator(object):
         else:
             return 0
 
-    def withdraw(self):
-        self.holdings += self.undelegated_tokens
-        self.undelegated_tokens = 0
+    def withdraw(self, tokens):
+        self.holdings += tokens
+        self.undelegated_tokens -= tokens
         self.locked_until = 0
 
 
