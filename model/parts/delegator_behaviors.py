@@ -1,4 +1,5 @@
 import random
+from model.parts.delegator import Delegator
 
 
 def may_act_this_timestep(params, step, sL, s):
@@ -16,12 +17,13 @@ def may_act_this_timestep(params, step, sL, s):
 def delegator_action(params, step, sL, s):
     # who delegates, 
     # how many tokens.
-    delegation_tokens_quantity = params['delegation_tokens_quantity']
-    undelegation_shares_quantity = params['undelegation_shares_quantity']
-    withdraw_tokens_quantity = params['withdraw_tokens_quantity']
-    return {'delegation_tokens_quantity': delegation_tokens_quantity,
-            'undelegation_shares_quantity': undelegation_shares_quantity,
-            'withdraw_tokens_quantity': withdraw_tokens_quantity}
+    timestep = s['timestep']
+    delegation_events = params['delegation_tokens_events'].get(timestep)
+    undelegation_events = params['undelegation_shares_events'].get(timestep)
+    withdraw_events = params['withdraw_tokens_events'].get(timestep)
+    return {'delegation_events': delegation_events,
+            'undelegation_events': undelegation_events,
+            'withdraw_events': withdraw_events}
 
 def delegate(params, step, sL, s, inputs):
     #  loop through acting delegators id list
@@ -30,38 +32,51 @@ def delegate(params, step, sL, s, inputs):
     # shares = s['shares']
     shares = sum([d.shares for d in s['delegators'].values()])
     delegation_tax_rate = params['delegation_tax_rate']
-    acting_delegator_ids = inputs['acting_delegator_ids']
-    delegation_tokens_quantity = inputs['delegation_tokens_quantity']
-
+    delegation_events = inputs['delegation_events'] if inputs['delegation_events'] is not None else []    
+    initial_holdings = params['delegator_initial_holdings']
+    delegators = s['delegators']
     # print(f'act: {acting_delegator_ids=}')
-    for delegator_id in acting_delegator_ids:
-        # accounting of current state (previous actor will have changed it)
-        # NOTE: order of purchase doesn't matter, so we don't need updated pool state to calculate.
-        if delegator_id == 0:
-            continue
-        delegator = s['delegators'][delegator_id]        
+    
+    for delegation in delegation_events:
+        pool_delegated_stake, shares = process_delegation_event(delegation, delegators, initial_holdings, 
+                                            delegation_tax_rate, pool_delegated_stake, shares)        
 
-        if delegation_tokens_quantity >= delegator.holdings:
-            delegation_tokens_quantity = delegator.holdings        
-
-        delegator.holdings -= delegation_tokens_quantity
-        delegator.delegated_tokens += delegation_tokens_quantity * (1 - delegation_tax_rate)
-        pool_delegated_stake += delegation_tokens_quantity * (1 - delegation_tax_rate)
-        # 5 * (0.995) / 10 * 10 = 4.975
-        print(f'{pool_delegated_stake=}, {shares=}')
-        new_shares = ((delegation_tokens_quantity * (1 - delegation_tax_rate)) / pool_delegated_stake) * shares
-        delegator.shares += new_shares
-        # store shares locally only--it has to be recomputed each action block because we don't save it until bookkeeping
-        shares += new_shares 
-        print(f'ACTION: DELEGATE--{delegator_id=}, {delegator.holdings=}, {delegator.delegated_tokens=}, {delegator.undelegated_tokens=}, {delegator.shares=}')
-        
     key = 'delegators'
     value = s['delegators']
     return key, value
 
+def process_delegation_event(delegation, delegators, initial_holdings, delegation_tax_rate, pool_delegated_stake, shares):
+    delegator_id = delegation['delegator']
+    if delegator_id not in delegators:
+        delegators[delegator_id] = Delegator(delegator_id, holdings = initial_holdings)
+    
+    delegator = delegators[delegator_id]        
+    
+    delegation_tokens_quantity = int(delegation['tokens'])
+
+    if delegation_tokens_quantity >= delegator.holdings:
+        delegation_tokens_quantity = delegator.holdings        
+
+    delegator.holdings -= delegation_tokens_quantity
+    delegator.delegated_tokens += delegation_tokens_quantity * (1 - delegation_tax_rate)
+    pool_delegated_stake += delegation_tokens_quantity * (1 - delegation_tax_rate)
+    # 5 * (0.995) / 10 * 10 = 4.975
+    print(f'{pool_delegated_stake=}, {shares=}')
+    new_shares = ((delegation_tokens_quantity * (1 - delegation_tax_rate)) / pool_delegated_stake) * shares
+    delegator.shares += new_shares
+    # store shares locally only--it has to be recomputed each action block because we don't save it until bookkeeping
+    shares += new_shares 
+    print(f'ACTION: DELEGATE--{delegator_id=}, {delegator.holdings=}, {delegator.delegated_tokens=}, {delegator.undelegated_tokens=}, {delegator.shares=}')
+    return pool_delegated_stake, shares
+
 def account_for_tax(params, step, sL, s, inputs):
     key = 'GRT'
-    delegation_tokens_quantity = inputs['delegation_tokens_quantity']
+    # sum up the number of tokens delegated this timestep
+    if inputs['delegation_events'] is None:
+        delegation_tokens_quantity = 0
+    else:
+        delegation_tokens_quantity = sum(int(event['tokens']) for event in inputs['delegation_events'])
+    print(f'{delegation_tokens_quantity=}')
     delegation_tax_rate = params['delegation_tax_rate']
     
     tax = delegation_tax_rate * delegation_tokens_quantity
@@ -73,23 +88,26 @@ def undelegate(params, step, sL, s, inputs):
     # pool_delegated_stake needs to be updated
     # pool_delegated_stake = s['pool_delegated_stake']
     pool_delegated_stake = sum([d.delegated_tokens for d in s['delegators'].values()])
+    undelegation_events = inputs['undelegation_events'] if inputs['undelegation_events'] is not None else []    
+    delegators = s['delegators']
     
     # shares needs to be kept updated
-    # shares = s['shares']
     shares = sum([d.shares for d in s['delegators'].values()])
     
     timestep = s['timestep']
-    acting_delegator_ids = inputs['acting_delegator_ids']
-    # undelegation_shares_quantity = inputs['undelegation_shares_quantity']
-    # print(f'act: {acting_delegator_ids=}')
-    
+   
     #  loop through acting delegators id list
-    for delegator_id in acting_delegator_ids:
-        if delegator_id == 0:
-            # indexer doesn't undelegate everything
-            continue
-        delegator = s['delegators'][delegator_id]
-        undelegation_shares_quantity = delegator.shares
+    for undelegation in undelegation_events:        
+        
+        delegator_id = undelegation['delegator']
+
+        # NOTE: there should be no new delegators undelegating (before delegating!)
+        # if delegator_id not in delegators:
+        #     delegators[delegator_id] = Delegator(delegator_id, holdings = initial_holdings)
+        
+        delegator = delegators[delegator_id]        
+        
+        undelegation_shares_quantity = int(undelegation['shares'])
 
         if undelegation_shares_quantity < 0:
             # require a non-zero amount of shares
@@ -105,8 +123,8 @@ def undelegate(params, step, sL, s, inputs):
             delegator.withdraw()
 
         undelegated_tokens = undelegation_shares_quantity * pool_delegated_stake / shares
-        unbonding_timestep = params['unbonding_timeblock'] + timestep
-        delegator.set_undelegated_tokens(unbonding_timestep, undelegated_tokens)
+        until = undelegation['until']
+        delegator.set_undelegated_tokens(until, undelegated_tokens)
         delegator.delegated_tokens -= undelegated_tokens
         delegator.shares -= undelegation_shares_quantity
         pool_delegated_stake -= undelegation_shares_quantity
@@ -119,17 +137,23 @@ def undelegate(params, step, sL, s, inputs):
 def withdraw(params, step, sL, s, inputs):
     #  loop through acting delegators id list
     timestep = s['timestep']
-    acting_delegator_ids = inputs['acting_delegator_ids']
     # print(f'act: {acting_delegator_ids=}')
     
-    for delegator_id in acting_delegator_ids:
-        if delegator_id == 0:
-            continue
-        delegator = s['delegators'][delegator_id]
-        
+    delegators = s['delegators']
+    withdraw_events = inputs['withdraw_events'] if inputs['withdraw_events'] is not None else []    
+    
+    for withdraw in withdraw_events:
+        delegator_id = withdraw['delegator']
+        delegator = delegators[delegator_id]        
+        tokens = int(withdraw['tokens'])
         withdrawableDelegatedTokens = delegator.getWithdrawableDelegatedTokens(timestep)
-        if withdrawableDelegatedTokens > 0:
-            delegator.withdraw()
+        if withdrawableDelegatedTokens > tokens:
+            delegator.withdraw(tokens)
+        elif withdrawableDelegatedTokens > 0:
+            delegator.withdraw(withdrawableDelegatedTokens)
+        else:
+            pass
+
         print(f'ACTION: WITHDRAW--{delegator_id=}, {delegator.holdings=}, {delegator.delegated_tokens=}, {delegator.undelegated_tokens=}, {delegator.shares=}')
     key = 'delegators'
     value = s['delegators']

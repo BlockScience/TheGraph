@@ -2,13 +2,13 @@
 from .parts.delegator import Delegator
 
 initial_shares = 10
-
+initial_stake = 1243612
 """ System state/state of the delegation pool for one indexer. """
 genesis_state = {
     # NOTE: make these a parameter
     # NOTE: cannot import config because of circular import.
     # D
-    'pool_delegated_stake': 0,  # amount of GRT delegated to the indexer
+    'pool_delegated_stake': initial_stake,  # amount of GRT delegated to the indexer
     
     # L
     'pool_locked_stake': 0,  # amount of GRT locked in undelegation process.  these are NO LONGER in the delegated pool and also not owned by delegator yet.
@@ -18,7 +18,7 @@ genesis_state = {
     
     # id=0 is the original provider of 10 pool_delegated_stake and owns 10 shares    
     # TODO: use minimum_shares=params['s_del']
-    "delegators": {0: Delegator(shares=initial_shares, minimum_shares=10)},
+    "delegators": {'indexer': Delegator(id='indexer', shares=initial_shares, delegated_tokens=initial_stake)},
     "period_revenue": 0,  # this is passed directly to the delegators
     'GRT': 10000000,
     'indexing_revenue': 0,

@@ -26,17 +26,10 @@ def instantiate_delegate(params, step, sL, s, inputs):
         # epsion is the noise in the delegator's estimate of the expectation
         epsilon = stats.norm.rvs() * params['delegator_estimation_noise_variance'] + \
             params['delegator_estimation_noise_mean']
-
-        # this must be positive
-        # print(f'{system_expected_revenue=}, {epsilon=}')
-        delegator_expected_revenue = (1 + epsilon) * system_expected_revenue
-        if delegator_expected_revenue < 0:
-            delegator_expected_revenue = 0
-        # print(f'{delegator_expected_revenue=}')
-        
+       
         # a discount_rate of 0.9 means the 2nd time period is worth 0.9 of the current period.
         discount_rate = 0.9        
-        d = delegator.Delegator(shares, initial_holdings, delegator_expected_revenue,
+        d = delegator.Delegator('xxxPlaceholderxxx', shares, initial_holdings, 
                                 discount_rate)
         s['delegators'][d.id] = d
         print(f'NEW DELEGATOR INSTANTIATED: {d.id=}, {shares=}, {initial_holdings=}')

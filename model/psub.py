@@ -1,7 +1,7 @@
 
 
 
-from .parts.add_delegator import instantiate_delegate, should_instantiate_delegate
+# from .parts.add_delegator import instantiate_delegate, should_instantiate_delegate
 
 from .parts.delegator_behaviors import (delegate, undelegate, withdraw,
                                         may_act_this_timestep, delegator_action,
@@ -43,17 +43,17 @@ psubs = [
 
         }
     },
-    {
-        # if there's a vacant spot, flip a coin
-        # (heads, they join, tails nobody joins)
-        'label': 'Add Delegator',
-        'policies': {
-            'should_instantiate_delegate': should_instantiate_delegate
-            },
-        'variables': {
-            'delegators': instantiate_delegate,
-            },
-    },
+    # {
+    #     # if there's a vacant spot, flip a coin
+    #     # (heads, they join, tails nobody joins)
+    #     'label': 'Add Delegator',
+    #     'policies': {
+    #         'should_instantiate_delegate': should_instantiate_delegate
+    #         },
+    #     'variables': {
+    #         'delegators': instantiate_delegate,
+    #         },
+    # },
     {
         'label': 'Delegate',
         'policies': {
