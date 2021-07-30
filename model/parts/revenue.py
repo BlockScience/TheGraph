@@ -22,43 +22,13 @@ def revenue_amt(params, step, sL, prev_state):
             'query_fee_amt': query_fee_amt}
 
 def mint_GRT(params, step, sL, prev_state, inputs):
-    # print('storing revenue')
     key = 'GRT'
     GRT = prev_state['GRT']
     
-    # TODO: Check this.
+    # GRT Increases from indexing and not querying.
     delta = inputs['indexing_fee_amt']
     
     return key, GRT + delta
-
-def store_query_revenue(params, step, sL, s, inputs):
-    # print('storing revenue')
-    key = 'query_revenue'
-    # indexer_allocation_rate = params['indexer_allocation_rate']
-    query_fees =  inputs['query_fee_amt']
-
-    return key, query_fees
-
-def store_indexing_revenue(params, step, sL, s, inputs):
-    # print('storing revenue')
-    key = 'indexing_revenue'
-    indexer_allocation_rate = params['indexer_allocation_rate']
-    revenue_amt = inputs['revenue_amt']
-    indexer_rewards = revenue_amt * indexer_allocation_rate
-    query_fees =  inputs['query_fee_amt']   
-    return key, indexer_rewards
-
-def store_revenue(params, step, sL, s, inputs):
-    # print('storing revenue')
-    key = 'period_revenue'
-    indexer_allocation_rate = params['indexer_allocation_rate']
-    # query_fees =  inputs['revenue_amt']
-    # minted_rewards = inputs['minted_rewards']
-    # indexer_rewards = minted_rewards * indexer_allocation_rate
-    indexer_rewards = revenue_amt * indexer_allocation_rate
-
-    # return key, indexer_rewards + query_fees
-    return key, indexer_rewards
 
 def distribute_revenue_to_delegators(params, step, sL, s, inputs):
     """ Calculate and distribute query and indexing rewards to delegators """
