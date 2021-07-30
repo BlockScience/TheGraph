@@ -13,27 +13,3 @@ def should_instantiate_delegate(params, step, sL, s):
         should_instantiate_delegate = True
 
     return {"should_instantiate_delegate": should_instantiate_delegate}
-
-
-# mechanism
-def instantiate_delegate(params, step, sL, s, inputs):
-    if inputs['should_instantiate_delegate']:
-        # add new members
-        shares = 0
-        initial_holdings = params['expected_initial_token_holdings'] * stats.expon.rvs()
-        system_expected_revenue = params['expected_revenue']
-
-        # epsion is the noise in the delegator's estimate of the expectation
-        epsilon = stats.norm.rvs() * params['delegator_estimation_noise_variance'] + \
-            params['delegator_estimation_noise_mean']
-       
-        # a discount_rate of 0.9 means the 2nd time period is worth 0.9 of the current period.
-        discount_rate = 0.9        
-        d = delegator.Delegator('xxxPlaceholderxxx', shares, initial_holdings, 
-                                discount_rate)
-        s['delegators'][d.id] = d
-        print(f'NEW DELEGATOR INSTANTIATED: {d.id=}, {shares=}, {initial_holdings=}')
-
-    key = "delegators"
-    value = s['delegators']
-    return key, value

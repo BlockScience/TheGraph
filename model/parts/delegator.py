@@ -23,12 +23,10 @@ class Delegator(object):
         # Amount of free/withdrawn token the delegator is holding, h
         self.holdings = holdings
 
-        # self.expected_revenue = expected_revenue
-
         # used to discount cash flows. 1 / (1 - discount_rate)
         self.time_factor = 1 / (1 - discount_rate)
         
-    
+        # Not allowed to sell below this amount
         self.minimum_shares = minimum_shares
    
     # member of the sharing pool (True/False)

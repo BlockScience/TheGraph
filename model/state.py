@@ -1,8 +1,9 @@
 # from model.parts import delegator
 from .parts.delegator import Delegator
+from decimal import Decimal
 
-initial_shares = 10
-initial_stake = 1243612
+initial_shares = 1243612
+initial_stake = Decimal(1243612)
 """ System state/state of the delegation pool for one indexer. """
 genesis_state = {
     # NOTE: make these a parameter

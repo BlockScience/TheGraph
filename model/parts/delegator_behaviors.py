@@ -52,7 +52,7 @@ def process_delegation_event(delegation, delegators, initial_holdings, delegatio
     
     delegator = delegators[delegator_id]        
     
-    delegation_tokens_quantity = int(delegation['tokens'])
+    delegation_tokens_quantity = delegation['tokens']
 
     if delegation_tokens_quantity >= delegator.holdings:
         delegation_tokens_quantity = delegator.holdings        
@@ -75,7 +75,7 @@ def account_for_tax(params, step, sL, s, inputs):
     if inputs['delegation_events'] is None:
         delegation_tokens_quantity = 0
     else:
-        delegation_tokens_quantity = sum(int(event['tokens']) for event in inputs['delegation_events'])
+        delegation_tokens_quantity = sum(event['tokens'] for event in inputs['delegation_events'])
     print(f'{delegation_tokens_quantity=}')
     delegation_tax_rate = params['delegation_tax_rate']
     
@@ -100,14 +100,10 @@ def undelegate(params, step, sL, s, inputs):
     for undelegation in undelegation_events:        
         
         delegator_id = undelegation['delegator']
-
-        # NOTE: there should be no new delegators undelegating (before delegating!)
-        # if delegator_id not in delegators:
-        #     delegators[delegator_id] = Delegator(delegator_id, holdings = initial_holdings)
-        
+       
         delegator = delegators[delegator_id]        
         
-        undelegation_shares_quantity = int(undelegation['shares'])
+        undelegation_shares_quantity = undelegation['shares']
 
         if undelegation_shares_quantity < 0:
             # require a non-zero amount of shares
@@ -145,7 +141,7 @@ def withdraw(params, step, sL, s, inputs):
     for withdraw in withdraw_events:
         delegator_id = withdraw['delegator']
         delegator = delegators[delegator_id]        
-        tokens = int(withdraw['tokens'])
+        tokens = withdraw['tokens']
         withdrawableDelegatedTokens = delegator.getWithdrawableDelegatedTokens(timestep)
         if withdrawableDelegatedTokens > tokens:
             delegator.withdraw(tokens)
