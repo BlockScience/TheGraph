@@ -19,11 +19,12 @@ delegator_initial_holdings = [Decimal(10e9)]
 
 # TODO: this will come from allocation file
 # these are indexer cuts
-query_fee_cut = [Decimal(0.89)]
-indexer_revenue_cut = [Decimal(0.89)]
+query_fee_cut = [Decimal(1.0)]
+indexer_revenue_cut = [Decimal(1.0)]
 
-event_path = 'GraphQL_data'
-# event_path = 'another_indexer/single_indexer'
+indexer_id = '0xd133fd8e0607f5d82c91626140495ea0a31d0398'
+#event_path = 'GraphQL_data'
+event_path = f'another_indexer/{indexer_id}'
 delegation_events = [utils.load_delegation_event_sequence_from_csv(f'{event_path}/SIstakeDelegateds.csv', limit=None, GRT_conversion_rate=GRT_conversion_rate)]
 undelegation_events = [utils.load_delegation_event_sequence_from_csv(f'{event_path}/SIstakeLockeds.csv', limit=None, GRT_conversion_rate=GRT_conversion_rate)]
 withdraw_events = [utils.load_delegation_event_sequence_from_csv(f'{event_path}/SIstakeWithdrawns.csv', limit=None, GRT_conversion_rate=GRT_conversion_rate)]
