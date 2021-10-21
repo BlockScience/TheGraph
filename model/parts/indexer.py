@@ -1,10 +1,10 @@
 from decimal import Decimal
 
 class Indexer():
-    def __init__(self, id, pool_delegated_stake = 0, shares = 0, pool_locked_stake = 0,
-                indexer_revenue = 0, GRT = 0, cumulative_indexing_revenue = 0, 
-                cumulative_query_revenue = 0, cumulative_non_indexer_revenue = 0,
-                cumulative_deposited_stake = 0, initial_stake_deposited = False):
+    def __init__(self, id, pool_delegated_stake = Decimal(0), shares = Decimal(0), pool_locked_stake = Decimal(0),
+                indexer_revenue = Decimal(0), GRT = Decimal(0), cumulative_indexing_revenue = Decimal(0), 
+                cumulative_query_revenue = Decimal(0), cumulative_non_indexer_revenue = Decimal(0),
+                cumulative_deposited_stake = Decimal(0), initial_stake_deposited = False):
         self.id = id
         self.pool_delegated_stake = pool_delegated_stake
         self.shares = shares

@@ -72,15 +72,19 @@ def distribute_revenue_to_pool(params, step, sL, s, inputs):
         print(f'EVENT: DISTRIBUTE REVENUE TO POOL')
 
         indexer = s['indexers'][indexer_id]
-        query_fee_cut = indexer.query_fee_cut
-        indexing_revenue_cut = indexer.indexer_revenue_cut
+        
+        # do not add anything to the delegated stake if there are no delegators.  
+        if not indexer.pool_delegated_stake.is_zero():
+            query_fee_cut = indexer.query_fee_cut
+            indexing_revenue_cut = indexer.indexer_revenue_cut
 
-        # 5.2 D+ = D + Ri * (1 - phi)
-        non_indexer_revenue = calculate_revenue_to_indexer_pool(indexing_revenue, query_revenue, query_fee_cut, indexing_revenue_cut)
+            # 5.2 D+ = D + Ri * (1 - phi)
+            non_indexer_revenue = calculate_revenue_to_indexer_pool(indexing_revenue, query_revenue, query_fee_cut, indexing_revenue_cut)
 
-        print(f'  {indexing_revenue=}, {query_revenue=}, {indexer.pool_delegated_stake=} (before)')
-        indexer.pool_delegated_stake += non_indexer_revenue
-        print(f'  {indexing_revenue=}, {query_revenue=}, {indexer.pool_delegated_stake=} (after)')
+            print(f'  {indexing_revenue=}, {query_revenue=}, {indexer.pool_delegated_stake=} (before)')
+            
+            indexer.pool_delegated_stake += non_indexer_revenue
+            print(f'  {indexing_revenue=}, {query_revenue=}, {indexer.pool_delegated_stake=} (after)')
     key = 'indexers'
     return key, indexers
 

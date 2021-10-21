@@ -99,7 +99,7 @@ def process_delegation_event(delegation_tokens_quantity, delegator, delegation_t
     
     # 5 * (0.995) / 10 * 10 = 4.975
     print(f'{pool_delegated_stake=}, {shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
-    new_shares = delegation_tokens_quantity * (1 - delegation_tax_rate) if pool_delegated_stake == 0 \
+    new_shares = delegation_tokens_quantity * (1 - delegation_tax_rate) if pool_delegated_stake.is_zero() \
                  else ((delegation_tokens_quantity * (1 - delegation_tax_rate)) / pool_delegated_stake) * shares
     
     # NOTE: pool_delegated_stake must be updated AFTER new_shares is calculated
@@ -122,7 +122,16 @@ def undelegate(params, step, sL, s, inputs):
         # print(undelegation_events)
         
         delegator_id = event['delegator']
-        delegator = indexer.delegators[delegator_id]                
+        try:
+            delegator = indexer.delegators[delegator_id]                
+        except KeyError:
+            print(f'''ERROR: Undelegation attempted on an Indexer that has not been Delegated to.
+                      {indexer.id=}
+                      {delegator_id=}''')
+            key = 'indexers'
+            value = s['indexers']
+            return key, value
+
         undelegation_shares_quantity = event['shares']
         print(f'''EVENT: UNDELEGATE (before)--
             {delegator_id=}, 
