@@ -9,7 +9,6 @@ initial_stake = Decimal(0)
 
 """ System state/state of the delegation pool for multiple indexers. """
 genesis_state = {
-    # 'indexers': {'0x0000000': Indexer(), '0x000001': Indexer()},
     'indexers': {},
     ## DELEGATION POOL of Indexer State ##
     # A_ind
