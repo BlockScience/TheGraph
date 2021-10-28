@@ -36,7 +36,12 @@ def convertFromLongStrToDecimalPercent(d, field):
             # put in a decimal place 18 chars from the right then convert to Decimal to avoid overflow error.
             event[field] = event[field] / 1000000
 
-def load_all_events(path,GRT_conversion_rate = -18):
+def load_all_events(path, agent_event_path = None, GRT_conversion_rate = -18):
+    df = load_all_events_to_pandas_df(path, agent_event_path, GRT_conversion_rate)
+    events_list_of_dicts = convert_pandas_df_to_list_of_dicts(df)
+    return events_list_of_dicts
+
+def load_all_events_to_pandas_df(path, agent_event_path = None, GRT_conversion_rate = -18):
     # make them ordered by blockNumber and logindex
     # squish them because time between doesn't matter
     # **but they have to be interleaved between all event types.
@@ -44,6 +49,10 @@ def load_all_events(path,GRT_conversion_rate = -18):
     # break back out to distinct types
     # use block number, resolve conflicts with log index.
     all_events = pd.read_csv(f'{path}')
+
+    if agent_event_path:
+        all_events = pd.concat([all_events, pd.read_csv(agent_event_path)])
+
     all_events.reset_index(inplace=True)
     all_events.sort_values(['blockNumber', 'logIndex'], ascending=[True, True])
     all_events = all_events.rename(columns={'index': 'timestep'})
@@ -51,8 +60,9 @@ def load_all_events(path,GRT_conversion_rate = -18):
     # start with timestep 1.
     all_events['timestep'] = all_events['timestep'] + 1
     all_events.set_index('timestep', inplace=True, drop=False)
+    return all_events
     
-
+def convert_pandas_df_to_list_of_dicts(all_events, GRT_conversion_rate = -18):
     # print(all_events.loc[:, ['blockNumber', 'logIndex']])    
 
     # create a dict from the df where duplicate timesteps appear in a list of dicts under the same timestep index. 
@@ -124,8 +134,15 @@ def load_all_events(path,GRT_conversion_rate = -18):
 
 if __name__ == '__main__':
     # event_path = 'another_indexer/single_indexer'
-    # event_path = 'multiple_indexer/multipleIndexer.csv'
-    event_path = 'multiple_indexer/allindexer/allEvents.csv'
+    event_path = 'multiple_indexer/multipleIndexer.csv'
+    # event_path = 'multiple_indexer/allindexer/allEvents.csv'
+    
+    agent_event_path = 'multiple_indexer/agent_events/agent_events.csv'
+    # agent_event_path = None
+
     delegation_events, undelegation_events, withdraw_events, indexing_fee_events, \
-        query_fee_events, stake_deposited_events, rewards_assigned_events, \
-        allocation_createds_events = load_all_events(event_path)
+            query_fee_events, stake_deposited_events, rewards_assigned_events, \
+            delegation_parameter_events, \
+            allocation_createds_events = load_all_events(event_path, agent_event_path)
+
+
