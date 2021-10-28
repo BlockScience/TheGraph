@@ -29,12 +29,17 @@ delegator_initial_holdings = [Decimal(10e9)]
 # event_path = 'multiple_indexer/multipleIndexer.csv'
 
 event_path = 'multiple_indexer/3indexer/3indexer.csv'
+agent_event_path = 'multiple_indexer/agent_events/agent_events.csv'
 # event_path = 'multiple_indexer/allindexer/allEvents.csv'
 
 delegation_events, undelegation_events, withdraw_events, indexing_fee_events, \
         query_fee_events, stake_deposited_events, rewards_assigned_events, \
         delegation_parameter_events, \
-        allocation_createds_events = utils.load_all_events(event_path)
+        allocation_createds_events = utils.load_all_events(event_path, agent_event_path)
+
+
+
+
 # print(delegation_events)
 params = {
         "r_del": [10],        #	Indexer’s initial delegated stake
