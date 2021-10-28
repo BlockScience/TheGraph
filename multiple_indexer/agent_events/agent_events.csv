@@ -1,0 +1,3 @@
+allocationID,blockNumber,epoch,id,indexer,logIndex,subgraphDeploymentID,tokens,type,isDelegator,sender,curationFees,from,rebateFees,delegator,shares,eventTime,until,indexingRewardCut,queryFeeCut,delegationFees,amount
+,11522107,,0x6a8d51481ed16398e78b8281db8979fde4b4b60700da9345054cce526316929d-314,0x7ab4cf25330ed7277ac7ab59380b68eea68abb0e,0,,15008580000000000000000,stakeDelegateds,,,,,,0x2f0d5918af0d12631df3fd45270ac3153c48f38b,14847851611603300000000,,,,,,
+,11522303,,0xcbcf82b11b27c43af2c1f571eca62e742eba2ae40576bd04166db84cd02f28a9-183,0x7ab4cf25330ed7277ac7ab59380b68eea68abb0e,0,,15008580000000000000000,stakeDelegatedLockeds,,,,,,0xeef37184494c81790c341fe6cd4cdc47503f12e7,14847851611603300000000,1608892907,39,,,,
