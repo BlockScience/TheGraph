@@ -22,14 +22,16 @@ delegator_initial_holdings = [Decimal(10e9)]
 # these are indexer cuts
 # query_fee_cut = [Decimal(0.8)]
 # indexer_revenue_cut = [Decimal(0.8)]
+agent_event_path = None
 
-# event_path = 'another_indexer/single_indexer/singleIndexer.csv'
+# 1 indexer
+event_path = 'another_indexer/single_indexer/singleIndexer.csv'
 
 # 2 indexers
 # event_path = 'multiple_indexer/multipleIndexer.csv'
 
-event_path = 'multiple_indexer/3indexer/3indexer.csv'
-agent_event_path = 'multiple_indexer/agent_events/agent_events.csv'
+# event_path = 'multiple_indexer/3indexer/3indexer.csv'
+# agent_event_path = 'multiple_indexer/agent_events/agent_events.csv'
 # event_path = 'multiple_indexer/allindexer/allEvents.csv'
 
 delegation_events, undelegation_events, withdraw_events, indexing_fee_events, \
