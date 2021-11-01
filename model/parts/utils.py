@@ -2,8 +2,23 @@ import pandas as pd
 from decimal import *
 import sys
 
+# pip install -U --pre eth-utils --no-deps
+# import web3.main as web3
+# from eth_utils import currency as web3
+from eth_utils.currency import from_wei 
 from pandas.core.accessor import delegate_names
-def convertFromLongStrToDecimal(d, field, GRT_conversion_rate):
+
+"""
+These are handled in eth calculations:
+    shares
+    tokens
+    curationFees
+    rebateFees
+    delegationFees
+    amount
+"""
+
+def convertFromLongStrToEth(d, field, GRT_conversion_rate):
     for events in d.values():
         for event in events:                       
             # sometimes it comes in as a number, sometimes as a string
@@ -14,9 +29,10 @@ def convertFromLongStrToDecimal(d, field, GRT_conversion_rate):
                 if event[field] == 'nan':
                     event[field] = Decimal(0)
                 else:
-                    strValue = event[field][:len(event[field]) - -GRT_conversion_rate] + "." + event[field][GRT_conversion_rate:]
-                    # print(strValue)
-                    event[field] = Decimal(strValue)
+                    event[field] = from_wei(int(event[field]), 'ether')
+                    
+                    
+                    
             except:
                 print(f'{field=}')
                 print(f'{event=}')
@@ -24,6 +40,29 @@ def convertFromLongStrToDecimal(d, field, GRT_conversion_rate):
                 print("Unexpected error:", sys.exc_info()[0])
                 sys.exit()
                 event[field] = Decimal(0)
+
+# def convertFromLongStrToDecimal(d, field, GRT_conversion_rate):
+#     for events in d.values():
+#         for event in events:                       
+#             # sometimes it comes in as a number, sometimes as a string
+#             event[field] = str(event[field])
+
+#             # put in a decimal place 18 chars from the right then convert to Decimal to avoid overflow error.
+#             try:
+#                 if event[field] == 'nan':
+#                     event[field] = Decimal(0)
+#                 else:
+#                     strValue = event[field][:len(event[field]) - -GRT_conversion_rate] + "." + event[field][GRT_conversion_rate:]
+#                     # print(strValue)
+#                     event[field] = Decimal(strValue)
+#             except:
+#                 print(f'{field=}')
+#                 print(f'{event=}')
+
+#                 print("Unexpected error:", sys.exc_info()[0])
+#                 sys.exit()
+#                 event[field] = Decimal(0)
+
 
 def convertFromLongStrToDecimalPercent(d, field):
     # 1000000 is 100%
@@ -78,11 +117,14 @@ def convert_pandas_df_to_list_of_dicts(all_events, GRT_conversion_rate = -18):
         d = events.groupby(level=0).apply(lambda x: x.to_dict('records')).to_dict()
         
 
-        convertFromLongStrToDecimal(d, 'tokens', GRT_conversion_rate)
+        convertFromLongStrToEth(d, 'tokens', GRT_conversion_rate)
         # print(d)
         try:
-            convertFromLongStrToDecimal(d, 'shares', GRT_conversion_rate) 
-            convertFromLongStrToDecimal(d, 'amount', GRT_conversion_rate)            
+            convertFromLongStrToEth(d, 'shares', GRT_conversion_rate) 
+            convertFromLongStrToEth(d, 'amount', GRT_conversion_rate)            
+            convertFromLongStrToEth(d, 'curationFees', GRT_conversion_rate) 
+            convertFromLongStrToEth(d, 'rebateFees', GRT_conversion_rate) 
+            convertFromLongStrToEth(d, 'delegationFees', GRT_conversion_rate) 
             convertFromLongStrToDecimalPercent(d, 'indexingRewardCut')
             convertFromLongStrToDecimalPercent(d, 'queryFeeCut')
         except KeyError:
