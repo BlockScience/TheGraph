@@ -95,7 +95,7 @@ def process_delegation_event(delegation_tokens_quantity, delegator, delegation_t
     # NOTE: allow this for now.
     # if delegation_tokens_quantity >= delegator.holdings:
     #     delegation_tokens_quantity = delegator.holdings        
-    delegator.holdings -= delegation_tokens_quantity
+    delegator.holdings -= delegation_tokens_quantity / (1 - delegation_tax_rate)
     
     # 5 * (0.995) / 10 * 10 = 4.975
     print(f'{pool_delegated_stake=}, {shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
