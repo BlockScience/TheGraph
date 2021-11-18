@@ -14,7 +14,8 @@ unbonding_timeblock = [unbonding_days*blocks_per_epoch]
 # represents multiply by 10e-18 to get GRT
 GRT_conversion_rate = -18
 # delegation_tax_rate = [Decimal(0.005)]
-delegation_tax_rate = [Decimal(0.0)]
+# delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks 
+delegation_tax_rate = [Decimal(0.005)]
 delegation_leverage = [16]
 delegator_initial_holdings = [Decimal(10e9)]
 
