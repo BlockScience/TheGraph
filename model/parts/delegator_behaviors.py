@@ -64,26 +64,26 @@ def delegate(params, step, sL, s, inputs):
         delegation_tokens_quantity = event['tokens']
 
         
-        print(f"""EVENT: DELEGATE (before)--
-                    {indexer.id=},
-                    {delegator_id=}, 
-                    {indexer.pool_delegated_stake=},
-                    {delegation_tokens_quantity=},
-                    {shares=},
-                    {delegator.holdings=}, 
-                    {delegator.shares=}""")
+        # print(f"""EVENT: DELEGATE (before)--
+        #             {indexer.id=},
+        #             {delegator_id=}, 
+        #             {indexer.pool_delegated_stake=},
+        #             {delegation_tokens_quantity=},
+        #             {shares=},
+        #             {delegator.holdings=}, 
+        #             {delegator.shares=}""")
 
         indexer.pool_delegated_stake, delegator = process_delegation_event(delegation_tokens_quantity, delegator, 
                                             delegation_tax_rate, indexer.pool_delegated_stake, shares)        
 
-        print(f"""  (after)--
-                    {indexer.id=},
-                    {delegator.id=}, 
-                    {indexer.pool_delegated_stake=},
-                    {delegation_tokens_quantity=},
-                    {shares=},                
-                    {delegator.holdings=}, 
-                    {delegator.shares=}""")
+        # print(f"""  (after)--
+        #             {indexer.id=},
+        #             {delegator.id=}, 
+        #             {indexer.pool_delegated_stake=},
+        #             {delegation_tokens_quantity=},
+        #             {shares=},                
+        #             {delegator.holdings=}, 
+        #             {delegator.shares=}""")
 
 
     key = 'indexers'

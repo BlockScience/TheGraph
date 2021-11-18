@@ -34,13 +34,10 @@ event_path = 'another_indexer/single_indexer/singleIndexer.csv'
 # agent_event_path = 'multiple_indexer/agent_events/agent_events.csv'
 # event_path = 'multiple_indexer/allindexer/allEvents.csv'
 
-delegation_events, undelegation_events, withdraw_events, indexing_fee_events, \
+delegation_events, undelegation_events, withdraw_events, allocation_closed_events, \
         query_fee_events, stake_deposited_events, rewards_assigned_events, \
         delegation_parameter_events, \
-        allocation_createds_events = utils.load_all_events(event_path, agent_event_path)
-
-
-
+        allocation_created_events = utils.load_all_events(event_path, agent_event_path)
 
 # print(delegation_events)
 params = {
@@ -63,10 +60,11 @@ params = {
         'delegation_tokens_events': [delegation_events],
         'undelegation_shares_events': [undelegation_events],
         'withdraw_tokens_events': [withdraw_events],
-        'indexing_fee_events': [indexing_fee_events],
+        'allocation_closed_events': [allocation_closed_events],
         'query_fee_events': [query_fee_events],
         'stake_deposited_events': [stake_deposited_events],
         'rewards_assigned_events': [rewards_assigned_events],
         'delegation_parameter_events': [delegation_parameter_events],
-        'delegator_initial_holdings': delegator_initial_holdings
+        'delegator_initial_holdings': delegator_initial_holdings,
+        'allocation_created_events': [allocation_created_events]
 }
