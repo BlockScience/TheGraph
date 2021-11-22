@@ -26,5 +26,6 @@ class Indexer():
         self.initial_stake_deposited = False 
         self.holdings = 0
 
-    # def add_delegator(self, Delegator, indexer_id):
-    #     self.delegators.append(Delegator(indexer_id))
+        self.subgraphs = {} # key is subgraphDeploymentID, value is tokens
+
+        self.buffered_rewards_assigned = 0 # this is indexing rewards--we cannot attribute to subgraph until allocationCloseds event

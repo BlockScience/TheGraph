@@ -7,22 +7,28 @@ def revenue_amt(params, step, sL, prev_state):
     timestep = prev_state['timestep']
     
     indexer_id = None
+    subgraph_id = None
     rewards_assigned_events = params['rewards_assigned_events'].get(timestep)
     indexing_fee_amt = 0
+    query_fee_amt = 0
     if rewards_assigned_events is not None:
         indexing_fee_amt = sum([e['amount'] for e in rewards_assigned_events])
         indexer_id = rewards_assigned_events[0]['indexer']
-    
+
+    allocation_closed_events = params['allocation_closed_events'].get(timestep)
+    if allocation_closed_events is not None:
+        indexer_id = allocation_closed_events[0]['indexer']
+        subgraph_id = allocation_closed_events[0]['subgraphDeploymentID']
+
     query_fee_events = params['query_fee_events'].get(timestep)
-    # print(query_fee_events)
-    if query_fee_events is None:
-        query_fee_amt = 0
-    else:
+    if query_fee_events is not None:
         query_fee_amt = sum([e['tokens'] for e in query_fee_events])
         indexer_id = query_fee_events[0]['indexer']
+        subgraph_id = query_fee_events[0]['subgraphDeploymentID']
     
 
     return {'indexer_id': indexer_id,
+            'subgraph_id': subgraph_id,
             'indexing_fee_amt': indexing_fee_amt,
             'query_fee_amt': query_fee_amt}
 
@@ -46,7 +52,7 @@ def distribute_revenue_to_indexer(params, step, sL, s, inputs):
         query_fee_cut = indexer.query_fee_cut
         indexing_revenue_cut = indexer.indexer_revenue_cut
 
-        print(f'EVENT: DISTRIBUTE REVENUE TO INDEXER')
+        print(f'--DISTRIBUTE REVENUE TO INDEXER')
         
         # take indexer cut here, the rest goes to indexer pool
         revenue_to_indexer = (indexing_revenue + 
@@ -69,7 +75,7 @@ def distribute_revenue_to_pool(params, step, sL, s, inputs):
     
     indexers = s['indexers']
     if indexing_revenue != 0 or query_revenue != 0:
-        print(f'EVENT: DISTRIBUTE REVENUE TO POOL')
+        print(f'--DISTRIBUTE REVENUE TO POOL')
 
         indexer = s['indexers'][indexer_id]
         
@@ -104,18 +110,38 @@ def cumulative_non_indexer_revenue(params, step, sL, s, inputs):
 
 
 def store_indexing_revenue(params, step, sL, s, inputs):
-    key = 'cumulative_indexing_revenue'
-    if inputs['indexer_id']:
-        indexer = s['indexers'][inputs['indexer_id']]
-        indexer.cumulative_indexing_revenue += inputs['indexing_fee_amt']
+    print(f'store_indexing_revenue: {inputs=}')
 
-    return key, s['indexers']
+    key = 'cumulative_indexing_revenue'
+    indexers = s['indexers']
+    if inputs['indexer_id']:
+        indexer = indexers[inputs['indexer_id']]
+        if inputs['indexing_fee_amt'] or indexer.buffered_rewards_assigned:
+            if inputs['subgraph_id']:
+                # it's an allocation_closed_event or allocation_created_event or allocation_collected_event
+                subgraph = indexer.subgraphs[inputs['subgraph_id']]
+                print(f'--before {subgraph.indexing_fees=}')
+                print('EVENT: ALLOCATION CLOSED EVENT/ASSIGN INDEXING FEE TO SUBGRAPH')
+                subgraph.indexing_fees += indexer.buffered_rewards_assigned
+                print(f'--after {subgraph.indexing_fees=}')
+                indexer.cumulative_indexing_revenue += indexer.buffered_rewards_assigned
+                
+            else:
+                print('EVENT: REWARDS ASSIGNED/INDEXING FEE EVENT')
+                # it's a rewards assigned events, so just buffer the rewards until we figure out what subgraph to assign them to.
+                indexer.buffered_rewards_assigned += inputs['indexing_fee_amt']
+
+    return key, indexers
 
 def store_query_revenue(params, step, sL, s, inputs):
+    print(f'store_query_revenue: {inputs=}')
     key = 'cumulative_query_revenue'
-    if inputs['indexer_id']:
+    if inputs['query_fee_amt']:
+        print('EVENT: ALLOCATION COLLECTED/QUERY FEE EVENT')
         indexer = s['indexers'][inputs['indexer_id']]
+        subgraph = indexer.subgraphs[inputs['subgraph_id']]
         indexer.cumulative_query_revenue += inputs['query_fee_amt']
+        subgraph.query_fees += inputs['query_fee_amt']
     return key, s['indexers']
 
 # helper function

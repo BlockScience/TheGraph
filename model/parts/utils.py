@@ -185,6 +185,7 @@ if __name__ == '__main__':
     delegation_events, undelegation_events, withdraw_events, indexing_fee_events, \
             query_fee_events, stake_deposited_events, rewards_assigned_events, \
             delegation_parameter_events, \
-            allocation_createds_events = load_all_events(event_path, agent_event_path)
+            allocation_created_events = load_all_events(event_path, agent_event_path)
+    print(allocation_created_events)
 
 
