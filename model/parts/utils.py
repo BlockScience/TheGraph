@@ -1,7 +1,7 @@
 import pandas as pd
 from decimal import *
+import traceback
 import sys
-
 # pip install -U --pre eth-utils --no-deps
 # import web3.main as web3
 # from eth_utils import currency as web3
@@ -28,16 +28,13 @@ def convertFromLongStrToEth(d, field, GRT_conversion_rate):
             try:
                 if event[field] == 'nan':
                     event[field] = Decimal(0)
-                else:
-                    event[field] = from_wei(int(event[field]), 'ether')
-                    
-                    
-                    
+                else:                    
+                    floatValue = float(event[field])
+                    intValue = int(floatValue)                    
+                    # intValue = int(event[field])
+                    event[field] = from_wei(intValue, 'ether')
             except:
-                print(f'{field=}')
-                print(f'{event=}')
-
-                print("Unexpected error:", sys.exc_info()[0])
+                print("Unexpected error:", traceback.format_exc())
                 sys.exit()
                 event[field] = Decimal(0)
 
@@ -175,12 +172,12 @@ def convert_pandas_df_to_list_of_dicts(all_events, GRT_conversion_rate = -18):
 #     return total
 
 if __name__ == '__main__':
-    # event_path = 'another_indexer/single_indexer'
-    event_path = 'multiple_indexer/multipleIndexer.csv'
+    event_path = 'another_indexer/single_indexer'
+    # event_path = 'multiple_indexer/multipleIndexer.csv'
     # event_path = 'multiple_indexer/allindexer/allEvents.csv'
     
-    agent_event_path = 'multiple_indexer/agent_events/agent_events.csv'
-    # agent_event_path = None
+    # agent_event_path = 'multiple_indexer/agent_events/agent_events.csv'
+    agent_event_path = None
 
     delegation_events, undelegation_events, withdraw_events, indexing_fee_events, \
             query_fee_events, stake_deposited_events, rewards_assigned_events, \
