@@ -179,8 +179,8 @@ if __name__ == '__main__':
     # agent_event_path = 'multiple_indexer/agent_events/agent_events.csv'
     agent_event_path = None
 
-    delegation_events, undelegation_events, withdraw_events, indexing_fee_events, \
-            query_fee_events, stake_deposited_events, rewards_assigned_events, \
+    delegation_events, undelegation_events, withdraw_events, rewards_assigned_events, \
+            allocation_collected_events, stake_deposited_events, rewards_assigned_events, \
             delegation_parameter_events, \
             allocation_created_events = load_all_events(event_path, agent_event_path)
     print(allocation_created_events)

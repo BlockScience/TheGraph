@@ -8,7 +8,7 @@ from .parts.delegator_behaviors import (delegate, undelegate, withdraw,
                                         withdraw_actions)
 
 from .parts.subgraph_behaviors import (allocation_created_events,
-                            create_allocations)
+                            create_allocations, allocation_closed_events, close_allocations)
 
 from .parts.revenue import (revenue_amt, distribute_revenue_to_indexer, 
                             mint_GRT, distribute_revenue_to_pool,
@@ -132,6 +132,15 @@ psubs = [
         },
         'variables': {
             'indexers': create_allocations,
+        },
+    },
+    {
+        'label': 'Allocation Closeds',
+        'policies': {
+            'allocation_closed_events': allocation_closed_events
+        },
+        'variables': {
+            'indexers': close_allocations,
         },
     }
 ]
