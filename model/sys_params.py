@@ -25,8 +25,8 @@ delegator_initial_holdings = [Decimal(10e9)]
 agent_event_path = None
 
 # 1 indexer
-# event_path = 'another_indexer/single_indexer/singleIndexer.csv'
-event_path = 'GraphQL_data/singleIndexer.csv'
+event_path = 'another_indexer/single_indexer/singleIndexer.csv'
+# event_path = 'GraphQL_data/singleIndexer.csv'
 
 # 2 indexers
 # event_path = 'multiple_indexer/multipleIndexer.csv'
@@ -36,7 +36,7 @@ event_path = 'GraphQL_data/singleIndexer.csv'
 # event_path = 'multiple_indexer/allindexer/allEvents.csv'
 
 delegation_events, undelegation_events, withdraw_events, allocation_closed_events, \
-        query_fee_events, stake_deposited_events, rewards_assigned_events, \
+        allocation_collected_events, stake_deposited_events, rewards_assigned_events, \
         delegation_parameter_events, \
         allocation_created_events = utils.load_all_events(event_path, agent_event_path)
 
@@ -62,7 +62,7 @@ params = {
         'undelegation_shares_events': [undelegation_events],
         'withdraw_tokens_events': [withdraw_events],
         'allocation_closed_events': [allocation_closed_events],
-        'query_fee_events': [query_fee_events],
+        'allocation_collected_events': [allocation_collected_events],
         'stake_deposited_events': [stake_deposited_events],
         'rewards_assigned_events': [rewards_assigned_events],
         'delegation_parameter_events': [delegation_parameter_events],
