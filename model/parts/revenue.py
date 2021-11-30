@@ -20,11 +20,11 @@ def revenue_amt(params, step, sL, prev_state):
         indexer_id = allocation_closed_events[0]['indexer']
         subgraph_id = allocation_closed_events[0]['subgraphDeploymentID']
 
-    query_fee_events = params['query_fee_events'].get(timestep)
-    if query_fee_events is not None:
-        query_fee_amt = sum([e['tokens'] for e in query_fee_events])
-        indexer_id = query_fee_events[0]['indexer']
-        subgraph_id = query_fee_events[0]['subgraphDeploymentID']
+    allocation_collected_events = params['allocation_collected_events'].get(timestep)
+    if allocation_collected_events is not None:
+        query_fee_amt = sum([e['tokens'] for e in allocation_collected_events])
+        indexer_id = allocation_collected_events[0]['indexer']
+        subgraph_id = allocation_collected_events[0]['subgraphDeploymentID']
     
 
     return {'indexer_id': indexer_id,
