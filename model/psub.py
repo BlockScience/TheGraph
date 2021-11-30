@@ -127,6 +127,8 @@ psubs = [
         },
         'variables': {
             'indexers': withdraw,
+            # holdings updated for delegator portfolio
+            'delegator_portfolios': withdraw_portfolio
         },
     },    
     {
