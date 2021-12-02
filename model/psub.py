@@ -14,6 +14,8 @@ from .parts.revenue import (revenue_amt, distribute_revenue_to_indexer,
                             mint_GRT, distribute_revenue_to_pool,
                             store_indexing_revenue, store_query_revenue,
                             cumulative_non_indexer_revenue)
+
+from .parts.portfolio_behaviors import *
                             
 
 
@@ -104,6 +106,7 @@ psubs = [
         },
         'variables': {
             'indexers': delegate,
+            'delegator_portfolios': delegate_portfolio
         },
     },
     {
@@ -114,6 +117,7 @@ psubs = [
         'variables': {
             # 'pool_delegated_stake': subtract_undelegated_stake_from_pool,            
             'indexers': undelegate,
+            'delegator_portfolios': undelegate_portfolio
         },
     },    
     {
@@ -123,6 +127,8 @@ psubs = [
         },
         'variables': {
             'indexers': withdraw,
+            # holdings updated for delegator portfolio
+            'delegator_portfolios': withdraw_portfolio
         },
     },    
     {

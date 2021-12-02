@@ -10,6 +10,7 @@ initial_stake = Decimal(0)
 """ System state/state of the delegation pool for multiple indexers. """
 genesis_state = {
     'indexers': {},
+    'delegator_portfolios': {},
     ## DELEGATION POOL of Indexer State ##
     # A_ind
     #'id_indexer': id_indexer,
