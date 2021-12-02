@@ -1,21 +1,9 @@
-from .parts.indexer_behaviors import (cumulative_deposited_stake, get_delegation_parameter_events,
-                                      get_stake_deposited_events, store_delegation_parameters)
-
-                                      
-from .parts.delegator_behaviors import (delegate, undelegate, withdraw,
-                                        delegate_actions,
-                                        undelegate_actions,
-                                        withdraw_actions)
-
-from .parts.subgraph_behaviors import (allocation_created_events,
-                            create_allocations, allocation_closed_events, close_allocations)
-
-from .parts.revenue import (revenue_amt, distribute_revenue_to_indexer, 
-                            mint_GRT, distribute_revenue_to_pool,
-                            store_indexing_revenue, store_query_revenue,
-                            cumulative_non_indexer_revenue)
-
+from .parts.indexer_behaviors import *                                      
+from .parts.delegator_behaviors import *
+from .parts.subgraph_behaviors import *
+from .parts.revenue import *
 from .parts.portfolio_behaviors import *
+from .parts.bookkeeping import *
                             
 
 
@@ -27,6 +15,15 @@ psubs = [
         'variables': {
         },
     },
+    {
+        'label': 'Bookkeeping',
+        'policies': {
+            
+        },
+        'variables': {
+            'block_number': set_block_number
+        },
+    },    
     {
         'label': 'stakeDepositeds',
         'policies': {

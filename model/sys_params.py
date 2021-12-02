@@ -38,7 +38,7 @@ event_path = 'another_indexer/single_indexer/singleIndexer.csv'
 delegation_events, undelegation_events, withdraw_events, allocation_closed_events, \
         allocation_collected_events, stake_deposited_events, rewards_assigned_events, \
         delegation_parameter_events, \
-        allocation_created_events = utils.load_all_events(event_path, agent_event_path)
+        allocation_created_events, all_events = utils.load_all_events(event_path, agent_event_path)
 
 # print(delegation_events)
 params = {
@@ -67,5 +67,6 @@ params = {
         'rewards_assigned_events': [rewards_assigned_events],
         'delegation_parameter_events': [delegation_parameter_events],
         'delegator_initial_holdings': delegator_initial_holdings,
-        'allocation_created_events': [allocation_created_events]
+        'allocation_created_events': [allocation_created_events],
+        'all_events': [all_events],
 }
