@@ -114,7 +114,7 @@ def convert_pandas_df_to_list_of_dicts(all_events):
     
     d = convert_df_to_dict(all_events)    
 
-    # also append all_events so you can lookup by timestep
+    # also append all_events so you can lookup by timestep, so you can set the current blockNumber
     events_list_of_dicts.append(d)
     
     print(f'TOTAL NUMBER OF EVENTS: {len(all_events)}')

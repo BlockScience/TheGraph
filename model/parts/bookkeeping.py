@@ -11,3 +11,4 @@ def set_block_number(params, step, sL, s, inputs):
     print(f'{event["blockNumber"]=}')
     value = event['blockNumber']
     return key, value
+

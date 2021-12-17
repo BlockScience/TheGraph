@@ -9,8 +9,9 @@ indexer_allocation_rate = [0.0050]  # ASSUMED share of GRT minted by subgraph by
 # 100 timesteps/blocks per day/epoch
 blocks_per_epoch = 6500
 unbonding_days = 28
-allocation_days = [28]
 unbonding_timeblock = [unbonding_days*blocks_per_epoch]
+
+allocation_days = [28]
 # represents multiply by 10e-18 to get GRT
 GRT_conversion_rate = -18
 # delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks 

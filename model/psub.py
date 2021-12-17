@@ -4,7 +4,7 @@ from .parts.subgraph_behaviors import *
 from .parts.revenue import *
 from .parts.portfolio_behaviors import *
 from .parts.bookkeeping import *
-                            
+from .parts.agent_behaviors import *                            
 
 
 psubs = [
@@ -12,7 +12,7 @@ psubs = [
         'label': 'Initialization',
         'policies': {
         },
-        'variables': {
+        'variables': {            
         },
     },
     {
@@ -21,6 +21,8 @@ psubs = [
             
         },
         'variables': {
+            'set_event_list': set_event_list,
+            'timestep_with_injected_agent_events': increment_timestep_due_to_agent_event
             'block_number': set_block_number
         },
     },    
@@ -152,6 +154,7 @@ psubs = [
         },
         'variables': {
             'agent': agent_actions,        # create events (either delegate, undelegate, withdraw, ?CLAIM?)
+            'injected_event_shift': 
         }
     }
 ]
