@@ -17,6 +17,7 @@ GRT_conversion_rate = -18
 delegation_tax_rate = [Decimal(0.005)]
 delegation_leverage = [16]
 delegator_initial_holdings = [Decimal(10e9)]
+
 # values based on average of 2-3 most common gas costs from etherscan
 # average determined by taking 10 random transcations from csv files another_indexer/all_events 
 # still figuring out best source to obtain actual data
