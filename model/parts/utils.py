@@ -100,6 +100,7 @@ def convert_pandas_df_to_list_of_dicts(all_events):
 
     # create a dict from the df where duplicate timesteps appear in a list of dicts under the same timestep index. 
     # NOTE: there should be no duplicates anymore.
+    # TODO: Add rebateClaimed
     event_types = ['stakeDelegateds', 'stakeDelegatedLockeds', 'stakeDelegatedWithdrawns', 'allocationCloseds', 
                    'allocationCollecteds', 'stakeDepositeds', 'rewardsAssigneds', 'delegationParametersUpdateds',
                    'allocationCreateds']

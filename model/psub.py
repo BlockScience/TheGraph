@@ -145,6 +145,14 @@ psubs = [
         'variables': {
             'indexers': close_allocations,
         },
+    },
+    {
+        'label': 'Agent Actions',
+        'policies': {
+        },
+        'variables': {
+            'agent': agent_actions,        # create events (either delegate, undelegate, withdraw, ?CLAIM?)
+        }
     }
 ]
 

@@ -51,37 +51,37 @@ class AbstractAgent(ABC):
     def updateState(self, states : states):
         # overridden for subclass state update
         # abstract class does nothing
-        return pass
+        pass
     
     @abstractmethod
     def updateBeliefs(self, beliefs : beliefs):
         # overridden for subclass belief update
         # abstract class does nothing
-        return pass
+        pass
     
     @abstractmethod
     def generateStrategies(self):
         # overridden for subclass strategy generation
         # abstract class does nothing
-        return pass
+        pass
     
     @abstractmethod
     def generatePlans(self) -> plans:
         # overridden for subclass plan generation
         # abstract class does nothing
-        return pass
+        pass
     
     @abstractmethod
     def selectPlan(self, plans : plans) -> plan:
         # overridden for subclass plan selection
         # abstract class does nothing
-        return pass
+        pass
     
     @abstractmethod
     def generateOutput(self, plan : plan) -> output:
         # overridden for subclass output generation
         # abstract class does nothing
-        return pass
+        pass
     
     def getAction(self) -> output:
         self.updateState()

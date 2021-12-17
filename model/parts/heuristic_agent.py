@@ -1,9 +1,8 @@
-t
-
 # The abstract class 'AbstractAgent' is used, 
 # assumed to lie within an 'agent' module
 from abstract_agent import AbstractAgent
  
+
 class HeuristicAgent(AbstractAgent):
 
     def __init__(self, identifier, rules): # Dict[id, rule]):
@@ -12,13 +11,13 @@ class HeuristicAgent(AbstractAgent):
         
     def beliefs(self):
         # Heuristic agents do not have beliefs about the environment
-        return []
+        return None
         
-    def updateState(self, states : states, inputs : inputs):
+    def updateState(self): #, states : states, inputs : inputs):
         # Heuristic agents do not condition on anything other than
         # their internal state and external inputs to update their
         # internal state
-        return pass
+        pass
     
     def updateBeliefs(self):
         # Heuristic agents do not have beliefs to update
@@ -31,13 +30,13 @@ class HeuristicAgent(AbstractAgent):
     def generatePlans(self, states : states, strategies : strategies):
         # Heuristic agents test alternative rules against their state
         # and return plans that meet rule criteria (if any)
-        return pass
+        pass
     
     def selectPlan(self, plans : plans):
         # If multiple plans are available, logic for selecting
         # between them should be placed here
-        return pass
+        pass
     
     def generateOutput(self, plan : plan):
         # Application of the selected plan occurs here
-        return pass
+        pass

@@ -10,6 +10,10 @@ def delegate_actions(params, step, sL, s):
     # how many tokens.
     timestep = s['timestep']
     delegation_events = params['delegation_tokens_events'].get(timestep)
+
+    # NOTE: merge this with agent actions by keeping agent action counter and then shift initial events by that counter
+    # delegation_events = params['delegation_tokens_events'].get(timestep+agent_action_counter)
+    
     return {'delegation_events': delegation_events}
 
 """ this just gets all of the events at this timestep into policy variables """

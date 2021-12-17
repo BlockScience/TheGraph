@@ -3,6 +3,7 @@ from .subgraph import Subgraph
 def allocation_created_events(params, step, sL, s):
     timestep = s['timestep']
     allocation_created_events = params['allocation_created_events'].get(timestep)
+    
     return {'allocation_created_events': allocation_created_events}
 
 def create_allocations(params, step, sL, s, inputs):

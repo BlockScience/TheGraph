@@ -43,7 +43,7 @@ delegation_events, undelegation_events, withdraw_events, allocation_closed_event
 # print(delegation_events)
 params = {
         "r_del": [10],        #	Indexer’s initial delegated stake
-        "s_del": [10],    #	Indexer’s initial delegated stake share of pool
+        "s_del": [10],        # Indexer’s initial delegated stake share of pool
         "expected_revenue": [7],
         "arrival_rate": [0.5],
         "expected_initial_token_holdings": [25],
