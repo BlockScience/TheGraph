@@ -33,8 +33,7 @@ def delegate_portfolio(params, step, sL, s, inputs):
             portfolio.delegate_block_number[indexerID].append(event['blockNumber'])
         else:
             portfolio.delegate_block_number[indexerID].append(event['blockNumber'])
-        # value based on average of 2-3 most common gas costs from etherscan, still figuring out best source to obtain actual data
-        portfolio.gas_spent += 96286
+        portfolio.gas_spent += params['delegation_gas_cost']
     key = 'delegator_portfolios'
     return key, s['delegator_portfolios']
 
@@ -51,7 +50,7 @@ def undelegate_portfolio(params, step, sL, s, inputs):
         else:
             portfolio.indexer_locked_tokens[indexerID] += event['tokens']
         # value based on average of 2-3 most common gas costs from etherscan, still figuring out best source to obtain actual data
-        portfolio.gas_spent += 107389
+        portfolio.gas_spent += params['undelegate_gas_cost']
     key = 'delegator_portfolios'
     return key, s['delegator_portfolios']
         
@@ -88,7 +87,7 @@ def withdraw_portfolio(params, step, sL, s, inputs):
         portfolio.ROI = sum(portfolio.indexer_ROI.values()) 
         portfolio.ROI_time = sum(portfolio.indexer_ROI_time.values())
         # value based on average of 2-3 most common gas costs from etherscan, still figuring out best source to obtain actual data
-        portfolio.gas_spent += 52101
+        portfolio.gas_spent += params['withdraw_gas_cost']
     key = 'delegator_portfolios'
     return key, s['delegator_portfolios']
         
