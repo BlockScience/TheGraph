@@ -1,5 +1,5 @@
-from heuristic_agent import HeuristicAgent
-from rules import Rules
+from .heuristic_agent import HeuristicAgent
+from .rules import Rules
 
 class DelegateFrontRunnerRules(Rules):
     

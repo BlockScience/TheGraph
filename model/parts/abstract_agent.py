@@ -20,7 +20,7 @@ class AbstractAgent(ABC):
         return self._inputs # List[inpt]
     
     @inputs.setter
-    def inputs(self, newInput : inpt):
+    def inputs(self, newInput):
         self._inputs.append(newInput)
     
     @property
@@ -36,7 +36,7 @@ class AbstractAgent(ABC):
         return self._plans # List[plan]
     
     @plans.setter
-    def plans(self, newPlan : plan):
+    def plans(self, newPlan):
         self._plans.append(newPlan)
     
     @property
@@ -44,7 +44,7 @@ class AbstractAgent(ABC):
         return self._outputs # List[output]
     
     @outputs.setter
-    def outputs(self, newOutput : output):
+    def outputs(self, newOutput):
         self._outputs.append(newOutput)
     
     @abstractmethod
@@ -72,18 +72,18 @@ class AbstractAgent(ABC):
         pass
     
     @abstractmethod
-    def selectPlan(self, plans : plans) -> plan:
+    def selectPlan(self, plans):
         # overridden for subclass plan selection
         # abstract class does nothing
         pass
     
     @abstractmethod
-    def generateOutput(self, plan : plan) -> output:
+    def generateOutput(self, plan):
         # overridden for subclass output generation
         # abstract class does nothing
         pass
     
-    def getAction(self) -> output:
+    def getAction(self):
         self.updateState()
         self.updateBeliefs()
         self.generateStrategies()

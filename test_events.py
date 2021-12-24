@@ -9,7 +9,7 @@ import numpy as np
 # from .model.parts.utils import *
 # import model.parts.utils
 from model.sys_params import *
-
+from model.sim_setup import SIMULATION_TIME_STEPS
 
 df = pd.read_pickle(r'experiment.p')
 df.reset_index(inplace = True)
@@ -27,6 +27,7 @@ def test_delegation(debug):
         print("MODELED RESULTS")
     delegation_event_shares = {}
     for timestep, events in delegation_events_dict.items():
+        event = delegation_events_dict[timestep]
         for event in events:
             # curTimestepShares = df.iloc[timestep-1].delegators[event['delegator']].shares
             curTimestepShares = df.iloc[timestep-1].indexers[event['indexer']].delegators[event['delegator']].shares
@@ -150,10 +151,15 @@ def test_withdraw(debug):
     if debug:
         print("EXPECTED TRUTH--Tokens withdrawn via withdraw events:")
         for timestep, withdraw_event in withdraw_events_dict.items():
+            if not withdraw_event: # there were no withdraw events
+                break
+            
             print(f"{timestep}, {withdraw_event[0]['delegator']}, {withdraw_event[0]['tokens']}")
     
         print("MODELED RESULTS--Tokens locked in undelegation.")
         for timestep, withdraw_event in withdraw_events_dict.items():
+            if not withdraw_event: # there were no withdraw events
+                break
             event = withdraw_event[0]
             new_tokens_withdrawn = df.iloc[timestep-1].indexers[event['indexer']].delegators[event['delegator']].holdings
             old_tokens_withdrawn = df.iloc[timestep-2].indexers[event['indexer']].delegators[event['delegator']].holdings
@@ -167,7 +173,10 @@ def test_withdraw(debug):
     cntClose = 0
     cnt = 0
     cntWrong = 0
-    for timestep, withdraw_event in withdraw_events_dict.items():
+
+    for timestep, withdraw_event in withdraw_events_dict.items():        
+        if not withdraw_event: # there were no withdraw events
+            break
         event = withdraw_event[0]
         new_tokens_withdrawn = df.iloc[timestep-1].indexers[event['indexer']].delegators[event['delegator']].holdings
         old_tokens_withdrawn = df.iloc[timestep-2].indexers[event['indexer']].delegators[event['delegator']].holdings
@@ -291,6 +300,8 @@ def test_allocation_collecteds(debug):
     if debug:
         print("MODELED RESULTS")
         for timestep, allocation_collected_events_list in allocation_collected_events_dict.items():    
+            if not allocation_collected_events_list:
+                break
             event = allocation_collected_events_list[0]
             new_query_fee_amt = df.iloc[timestep-1].indexers[event['indexer']].cumulative_query_revenue
             old_query_fee_amt = df.iloc[timestep-2].indexers[event['indexer']].cumulative_query_revenue
@@ -309,6 +320,8 @@ def test_allocation_collecteds(debug):
             event_query_fee_amt = 0
         else:
             event_query_fee_amt = sum([e['tokens'] for e in allocation_collected_events_list])
+        if not allocation_collected_events_list:
+            break
         event = allocation_collected_events_list[0]
         new_query_fee_amt = df.iloc[timestep-1].indexers[event['indexer']].cumulative_query_revenue
         old_query_fee_amt = df.iloc[timestep-2].indexers[event['indexer']].cumulative_query_revenue
@@ -564,24 +577,24 @@ def test_stake_depositeds(debug):
 
 if __name__ == '__main__':
     print("UNITTEST RESULTS")
-    debug = False
+    debug = True
     test_delegation(debug=debug)
-    test_undelegation(debug=debug)
-    test_withdraw(debug=debug)
+    # test_undelegation(debug=debug)
+    # test_withdraw(debug=debug)
     
     # this is indexing rewards
-    test_rewards_assigned(debug=debug) 
+    # test_rewards_assigned(debug=debug) 
     
     # this is query fees
-    test_allocation_collecteds(debug=debug) 
-    test_allocation_createds(debug=debug)
+    # test_allocation_collecteds(debug=debug) 
+    # test_allocation_createds(debug=debug)
     
     # could be the same amount as created under assumption of no slashing 
-    test_allocation_closeds(debug=debug) 
+    # test_allocation_closeds(debug=debug) 
     
     # compare indexer.cumulative_deposited_stake before and after (this is the amount of indexing fees that does not go to pool)
     # if they are restaking, it goes to cumulative_deposited_stake, NOT holdings and vice versa.
-    test_stake_depositeds(debug=debug) 
+    # test_stake_depositeds(debug=debug) 
 
 
 

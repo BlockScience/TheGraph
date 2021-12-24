@@ -10,7 +10,7 @@ indexer_allocation_rate = [0.0050]  # ASSUMED share of GRT minted by subgraph by
 blocks_per_epoch = 6500
 unbonding_days = 28
 unbonding_timeblock = [unbonding_days*blocks_per_epoch]
-
+dispute_channel_epochs = 7
 allocation_days = [28]
 # represents multiply by 10e-18 to get GRT
 GRT_conversion_rate = -18
@@ -26,7 +26,8 @@ delegator_initial_holdings = [Decimal(10e9)]
 agent_event_path = None
 
 # 1 indexer
-event_path = 'another_indexer/single_indexer/singleIndexer.csv'
+# event_path = 'another_indexer/single_indexer/singleIndexer.csv'
+event_path = 'another_indexer/single_indexer/singleIndexer_200events.csv'
 # event_path = 'GraphQL_data/singleIndexer.csv'
 
 # 2 indexers

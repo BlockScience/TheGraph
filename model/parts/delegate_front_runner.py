@@ -1,6 +1,6 @@
-from heuristic_agent import HeuristicAgent
-from delegate_front_runner_rules import DelegateFrontRunnerRules
-from rules import Rules
+from .heuristic_agent import HeuristicAgent
+from .delegate_front_runner_rules import DelegateFrontRunnerRules
+from .rules import Rules
 
  
 class DelegateFrontRunner(HeuristicAgent):

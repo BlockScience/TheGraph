@@ -1,6 +1,6 @@
 # The abstract class 'AbstractAgent' is used, 
 # assumed to lie within an 'agent' module
-from abstract_agent import AbstractAgent
+from .abstract_agent import AbstractAgent
  
 
 class HeuristicAgent(AbstractAgent):
@@ -27,16 +27,16 @@ class HeuristicAgent(AbstractAgent):
         # Heuristic agents do not generate strategies
         return None
     
-    def generatePlans(self, states : states, strategies : strategies):
+    def generatePlans(self, states, strategies):
         # Heuristic agents test alternative rules against their state
         # and return plans that meet rule criteria (if any)
         pass
     
-    def selectPlan(self, plans : plans):
+    def selectPlan(self, plans):
         # If multiple plans are available, logic for selecting
         # between them should be placed here
         pass
     
-    def generateOutput(self, plan : plan):
+    def generateOutput(self, plan):
         # Application of the selected plan occurs here
         pass
