@@ -579,11 +579,11 @@ if __name__ == '__main__':
     print("UNITTEST RESULTS")
     debug = True
     # test_delegation(debug=debug)
-    test_undelegation(debug=debug)
+    # test_undelegation(debug=debug)
     # test_withdraw(debug=debug)
     
     # this is indexing rewards
-    # test_rewards_assigned(debug=debug) 
+    test_rewards_assigned(debug=debug) 
     
     # this is query fees
     # test_allocation_collecteds(debug=debug) 
