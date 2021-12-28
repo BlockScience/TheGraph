@@ -578,8 +578,8 @@ def test_stake_depositeds(debug):
 if __name__ == '__main__':
     print("UNITTEST RESULTS")
     debug = True
-    test_delegation(debug=debug)
-    # test_undelegation(debug=debug)
+    # test_delegation(debug=debug)
+    test_undelegation(debug=debug)
     # test_withdraw(debug=debug)
     
     # this is indexing rewards

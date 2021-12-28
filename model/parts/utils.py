@@ -124,7 +124,7 @@ def convert_pandas_df_to_list_of_dicts(all_events):
 
 
 if __name__ == '__main__':
-    event_path = 'another_indexer/single_indexer/singleIndexer.csv'
+    event_path = 'another_indexer/single_indexer/singleIndexer_200events_a.csv'
     # event_path = 'multiple_indexer/multipleIndexer.csv'
     # event_path = 'multiple_indexer/allindexer/allEvents.csv'
     
