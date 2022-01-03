@@ -10,25 +10,33 @@ def delegate_portfolio(params, step, sL, s, inputs):
         delegatorID = event['delegator']
         indexer = s['indexers'][event['indexer']]
         pool_delegated_stake = indexer.pool_delegated_stake
-        if delegatorID not in portfolios.keys():
+        try:
+            portfolios[delegatorID]
+        except KeyError:
             portfolio = Portfolio(delegatorID)
             portfolios[delegatorID] = portfolio
         else:
             portfolio = portfolios[delegatorID]
         portfolio.holdings -= event['tokens'] / (1 - delegation_tax_rate)
         shares = sum([d.shares for d in indexer.delegators.values()])
-        if indexerID not in portfolio.indexer_in_tokens.keys():
+        try:
+            portfolio.indexer_in_tokens[indexerID]
+        except KeyError:
             portfolio.indexer_in_tokens[indexerID] = event['tokens'] / (1 - delegation_tax_rate)
         else:
             portfolio.indexer_in_tokens[indexerID] += event['tokens'] / (1 - delegation_tax_rate) # to calculate ROI, won't sum to pool delegated stake 
-        if indexerID not in portfolio.indexer_shares.keys():
+        try:
+            portfolio.indexer_shares[indexerID]
+        except KeyError:
             portfolio.indexer_shares[indexerID] = event['tokens'] if pool_delegated_stake.is_zero() \
                                                      else (event['tokens'] / pool_delegated_stake) * shares
         else:
             portfolio.indexer_shares[indexerID] += event['tokens'] if pool_delegated_stake.is_zero() \
                                                      else (event['tokens'] / pool_delegated_stake) * shares
         portfolio.indexer_price[indexerID] = portfolio.indexer_shares[indexerID] / portfolio.indexer_in_tokens[indexerID]
-        if indexerID not in portfolio.delegate_block_number.keys():
+        try:
+            portfolio.delegate_block_number[indexerID]
+        except KeyError:
             portfolio.delegate_block_number[indexerID] = []
             portfolio.delegate_block_number[indexerID].append(event['blockNumber'])
         else:
@@ -45,7 +53,9 @@ def undelegate_portfolio(params, step, sL, s, inputs):
         delegatorID = event['delegator']
         indexer = s['indexers'][event['indexer']]
         portfolio = portfolios[delegatorID]
-        if indexerID not in portfolio.indexer_locked_tokens.keys():
+        try:
+            portfolio.indexer_locked_tokens[indexerID]
+        except KeyError:
             portfolio.indexer_locked_tokens[indexerID] = event['tokens']
         else:
             portfolio.indexer_locked_tokens[indexerID] += event['tokens']
@@ -64,21 +74,29 @@ def withdraw_portfolio(params, step, sL, s, inputs):
         indexer = s['indexers'][event['indexer']]
         portfolio = portfolios[delegatorID]
         portfolio.holdings += event['tokens']
-        if indexerID not in portfolio.indexer_locked_tokens.keys():
+        try:
+            portfolio.indexer_locked_tokens[indexerID]
+        except KeyError:
             portfolio.indexer_locked_tokens[indexerID] = event['tokens']
         else:
             portfolio.indexer_locked_tokens[indexerID] -= event['tokens']
-        if indexerID not in portfolio.indexer_revenues.keys():
+        try:
+            portfolio.indexer_revenues[indexerID]
+        except KeyError:
             portfolio.indexer_revenues[indexerID] = event['tokens']
         else:
             portfolio.indexer_revenues[indexerID] += event['tokens']
-        if indexerID not in portfolio.withdraw_block_number.keys():
+        try:
+            portfolio.withdraw_block_number[indexerID]
+        except KeyError:
             portfolio.withdraw_block_number[indexerID] = []
             portfolio.withdraw_block_number[indexerID].append(event['blockNumber'])
         else:
             portfolio.delegate_block_number[indexerID].append(event['blockNumber'])
         investment_time = portfolio.withdraw_block_number[indexerID][-1] - portfolio.delegate_block_number[indexerID][0] 
-        if indexerID not in portfolio.indexer_ROI_time.keys():
+        try:
+            indexer_ROI_time[indexerID]
+        except KeyError:
             portfolio.indexer_ROI_time[indexerID] = 1/Decimal(investment_time) * (portfolio.indexer_revenues[indexerID] / portfolio.indexer_in_tokens[indexerID]) + 1
         else:
             portfolio.indexer_ROI_time[indexerID] = 1/Decimal(investment_time) * (portfolio.indexer_revenues[indexerID] / portfolio.indexer_in_tokens[indexerID]) + 1
