@@ -577,24 +577,24 @@ def test_stake_depositeds(debug):
 
 if __name__ == '__main__':
     print("UNITTEST RESULTS")
-    debug = True
-    # test_delegation(debug=debug)
-    # test_undelegation(debug=debug)
-    # test_withdraw(debug=debug)
+    debug = False
+    test_delegation(debug=debug)
+    test_undelegation(debug=debug)
+    test_withdraw(debug=debug)
     
     # this is indexing rewards
     test_rewards_assigned(debug=debug) 
     
     # this is query fees
-    # test_allocation_collecteds(debug=debug) 
-    # test_allocation_createds(debug=debug)
+    test_allocation_collecteds(debug=debug) 
+    test_allocation_createds(debug=debug)
     
     # could be the same amount as created under assumption of no slashing 
-    # test_allocation_closeds(debug=debug) 
+    test_allocation_closeds(debug=debug) 
     
     # compare indexer.cumulative_deposited_stake before and after (this is the amount of indexing fees that does not go to pool)
     # if they are restaking, it goes to cumulative_deposited_stake, NOT holdings and vice versa.
-    # test_stake_depositeds(debug=debug) 
+    test_stake_depositeds(debug=debug) 
 
 
 

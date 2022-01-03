@@ -26,8 +26,8 @@ delegator_initial_holdings = [Decimal(10e9)]
 agent_event_path = None
 
 # 1 indexer
-# event_path = 'another_indexer/single_indexer/singleIndexer.csv'
-event_path = 'another_indexer/single_indexer/singleIndexer_200events_a.csv'
+event_path = 'another_indexer/single_indexer/singleIndexer.csv'
+# event_path = 'another_indexer/single_indexer/singleIndexer_200events_a.csv'
 # event_path = 'GraphQL_data/singleIndexer.csv'
 
 # 2 indexers

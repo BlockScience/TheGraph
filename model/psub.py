@@ -104,7 +104,7 @@ psubs = [
         },
         'variables': {
             'indexers': delegate,
-            'delegator_portfolios': delegate_portfolio
+            # 'delegator_portfolios': delegate_portfolio
         },
     },
     {
@@ -115,7 +115,7 @@ psubs = [
         'variables': {
             # 'pool_delegated_stake': subtract_undelegated_stake_from_pool,            
             'indexers': undelegate,
-            'delegator_portfolios': undelegate_portfolio
+            # 'delegator_portfolios': undelegate_portfolio
         },
     },    
     {
@@ -126,7 +126,7 @@ psubs = [
         'variables': {
             'indexers': withdraw,
             # holdings updated for delegator portfolio
-            'delegator_portfolios': withdraw_portfolio
+            # 'delegator_portfolios': withdraw_portfolio
         },
     },    
     {

@@ -1,3 +1,5 @@
+### This file is an alternative to running in a jupyter notebook.
+
 import pandas as pd
 import numpy as np
 from model import config
