@@ -74,5 +74,8 @@ params = {
         'delegation_parameter_events': [delegation_parameter_events],
         'delegator_initial_holdings': delegator_initial_holdings,
         'allocation_created_events': [allocation_created_events],
+        'delegation_gas_cost': delegation_gas_cost,
+        'undelegate_gas_cost': undelegate_gas_cost,
+        'withdraw_gas_cost': withdraw_gas_cost,
         'all_events': [all_events],
 }
