@@ -66,13 +66,13 @@ class AbstractAgent(ABC):
         pass
     
     @abstractmethod
-    def generatePlans(self) -> plans:
+    def generatePlans(self):
         # overridden for subclass plan generation
         # abstract class does nothing
         pass
     
     @abstractmethod
-    def selectPlan(self, plans):
+    def selectPlan(self):
         # overridden for subclass plan selection
         # abstract class does nothing
         pass
@@ -87,5 +87,6 @@ class AbstractAgent(ABC):
         self.updateState()
         self.updateBeliefs()
         self.generateStrategies()
-        self.selectPlan(self.generatePlans())
+        self.generatePlans()
+        self.selectPlan()
         return self.generateOutput() 

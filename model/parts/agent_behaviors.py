@@ -8,8 +8,8 @@ def agent_actions(params, step, sL, s, inputs):
     # output = agent.getAction(), which triggers the agent workflow and stores the output of the agent 
     # in output; this would then be parsed to extract events according to the agent’s output schema.
         
-    
-    agent = s['agents'][0]
+    agents = s['agents']
+    agent = agents[0]
     inpt = {
                 'availableIndexers'         : s['indexers'],
                 'currentPeriod'             : s['timestep'] / params['blocks_per_epoch'],
@@ -21,4 +21,6 @@ def agent_actions(params, step, sL, s, inputs):
     
     agent.inputs(inpt)
     action = agent.getAction()
-    return action
+    key = 'agents'
+    print('passed 1!')
+    return key, agents

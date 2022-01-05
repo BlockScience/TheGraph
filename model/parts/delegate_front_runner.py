@@ -52,8 +52,8 @@ class DelegateFrontRunner(HeuristicAgent):
         delegationPlans = []
         
         t = inpt['currentPeriod']
-        for indexer in inpt['availableIndexers']:
-            for allocation in indexer:
+        for indexer in inpt['availableIndexers'].values():
+            for allocation in indexer.subgraphs.values():
                 plan = {}
             # the following are the 'if-then' structures for the [C01] front-running attack
                 if t == allocation['startPeriod'] + 27: # allocation time in days/epochs
@@ -91,6 +91,8 @@ class DelegateFrontRunner(HeuristicAgent):
         output = []
         for plan in self._plans[-1]:
             output.append(plan)
+            # added JS
+            self.outputs.append(plan)
         return output
 
 
