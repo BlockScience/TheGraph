@@ -1,13 +1,11 @@
 from .heuristic_agent import HeuristicAgent
 from .delegate_front_runner_rules import DelegateFrontRunnerRules
-from .rules import Rules
-
  
 class DelegateFrontRunner(HeuristicAgent):
 
-    def __init__(self, identifier, rules : DelegateFrontRunnerRules,
+    def __init__(self, id, rules : DelegateFrontRunnerRules,
                 initialAccountBalance):
-        super().__init__(identifier, rules)
+        super().__init__(id, rules)
         self._inputs = []
         self._outputs = []
         self._states = [
@@ -38,7 +36,7 @@ class DelegateFrontRunner(HeuristicAgent):
         if len(self._outputs) > 0:
             output = self._outputs[-1]
             for plan in output:
-                if plan['status'] is "have cleared delegation":
+                if plan['status'] == "have cleared delegation":
                     state['delegations'].pop(plan['target'], None)
                 else:
                     state['delegations'].update(plan)

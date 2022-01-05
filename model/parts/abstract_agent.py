@@ -8,7 +8,7 @@ class AbstractAgent(ABC):
     # note also no hint for type of identifier (str, int etc.)
     @abstractmethod
     def __init__(self, identifier):
-        self.identifier = identifier
+        self.id = identifier
     
     @property
     def states(self):

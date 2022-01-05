@@ -1,17 +1,15 @@
-# from model.parts import delegator
-from model.parts import delegate_front_runner
-from .parts.delegator import Delegator
-from .parts.indexer import Indexer
+from model.parts.delegate_front_runner import DelegateFrontRunner
 from decimal import Decimal
 
-initial_shares = 0
-initial_stake = Decimal(0)
-# id_indexer = "indexer"
+from model.parts.delegate_front_runner_rules import DelegateFrontRunnerRules
 
+initial_account_balance = Decimal(0)
+
+rules = DelegateFrontRunnerRules(initial_account_balance)
 """ System state/state of the delegation pool for multiple indexers. """
 genesis_state = {
     'indexers': {},
-    # 'agents': [delegate_front_runner.DelegateFrontRunner()],
+    'agents': [DelegateFrontRunner(1, rules, initial_account_balance)],
     'delegator_portfolios': {},
     'block_number': 0,
     'injected_event_shift': 0

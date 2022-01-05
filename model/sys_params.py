@@ -55,7 +55,7 @@ params = {
         "mininum_required_price_pct_diff_to_act": [0.02],
         "risk_adjustment": [0.7],  # cut 30% of the value off due to risk
         'delegation_tax_rate': delegation_tax_rate, # Beta_del: tax percentage from delegated tokens to be burned
-        'unbonding_timeblock': unbonding_timeblock, # time unbonded tokens are frozen from being eligibble to be withdrawn
+        'unbonding_timeblock': unbonding_timeblock, # time unbonded tokens are frozen from being eligible to be withdrawn
         'delegation_leverage': delegation_leverage, # tax percentage from delegated tokens to be burned
         'R_i_rate': R_i_rate, # indexer reward revenue rate (inflationary rewards)
         'allocation_days': allocation_days, # time for allocation
@@ -71,4 +71,7 @@ params = {
         'delegator_initial_holdings': delegator_initial_holdings,
         'allocation_created_events': [allocation_created_events],
         'all_events': [all_events],
+        'blocks_per_epoch': [blocks_per_epoch],
+        'dispute_channel_epochs': [dispute_channel_epochs],
+        'unbonding_days': [unbonding_days],
 }

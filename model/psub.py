@@ -21,7 +21,6 @@ psubs = [
         },
         'variables': {
             # 'set_event_list': set_event_list,
-            # 'timestep_with_injected_agent_events': increment_timestep_due_to_agent_event,
             'block_number': set_block_number
         },
     },    
@@ -147,14 +146,23 @@ psubs = [
             'indexers': close_allocations,
         },
     },
-    # {
-    #     'label': 'Agent Actions',
-    #     'policies': {
-    #     },
-    #     'variables': {
-    #         'agent': agent_actions,        # create events (either delegate, undelegate, withdraw, ?CLAIM?)
-    #         'injected_event_shift': get_injected_event_shift
-    #     }
-    # }
+    {
+        'label': 'Agent Actions',
+        'policies': {
+        },
+        'variables': {
+            'agents': agent_actions,        # create events (either delegate, undelegate, withdraw, ?CLAIM?)            
+        }
+
+    },
+    {
+        'label': 'Increment agent event counter',
+        'policies': {
+        },
+        'variables': {
+                'injected_event_shift': increment_timestep_due_to_agent_event
+        }
+
+    },
 ]
 
