@@ -1,4 +1,5 @@
 from .subgraph import Subgraph
+from .allocation import Allocation
 
 def allocation_created_events(params, step, sL, s):
     timestep = s['timestep']
@@ -22,10 +23,10 @@ def create_allocations(params, step, sL, s, inputs):
             indexer.subgraphs[subgraphID] = subgraph
         else:
             subgraph = indexer.subgraphs[subgraphID]
-        subgraph.tokens += event['tokens']
-        # these are not on allocation_created event
-        # subgraph.indexing_fees += event['rebateFees']
-        # subgraph.query_fees += event['curationFees']
+        
+        allocation = Allocation(event['allocationID'], event['tokens'], event['epoch'])
+        subgraph.allocations[event['allocationID']] = allocation
+        
         print(f'{subgraph.ROI_indexing()=}, {subgraph.ROI_query()=}')
     return key, indexers
 
@@ -51,11 +52,9 @@ def close_allocations(params, step, sL, s, inputs):
             indexer.subgraphs[subgraphID] = subgraph
         else:
             subgraph = indexer.subgraphs[subgraphID]
-        subgraph.tokens -= event['tokens']
-        # these are not on allocation_closed event
-        # subgraph.indexing_fees += event['rebateFees']
-        # subgraph.query_fees += event['curationFees']
-        # print(f'{subgraph.ROI_indexing()=}, {subgraph.ROI_query()=}')
+        
+        del subgraph.allocations[event['allocationID']]
+
     return key, indexers
 
 

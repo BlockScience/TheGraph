@@ -20,7 +20,7 @@ def agent_actions(params, step, sL, s, inputs):
         
     
     agent.inputs(inpt)
-    action = agent.getAction()
+    # action = agent.getAction()
+    agent.getAction()
     key = 'agents'
-    print('passed 1!')
     return key, agents

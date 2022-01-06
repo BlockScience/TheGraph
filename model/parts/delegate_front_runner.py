@@ -52,36 +52,37 @@ class DelegateFrontRunner(HeuristicAgent):
         delegationPlans = []
         
         t = inpt['currentPeriod']
-        for indexer in inpt['availableIndexers'].values():
-            for allocation in indexer.subgraphs.values():
-                plan = {}
-            # the following are the 'if-then' structures for the [C01] front-running attack
-                if t == allocation['startPeriod'] + 27: # allocation time in days/epochs
-                    if indexer not in state['delegations'] or \
-                    (state['delegations'][indexer]['status'] != "have delegated" and
-                        indexer[allocation]['state'] not in ("claim", "close")):
-                        if strategy['delegate']['amount'] <= state['availableFunds']:
-                            # correct python: plan = dict(strategy['delegate'],
-                            #  **{'target' : indexer}) leaves rule unchanged 
-                            #  but updates target for plan; pseudocode used below for semantics
-                            plan = strategy['delegate'].update({'target' : indexer}) 
-                if indexer in state['delegations']:
-                    if t == allocation['startPeriod'] + 28 + inpt['disputeChannelEpochs']: # epoch = day
-                        if state['delegations'][indexer]['status'] == "have delegated":
-                                if indexer[allocation]['state'] == "close":
-                                    plan = strategy['claim'].update({'target' : indexer})
-                                elif indexer[allocation]['state'] == "claim":
-                                    plan = strategy['undelegate'].update({'target' : indexer})
-                    elif t == allocation['startPeriod'] + 28 + \
-                        inpt['disputeChannelEpochs'] + inpt['delegationUnbondingPeriod']:
-                        if state['delegations'][indexer]['status'] == "have sent undelegate()":
-                            plan = strategy['withdraw'].update({'target' : indexer})
-                        elif state['delegations'][indexer]['status'] == "have sent withdraw()":
-                            plan = strategy['checkBalance']
-                        elif state['delegations'][indexer]['status'] == "have sent checkAccountBalance":
-                            if inpt['accountBalance'] > state['availableFunds']:
-                                plan = strategy['clear'].update({'target' : indexer})     
-                if plan: delegationPlans.append(plan)
+        for indexer_id, indexer in inpt['availableIndexers'].items():
+            for subgraph in indexer.subgraphs.values():
+                for allocation in subgraph.allocations.values():
+                    plan = {}
+                    # the following are the 'if-then' structures for the [C01] front-running attack
+                    if t == allocation.start_period + 27: # allocation time in days/epochs
+                        if indexer not in state['delegations'] or \
+                        (state['delegations'][indexer]['status'] != "have delegated" and
+                            indexer[allocation]['state'] not in ("claim", "close")):
+                            if strategy['delegate']['amount'] <= state['availableFunds']:
+                                # correct python: plan = dict(strategy['delegate'],
+                                #  **{'target' : indexer}) leaves rule unchanged 
+                                #  but updates target for plan; pseudocode used below for semantics
+                                plan = strategy['delegate'].update({'target' : indexer}) 
+                    if state['delegations'] and indexer_id in state['delegations']:
+                        if t == allocation.start_period + 28 + inpt['disputeChannelEpochs']: # epoch = day
+                            if state['delegations'][indexer]['status'] == "have delegated":
+                                    if indexer[allocation]['state'] == "close":
+                                        plan = strategy['claim'].update({'target' : indexer})
+                                    elif indexer[allocation]['state'] == "claim":
+                                        plan = strategy['undelegate'].update({'target' : indexer})
+                        elif t == allocation.start_period + 28 + \
+                            inpt['disputeChannelEpochs'] + inpt['delegationUnbondingPeriod']:
+                            if state['delegations'][indexer]['status'] == "have sent undelegate()":
+                                plan = strategy['withdraw'].update({'target' : indexer})
+                            elif state['delegations'][indexer]['status'] == "have sent withdraw()":
+                                plan = strategy['checkBalance']
+                            elif state['delegations'][indexer]['status'] == "have sent checkAccountBalance":
+                                if inpt['accountBalance'] > state['availableFunds']:
+                                    plan = strategy['clear'].update({'target' : indexer})     
+                    if plan: delegationPlans.append(plan)
         self._plans.append(delegationPlans)
     
     def selectPlan(self):
