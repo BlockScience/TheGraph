@@ -51,7 +51,6 @@ def undelegate_portfolio(params, step, sL, s, inputs):
     if event:
         indexerID = event['indexer']
         delegatorID = event['delegator']
-        indexer = s['indexers'][event['indexer']]
         portfolio = portfolios[delegatorID]
         try:
             portfolio.indexer_locked_tokens[indexerID]
@@ -71,7 +70,6 @@ def withdraw_portfolio(params, step, sL, s, inputs):
     if event:
         indexerID = event['indexer']
         delegatorID = event['delegator']
-        indexer = s['indexers'][event['indexer']]
         portfolio = portfolios[delegatorID]
         portfolio.holdings += event['tokens']
         try:
@@ -95,7 +93,7 @@ def withdraw_portfolio(params, step, sL, s, inputs):
             portfolio.delegate_block_number[indexerID].append(event['blockNumber'])
         investment_time = portfolio.withdraw_block_number[indexerID][-1] - portfolio.delegate_block_number[indexerID][0] 
         try:
-            indexer_ROI_time[indexerID]
+            portfolio.indexer_ROI_time[indexerID]
         except KeyError:
             portfolio.indexer_ROI_time[indexerID] = 1/Decimal(investment_time) * (portfolio.indexer_revenues[indexerID] / portfolio.indexer_in_tokens[indexerID]) + 1
         else:
