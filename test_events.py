@@ -14,9 +14,10 @@ from model.sys_params import *
 df = pd.read_pickle(r'experiment.p')
 df.reset_index(inplace = True)
 pd.set_option('display.max_rows', None)
+max_timestep = len(df)
 
 def test_delegation(debug):
-    delegation_events_dict = delegation_events
+    delegation_events_dict = {i:j for (i, j) in delegation_events.items() if i < max_timestep}
     if debug:        
         print("EXPECTED TRUTH FROM DELEGATION EVENTS:")
         for timestep, events in delegation_events_dict.items():
@@ -89,7 +90,7 @@ def test_delegation(debug):
     print(f"Delegation | Exact: {cntExact}, ReallyClose: {cntReallyClose}, Close: {cntClose}, Wrong: {cntWrong}, Total Number: {cnt}")   
 
 def test_undelegation(debug):
-    undelegation_events_dict = undelegation_events
+    undelegation_events_dict = {i:j for (i, j) in undelegation_events.items() if i < max_timestep}
     if debug:
         print("EXPECTED TRUTH--Tokens locked from undelegation events:")
         for timestep, events in undelegation_events_dict.items():
@@ -145,7 +146,7 @@ def test_undelegation(debug):
 
 
 def test_withdraw(debug):
-    withdraw_events_dict = withdraw_events
+    withdraw_events_dict = {i:j for (i, j) in withdraw_events.items() if i < max_timestep}
 
     if debug:
         print("EXPECTED TRUTH--Tokens withdrawn via withdraw events:")
@@ -223,7 +224,8 @@ def test_rewards_assigned(debug):
     # print(df.iloc[timestep])
     # is_first = True
     rewards_assigned_modeled = {}
-    for timestep, stake_deposited_event in rewards_assigned_events.items():
+    rewards_assigned_dict = {i:j for (i, j) in rewards_assigned_events.items() if i < max_timestep}
+    for timestep, stake_deposited_event in rewards_assigned_dict.items():
         # back indexing rewards out from increase in pool_delegated_stake / 0.11 * 0.89
         event = stake_deposited_event[0]
         new_rewards_assigned = df.iloc[timestep-1].indexers[event['indexer']].pool_delegated_stake
@@ -241,7 +243,7 @@ def test_rewards_assigned(debug):
     cntClose = 0
     cnt = 0
     cntWrong = 0
-    for timestep, rewards_assigned_event in rewards_assigned_events.items():
+    for timestep, rewards_assigned_event in rewards_assigned_dict.items():
         # back indexing rewards out from increase in pool_delegated_stake / 0.11 * 0.89
         modeled_rewards_assigned = rewards_assigned_modeled[timestep]
         event_rewards_assigned = rewards_assigned_event[0]['amount']
@@ -276,7 +278,7 @@ def test_rewards_assigned(debug):
     print(f"Indexing Rewards | Exact: {cntExact}, ReallyClose: {cntReallyClose}, Close: {cntClose}, Wrong: {cntWrong}, Total Number: {cnt}")           
 
 def test_allocation_collecteds(debug):
-    allocation_collected_events_dict = allocation_collected_events
+    allocation_collected_events_dict = {i:j for (i, j) in allocation_collected_events.items() if i < max_timestep}
     
     if debug:
 
@@ -343,7 +345,7 @@ def test_allocation_collecteds(debug):
     print(f"Allocation Collecteds | Exact: {cntExact}, ReallyClose: {cntReallyClose}, Close: {cntClose}, Wrong: {cntWrong}, Total Number: {cnt}")   
     
 def test_allocation_createds(debug):
-    events_dict = allocation_created_events
+    events_dict = {i:j for (i, j) in allocation_created_events.items() if i < max_timestep}
     
     if debug:
         print("EXPECTED TRUE ALLOCATION CREATED EVENTS:")
@@ -416,7 +418,7 @@ def test_allocation_createds(debug):
     print(f"Allocation Createds | Exact: {cntExact}, ReallyClose: {cntReallyClose}, Close: {cntClose}, Wrong: {cntWrong}, Total Number: {cnt}")   
     
 def test_allocation_closeds(debug):
-    events_dict = allocation_closed_events
+    events_dict = {i:j for (i, j) in allocation_closed_events.items() if i < max_timestep}
     
     if debug:
         print("EXPECTED TRUE ALLOCATION CLOSED EVENTS:")
@@ -490,7 +492,7 @@ def test_allocation_closeds(debug):
 
 
 def test_stake_depositeds(debug):
-    events_dict = stake_deposited_events
+    events_dict = {i:j for (i, j) in stake_deposited_events.items() if i < max_timestep}
     
     if debug:
         print("EXPECTED TRUE ALLOCATION CLOSED EVENTS:")
