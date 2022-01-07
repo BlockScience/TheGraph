@@ -13,7 +13,7 @@ def delegate_portfolio(params, step, sL, s, inputs):
 
         portfolio = portfolios.get(delegatorID)
         if not portfolio:
-            portfolios[delegatorID] = Portfolio(delegatorID)     
+            portfolio = portfolios[delegatorID] = Portfolio(delegatorID)     
 
         portfolio.holdings -= event['tokens'] / (1 - delegation_tax_rate)
         shares = sum([d.shares for d in indexer.delegators.values()])
