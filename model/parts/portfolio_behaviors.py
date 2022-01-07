@@ -10,13 +10,11 @@ def delegate_portfolio(params, step, sL, s, inputs):
         delegatorID = event['delegator']
         indexer = s['indexers'][event['indexer']]
         pool_delegated_stake = indexer.pool_delegated_stake
-        try:
-            portfolios[delegatorID]
-        except KeyError:
-            portfolio = Portfolio(delegatorID)
-            portfolios[delegatorID] = portfolio
-        else:
-            portfolio = portfolios[delegatorID]
+
+        portfolio = portfolios.get(delegatorID)
+        if not portfolio:
+            portfolios[delegatorID] = Portfolio(delegatorID)     
+
         portfolio.holdings -= event['tokens'] / (1 - delegation_tax_rate)
         shares = sum([d.shares for d in indexer.delegators.values()])
         try:
