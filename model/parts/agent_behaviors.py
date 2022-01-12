@@ -12,7 +12,7 @@ def agent_actions(params, step, sL, s, inputs):
     agent = agents[0]
     inpt = {
                 'availableIndexers'         : s['indexers'],
-                'currentPeriod'             : s['timestep'] / params['blocks_per_epoch'],
+                'currentPeriod'             : s['epoch'],
                 'disputeChannelEpochs'      : params['dispute_channel_epochs'],
                 'delegationUnbondingPeriod' : params['unbonding_days'],
                 'accountBalance'            : agent.holdings
@@ -21,6 +21,7 @@ def agent_actions(params, step, sL, s, inputs):
     
     agent.inputs(inpt)
     # action = agent.getAction()
+    # this populates an action into the agent object.
     agent.getAction()
     key = 'agents'
     return key, agents

@@ -12,5 +12,6 @@ genesis_state = {
     'agents': [DelegateFrontRunner(1, rules, initial_account_balance)],
     'delegator_portfolios': {},
     'block_number': 0,
+    'epoch': 0,
     'injected_event_shift': 0
 }

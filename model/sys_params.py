@@ -7,7 +7,8 @@ R_i_rate = [0.03]
 indexer_allocation_rate = [0.0050]  # ASSUMED share of GRT minted by subgraph by indexer
 
 # 100 timesteps/blocks per day/epoch
-blocks_per_epoch = 6500
+blocks_per_epoch = 6646
+shift = 11446768
 unbonding_days = 28
 unbonding_timeblock = [unbonding_days*blocks_per_epoch]
 dispute_channel_epochs = 7
@@ -74,4 +75,5 @@ params = {
         'blocks_per_epoch': [blocks_per_epoch],
         'dispute_channel_epochs': [dispute_channel_epochs],
         'unbonding_days': [unbonding_days],
+        'shift': [shift],
 }

@@ -21,7 +21,8 @@ psubs = [
         },
         'variables': {
             # 'set_event_list': set_event_list,
-            'block_number': set_block_number
+            'block_number': set_block_number,
+            'epoch': set_epoch
         },
     },    
     {
@@ -159,7 +160,7 @@ psubs = [
         'label': 'Increment agent event counter',
         'policies': {
         },
-        'variables': {
+        'variables': { # if there is an event in the hopper, 
                 'injected_event_shift': increment_timestep_due_to_agent_event
         }
 

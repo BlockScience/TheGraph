@@ -15,7 +15,7 @@ def create_allocations(params, step, sL, s, inputs):
     if event:
         # process allocation_collected_event
         indexerID = event['indexer']
-
+        assert(int(event['epoch']) == s['epoch'])
         indexer = indexers[indexerID]
         subgraphID = event['subgraphDeploymentID']
         if subgraphID not in indexer.subgraphs:

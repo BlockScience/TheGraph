@@ -50,7 +50,7 @@ class DelegateFrontRunner(HeuristicAgent):
         inpt            = self._inputs[-1]
     
         delegationPlans = []
-        
+        # there won't be any plans if there aren't any allocations to a subgraph.
         t = inpt['currentPeriod']
         for indexer_id, indexer in inpt['availableIndexers'].items():
             for subgraph in indexer.subgraphs.values():

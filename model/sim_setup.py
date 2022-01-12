@@ -5,6 +5,7 @@ print("running file: sim_setup.py")
 
 # 3 indexers
 SIMULATION_TIME_STEPS = 1529
+# SIMULATION_TIME_STEPS = 400
 # quick runs - partial
 # SIMULATION_TIME_STEPS = 199
 
