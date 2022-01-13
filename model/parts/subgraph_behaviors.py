@@ -13,7 +13,8 @@ def create_allocations(params, step, sL, s, inputs):
 
     event = inputs['allocation_created_events'][0] if inputs['allocation_created_events'] else None
     if event:
-        # process allocation_collected_event
+        print(f'ALLOCATION CREATED EVENT')
+        # process allocation_created_event
         indexerID = event['indexer']
         assert(int(event['epoch']) == s['epoch'])
         indexer = indexers[indexerID]
@@ -43,6 +44,7 @@ def close_allocations(params, step, sL, s, inputs):
     event = inputs['allocation_closed_events'][0] if inputs['allocation_closed_events'] else None
     if event:
         # process allocation_closed_event
+        print(f'ALLOCATION CLOSED EVENT')
         indexerID = event['indexer']
 
         indexer = indexers[indexerID]

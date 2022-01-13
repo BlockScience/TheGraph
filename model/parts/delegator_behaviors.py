@@ -39,7 +39,7 @@ def delegate(params, step, sL, s, inputs):
     event = inputs['delegation_events'][0] if inputs['delegation_events'] is not None else None    
     if event:
         indexer = s['indexers'][event['indexer']]
-        # print("DELEGATE EVENT", event)
+        print("DELEGATE EVENT", event)
         # # Step 1: Account for Tax
         # # sum up the number of tokens delegated this timestep        
         

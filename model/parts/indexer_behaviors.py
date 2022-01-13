@@ -7,7 +7,7 @@ def get_stake_deposited_events(params, step, sL, s):
     # who delegates, 
     # how many tokens.
     timestep = s['timestep']
-    print(f'{timestep=} beginning...')
+    print(f'\n{timestep=} beginning...')
     
     # get agent and check if there is an output to process.
     agent = s['agents'][0]

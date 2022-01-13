@@ -110,7 +110,7 @@ def cumulative_non_indexer_revenue(params, step, sL, s, inputs):
 
 
 def store_indexing_revenue(params, step, sL, s, inputs):
-    print(f'store_indexing_revenue: {inputs=}')
+    # print(f'store_indexing_revenue: {inputs=}')
 
     key = 'cumulative_indexing_revenue'
     indexers = s['indexers']
@@ -134,7 +134,7 @@ def store_indexing_revenue(params, step, sL, s, inputs):
     return key, indexers
 
 def store_query_revenue(params, step, sL, s, inputs):
-    print(f'store_query_revenue: {inputs=}')
+    # print(f'store_query_revenue: {inputs=}')
     key = 'cumulative_query_revenue'
     if inputs['query_fee_amt']:
         print('EVENT: ALLOCATION COLLECTED/QUERY FEE EVENT')

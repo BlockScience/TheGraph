@@ -58,9 +58,11 @@ class DelegateFrontRunner(HeuristicAgent):
                     plan = {}
                     # the following are the 'if-then' structures for the [C01] front-running attack
                     if t == allocation.start_period + 27: # allocation time in days/epochs
-                        if indexer not in state['delegations'] or \
-                        (state['delegations'][indexer]['status'] != "have delegated" and
-                            indexer[allocation]['state'] not in ("claim", "close")):
+                        # 1st clause ADDED BY JS
+                        if not state['delegations'] or \
+                                indexer not in state['delegations'] or \
+                                (state['delegations'][indexer]['status'] != "have delegated" and
+                                indexer[allocation]['state'] not in ("claim", "close")):
                             if strategy['delegate']['amount'] <= state['availableFunds']:
                                 # correct python: plan = dict(strategy['delegate'],
                                 #  **{'target' : indexer}) leaves rule unchanged 

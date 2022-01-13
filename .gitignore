@@ -130,3 +130,5 @@ dmypy.json
 .pyre/
 
 *.p
+.prof_stats
+profiling_stats.txt
