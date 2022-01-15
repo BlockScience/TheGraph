@@ -6,8 +6,8 @@ from model.parts.delegator import Delegator
 
 class HeuristicAgent(Delegator):
 
-    def __init__(self, id, rules): # Dict[id, rule]):
-        super().__init__(id)
+    def __init__(self, id, rules, initialAccountBalance): # Dict[id, rule]):
+        super().__init__(id, holdings=initialAccountBalance)
         self._strategies = [rules.rules]
         
     def beliefs(self):
@@ -28,15 +28,15 @@ class HeuristicAgent(Delegator):
         # Heuristic agents do not generate strategies
         return None
     
-    def generatePlans(self):
+    def generatePlan(self):
         # Heuristic agents test alternative rules against their state
         # and return plans that meet rule criteria (if any)
         pass
     
-    def selectPlan(self):
-        # If multiple plans are available, logic for selecting
-        # between them should be placed here
-        pass
+    # def selectPlan(self):
+    #     # If multiple plans are available, logic for selecting
+    #     # between them should be placed here
+    #     pass
     
     def generateOutput(self, plan):
         # Application of the selected plan occurs here

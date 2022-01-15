@@ -1,20 +1,17 @@
 from .heuristic_agent import HeuristicAgent
 from .delegate_front_runner_rules import DelegateFrontRunnerRules
- 
 class DelegateFrontRunner(HeuristicAgent):
 
     def __init__(self, id, rules : DelegateFrontRunnerRules,
                 initialAccountBalance):
-        super().__init__(id, rules)
+        super().__init__(id, rules, initialAccountBalance)
         self._inputs = []
-        self._outputs = []
         self._states = [
             {
-                'delegations'    : None,
-                'availableFunds' : initialAccountBalance
+                # get this from indexer.delegators
+                'delegations'    : {},
             }
         ]
-        self._plans = []
     
     def inputs(self, newInput):
         self._inputs.append(
@@ -22,19 +19,21 @@ class DelegateFrontRunner(HeuristicAgent):
                 'availableIndexers'         : newInput['availableIndexers'],
                 'currentPeriod'             : newInput['currentPeriod'],
                 'disputeChannelEpochs'      : newInput['disputeChannelEpochs'],
+                'allocationDays'            : newInput['allocationDays'],
                 'delegationUnbondingPeriod' : newInput['delegationUnbondingPeriod'],
                 'accountBalance'            : newInput['accountBalance']
             }
         )
         
+
     def updateState(self):
         state = {
-            'delegations'    : self._states[-1]['delegations'],
-            'availableFunds' : self._inputs[-1]['accountBalance']
+            # 'delegations'    : self._states[-1]['delegations'],
+            'delegations': self._inputs[-1]['availableIndexers']['delegators'] if 'delegators' in self._inputs[-1]['availableIndexers'] else {}
         }
         
-        if len(self._outputs) > 0:
-            output = self._outputs[-1]
+        output = self.output
+        if output:
             for plan in output:
                 if plan['status'] == "have cleared delegation":
                     state['delegations'].pop(plan['target'], None)
@@ -44,58 +43,56 @@ class DelegateFrontRunner(HeuristicAgent):
         
         self._states.append(state)
     
-    def generatePlans(self):
+    def generatePlan(self):
         state           = self._states[-1]
         strategy        = self._strategies[-1]
         inpt            = self._inputs[-1]
     
-        delegationPlans = []
         # there won't be any plans if there aren't any allocations to a subgraph.
         t = inpt['currentPeriod']
+        delegationPlans = []
         for indexer_id, indexer in inpt['availableIndexers'].items():
             for subgraph in indexer.subgraphs.values():
-                for allocation in subgraph.allocations.values():
+                for allocation in subgraph.allocations.values(): 
                     plan = {}
                     # the following are the 'if-then' structures for the [C01] front-running attack
-                    if t == allocation.start_period + 27: # allocation time in days/epochs
-                        # 1st clause ADDED BY JS
-                        if not state['delegations'] or \
-                                indexer not in state['delegations'] or \
+                    if t == allocation.start_period + inpt['allocationDays'] - 1: # allocation time in days/epochs
+                        if indexer_id not in state['delegations'] or \
                                 (state['delegations'][indexer]['status'] != "have delegated" and
                                 indexer[allocation]['state'] not in ("claim", "close")):
-                            if strategy['delegate']['amount'] <= state['availableFunds']:
+                            if strategy['delegate']['amount'] <= self.holdings:
                                 # correct python: plan = dict(strategy['delegate'],
                                 #  **{'target' : indexer}) leaves rule unchanged 
                                 #  but updates target for plan; pseudocode used below for semantics
-                                plan = strategy['delegate'].update({'target' : indexer}) 
-                    if state['delegations'] and indexer_id in state['delegations']:
-                        if t == allocation.start_period + 28 + inpt['disputeChannelEpochs']: # epoch = day
+                                strategy['delegate'].update({'target' : indexer}) 
+                                plan = strategy['delegate'] # maybe i want the whole strategy
+                    elif state['delegations'] and indexer_id in state['delegations']:
+                        if t == allocation.start_period + inpt['allocationDays'] + inpt['disputeChannelEpochs']: # epoch = day
                             if state['delegations'][indexer]['status'] == "have delegated":
                                     if indexer[allocation]['state'] == "close":
-                                        plan = strategy['claim'].update({'target' : indexer})
+                                        strategy['claim'].update({'target' : indexer})
+                                        plan = strategy['claim']
                                     elif indexer[allocation]['state'] == "claim":
-                                        plan = strategy['undelegate'].update({'target' : indexer})
-                        elif t == allocation.start_period + 28 + \
+                                        strategy['undelegate'].update({'target' : indexer})
+                                        plan = strategy['undelegate']
+                        elif t == allocation.start_period + inpt['allocationDays'] + \
                             inpt['disputeChannelEpochs'] + inpt['delegationUnbondingPeriod']:
                             if state['delegations'][indexer]['status'] == "have sent undelegate()":
-                                plan = strategy['withdraw'].update({'target' : indexer})
+                                strategy['withdraw'].update({'target' : indexer})
+                                plan = strategy['withdraw']
                             elif state['delegations'][indexer]['status'] == "have sent withdraw()":
                                 plan = strategy['checkBalance']
                             elif state['delegations'][indexer]['status'] == "have sent checkAccountBalance":
-                                if inpt['accountBalance'] > state['availableFunds']:
-                                    plan = strategy['clear'].update({'target' : indexer})     
-                    if plan: delegationPlans.append(plan)
-        self._plans.append(delegationPlans)
-    
-    def selectPlan(self):
-        return self._plans[-1] 
+                                if inpt['accountBalance'] > self.holdings:
+                                    strategy['clear'].update({'target' : indexer})     
+                                    plan = strategy['clear']
+                    if plan: 
+                        delegationPlans.append(plan)
+        self.plan = delegationPlans
     
     def generateOutput(self):
         output = []
-        for plan in self._plans[-1]:
-            output.append(plan)
-            # added JS
-            self.outputs.append(plan)
+        for event in self.plan:
+            output.append(event)
+        self.output = output
         return output
-
-

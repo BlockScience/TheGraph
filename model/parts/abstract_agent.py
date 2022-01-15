@@ -9,7 +9,9 @@ class AbstractAgent(ABC):
     @abstractmethod
     def __init__(self, identifier):
         self.id = identifier
-    
+        self.output = None
+        self.plan = None
+
     @property
     def states(self):
         return self._states # List[state]
@@ -31,21 +33,6 @@ class AbstractAgent(ABC):
     def strategies(self):
         return self._strategies # List[strategy]
     
-    @property
-    def plans(self):
-        return self._plans # List[plan]
-    
-    @plans.setter
-    def plans(self, newPlan):
-        self._plans.append(newPlan)
-    
-    @property
-    def outputs(self):
-        return self._outputs # List[output]
-    
-    @outputs.setter
-    def outputs(self, newOutput):
-        self._outputs.append(newOutput)
     
     @abstractmethod
     def updateState(self, states : states):
@@ -66,16 +53,16 @@ class AbstractAgent(ABC):
         pass
     
     @abstractmethod
-    def generatePlans(self):
+    def generatePlan(self):
         # overridden for subclass plan generation
         # abstract class does nothing
         pass
     
-    @abstractmethod
-    def selectPlan(self):
-        # overridden for subclass plan selection
-        # abstract class does nothing
-        pass
+    # @abstractmethod
+    # def selectPlan(self):
+    #     # overridden for subclass plan selection
+    #     # abstract class does nothing
+    #     pass
     
     @abstractmethod
     def generateOutput(self, plan):
@@ -87,6 +74,6 @@ class AbstractAgent(ABC):
         self.updateState()
         self.updateBeliefs()
         self.generateStrategies()
-        self.generatePlans()
-        self.selectPlan()
+        self.generatePlan()
+        # self.selectPlan()
         return self.generateOutput() 

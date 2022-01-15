@@ -11,10 +11,9 @@ def get_stake_deposited_events(params, step, sL, s):
     
     # get agent and check if there is an output to process.
     agent = s['agents'][0]
-    if agent.outputs:
-        print(agent.output)
-        import sys
-        sys.exit()
+    print(f'{agent.output=}')
+    # import sys
+    # sys.exit()
 
 
     stake_deposited_events = params['stake_deposited_events'].get(timestep)

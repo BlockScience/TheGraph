@@ -19,5 +19,7 @@ if __name__ == '__main__':
     print("UNITTEST RESULTS")
     debug = False
     print(df.iloc[0].agents)
+    # show here's when they acted, undelegated, delegated, here's what they made
+    
 
 

@@ -14,6 +14,7 @@ def agent_actions(params, step, sL, s, inputs):
                 'availableIndexers'         : s['indexers'],
                 'currentPeriod'             : s['epoch'],
                 'disputeChannelEpochs'      : params['dispute_channel_epochs'],
+                'allocationDays'            : params['allocation_days'],
                 'delegationUnbondingPeriod' : params['unbonding_days'],
                 'accountBalance'            : agent.holdings
             }

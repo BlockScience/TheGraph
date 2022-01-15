@@ -63,7 +63,7 @@ class Delegator(AbstractAgent):
     def generateStrategies(self):
         return None
     
-    def generatePlans(self):
+    def generatePlan(self):
         pass
     
     def selectPlan(self):

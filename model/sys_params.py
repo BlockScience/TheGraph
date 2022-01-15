@@ -18,8 +18,8 @@ GRT_conversion_rate = -18
 # delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks 
 delegation_tax_rate = [Decimal(0.005)]
 delegation_leverage = [16]
-delegator_initial_holdings = [Decimal(10e9)]
 
+delegator_initial_holdings = [Decimal(10e9)]
 # TODO: this will come from allocation file
 # these are indexer cuts
 # query_fee_cut = [Decimal(0.8)]
