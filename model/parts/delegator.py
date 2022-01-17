@@ -22,9 +22,6 @@ class Delegator(AbstractAgent):
         # Amount of free/withdrawn token the delegator is holding, h
         self.holdings = holdings
 
-        # used to discount cash flows. 1 / (1 - discount_rate)
-        # self.time_factor = 1 / (1 - discount_rate)
-        
         # Not allowed to sell below this amount
         self.minimum_shares = minimum_shares
 
@@ -54,8 +51,8 @@ class Delegator(AbstractAgent):
     def beliefs(self):
         return None
         
-    def updateState(self): #, states : states, inputs : inputs):
-        pass
+    # def updateState(self): #, states : states, inputs : inputs):
+    #     pass
     
     def updateBeliefs(self):
         return None

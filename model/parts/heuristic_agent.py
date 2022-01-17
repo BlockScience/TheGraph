@@ -14,11 +14,11 @@ class HeuristicAgent(Delegator):
         # Heuristic agents do not have beliefs about the environment
         return None
         
-    def updateState(self): #, states : states, inputs : inputs):
-        # Heuristic agents do not condition on anything other than
-        # their internal state and external inputs to update their
-        # internal state
-        pass
+    # def updateState(self): #, states : states, inputs : inputs):
+    #     # Heuristic agents do not condition on anything other than
+    #     # their internal state and external inputs to update their
+    #     # internal state
+    #     pass
     
     def updateBeliefs(self):
         # Heuristic agents do not have beliefs to update

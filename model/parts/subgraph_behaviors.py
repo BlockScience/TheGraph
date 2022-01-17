@@ -59,8 +59,10 @@ def close_allocations(params, step, sL, s, inputs):
             indexer.subgraphs[subgraphID] = subgraph
         else:
             subgraph = indexer.subgraphs[subgraphID]
-        
-        del subgraph.allocations[event['allocationID']]
+
+        # 0 out tokens instead of deleting allocation for delegate_front_runner.            
+        subgraph.allocations[event['allocationID']].tokens = 0
+        # del subgraph.allocations[event['allocationID']]
 
     return key, indexers
 
