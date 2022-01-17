@@ -3,8 +3,13 @@ from .allocation import Allocation
 
 def allocation_created_events(params, step, sL, s):
     timestep = s['timestep']
+
+    # TODO increment by injected_event_shift to get real timestep.
+    # if previous event shift is < current event shift, WE HAVE AN EVENT from agent!
     allocation_created_events = params['allocation_created_events'].get(timestep)
     
+    #TODO: interleave output from agent.
+
     return {'allocation_created_events': allocation_created_events}
 
 def create_allocations(params, step, sL, s, inputs):

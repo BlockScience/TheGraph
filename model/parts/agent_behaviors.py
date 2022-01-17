@@ -1,5 +1,5 @@
 # from .delegate_front_runner import DelegateFrontRunner
-def agent_actions(params, step, sL, s, inputs):
+def get_agent_actions_next_timestep(params, step, sL, s, inputs):
     # To generate an event, two methods would need to be called on an instantiation of an agent object 
     # (“agent”):
     # agent.inputs(Inputs), where Inputs contains the info the agent needs to update their state and set 

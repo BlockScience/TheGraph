@@ -6,7 +6,7 @@ class DelegateFrontRunner(HeuristicAgent):
                 initialAccountBalance):
         super().__init__(id, rules, initialAccountBalance)
         self._inputs = []
-        self._states = [
+        self.state = [
             {
                 # get this from indexer.delegators
                 'delegations'    : {},
@@ -27,24 +27,28 @@ class DelegateFrontRunner(HeuristicAgent):
         
 
     def updateState(self):
-        state = {
-            # 'delegations'    : self._states[-1]['delegations'],
-            'delegations': self._inputs[-1]['availableIndexers']['delegators'] if 'delegators' in self._inputs[-1]['availableIndexers'] else {}
-        }
-        
+        # this gets only indexer id. 
+        indexer_id = list(self._inputs[-1]['availableIndexers'].keys())[0]
+        if self._inputs[-1]['availableIndexers'][indexer_id].delegators:
+
+            state = {
+                'delegations': set(self._inputs[-1]['availableIndexers'][indexer_id].delegators.keys())
+            }
+        else:
+            state = {}
+                    
         output = self.output
         if output:
-            for plan in output:
-                if plan['status'] == "have cleared delegation":
-                    state['delegations'].pop(plan['target'], None)
-                else:
-                    state['delegations'].update(plan)
+            if output['status'] == "have cleared delegation":
+                state['delegations'].pop(output['target'], None)
+            else:
+                state['delegations'].update(output)
                     
         
-        self._states.append(state)
+        self.state = state
     
     def generatePlan(self):
-        state           = self._states[-1]
+        state           = self.state
         strategy        = self._strategies[-1]
         inpt            = self._inputs[-1]
     
@@ -91,8 +95,9 @@ class DelegateFrontRunner(HeuristicAgent):
         self.plan = delegationPlans
     
     def generateOutput(self):
-        output = []
-        for event in self.plan:
-            output.append(event)
-        self.output = output
-        return output
+        if self.plan:
+            # for event in self.plan[-1]:
+                # this appends the keys of the plan, but what should it do?
+            self.output = self.plan[-1]
+
+

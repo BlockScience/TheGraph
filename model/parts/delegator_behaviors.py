@@ -6,10 +6,28 @@ from decimal import *
 
 """ this just gets all of the events at this timestep into policy variables """
 def delegate_actions(params, step, sL, s):
-    # who delegates, 
-    # how many tokens.
     timestep = s['timestep']
-    delegation_events = params['delegation_tokens_events'].get(timestep)
+    
+    # increment by injected_event_shift to get real timestep.
+    effective_timestep = timestep + s['injected_event_shift']
+    
+    # figure out what the injected_event_shift was last timestep.
+    if -2 in sL:
+        previous_injected_event_shift = sL[-2][-1]['injected_event_shift']
+    else:
+        previous_injected_event_shift = 0
+    
+    # interleave output from agent.    
+    if s['injected_event_shift'] > previous_injected_event_shift:
+        agent = s['agents'][0]
+        # if previous event shift is < current event shift, WE HAVE AN EVENT from agent!
+        if agent.output:
+            if 'delegate' in agent.output:
+                delegation_events = agent.output 
+            else:
+                delegation_events = None
+    else:
+        delegation_events = params['delegation_tokens_events'].get(effective_timestep)
 
     # NOTE: merge this with agent actions by keeping agent action counter and then shift initial events by that counter
     # delegation_events = params['delegation_tokens_events'].get(timestep+agent_action_counter)

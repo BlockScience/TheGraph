@@ -11,11 +11,8 @@ class AbstractAgent(ABC):
         self.id = identifier
         self.output = None
         self.plan = None
+        self.state = None
 
-    @property
-    def states(self):
-        return self._states # List[state]
-    
     @property
     def inputs(self):
         # input is a reserved method in python
@@ -35,7 +32,7 @@ class AbstractAgent(ABC):
     
     
     @abstractmethod
-    def updateState(self, states : states):
+    def updateState(self, state):
         # overridden for subclass state update
         # abstract class does nothing
         pass
@@ -76,4 +73,4 @@ class AbstractAgent(ABC):
         self.generateStrategies()
         self.generatePlan()
         # self.selectPlan()
-        return self.generateOutput() 
+        self.generateOutput() 
