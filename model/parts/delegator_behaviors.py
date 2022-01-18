@@ -4,15 +4,15 @@ from . import utils
 from decimal import *
 
 
-""" this just gets all of the events at this timestep into policy variables """
-def delegate_actions(params, step, sL, s):
+# get events for this timestep (should only be 1)
+def get_shifted_events(s, sL, event_type, events_param):
     timestep = s['timestep']
     
     # increment by injected_event_shift to get real timestep.
     effective_timestep = timestep + s['injected_event_shift']
     
     # figure out what the injected_event_shift was last timestep.
-    if -2 in sL:
+    if len(sL) >= 2:
         previous_injected_event_shift = sL[-2][-1]['injected_event_shift']
     else:
         previous_injected_event_shift = 0
@@ -22,33 +22,39 @@ def delegate_actions(params, step, sL, s):
         agent = s['agents'][0]
         # if previous event shift is < current event shift, WE HAVE AN EVENT from agent!
         if agent.output:
-            if agent.output['event'] == 'delegate':
-                delegation_events = agent.output 
+            output = agent.output[-1]
+            if output['event'] == event_type:
+                events = agent.output 
             else:
-                delegation_events = None
+                events = None
     else:
-        delegation_events = params['delegation_tokens_events'].get(effective_timestep)
+        events = events_param.get(effective_timestep)
 
     # NOTE: merge this with agent actions by keeping agent action counter and then shift initial events by that counter
     # delegation_events = params['delegation_tokens_events'].get(timestep+agent_action_counter)
     
-    return {'delegation_events': delegation_events}
+    return events
+
+
+""" this just gets all of the events at this timestep into policy variables """
+def delegate_actions(params, step, sL, s):
+    key = 'delegation_events'
+    delegation_events = get_shifted_events(s, sL, 'delegate', params['delegation_tokens_events'])
+    return {key: delegation_events}
+
 
 """ this just gets all of the events at this timestep into policy variables """
 def undelegate_actions(params, step, sL, s):
-    # who delegates, 
-    # how many tokens.
-    timestep = s['timestep']
-    undelegation_events = params['undelegation_shares_events'].get(timestep)
-    return {'undelegation_events': undelegation_events}
+    key = 'undelegation_events'
+    delegation_events = get_shifted_events(s, sL, 'undelegate', params['undelegation_shares_events'])
+    return {key: delegation_events}
 
 """ this just gets all of the events at this timestep into policy variables """
 def withdraw_actions(params, step, sL, s):
-    # who delegates, 
-    # how many tokens.
-    timestep = s['timestep']
-    withdraw_events = params['withdraw_tokens_events'].get(timestep)
-    return {'withdraw_events': withdraw_events}
+    key = 'withdraw_events'
+    delegation_events = get_shifted_events(s, sL, 'withdraw', params['withdraw_tokens_events'])
+    return {key: delegation_events}
+
 
 def delegate(params, step, sL, s, inputs):
             #     'pool_delegated_stake': add_delegated_stake_to_pool,
@@ -120,7 +126,7 @@ def process_delegation_event(delegation_tokens_quantity, delegator, delegation_t
     delegator.holdings -= delegation_tokens_quantity / (1 - delegation_tax_rate)
     
     # 5 * (0.995) / 10 * 10 = 4.975
-    print(f'{pool_delegated_stake=}, {shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
+    print(f'BEFORE DELEGATION: {pool_delegated_stake=}, {shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
     new_shares = delegation_tokens_quantity * (1 - delegation_tax_rate) if pool_delegated_stake.is_zero() \
                  else ((delegation_tokens_quantity * (1 - delegation_tax_rate)) / pool_delegated_stake) * shares
     
@@ -129,6 +135,7 @@ def process_delegation_event(delegation_tokens_quantity, delegator, delegation_t
     delegator.shares += new_shares
     # shares += new_shares
     # store shares locally only--it has to be recomputed each action block because we don't save it until bookkeeping
+    print(f'AFTER DELEGATION: {pool_delegated_stake=}, {shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
     return pool_delegated_stake, delegator
 
 

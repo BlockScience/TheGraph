@@ -9,7 +9,7 @@ class AbstractAgent(ABC):
     @abstractmethod
     def __init__(self, identifier):
         self.id = identifier
-        self.output = {}
+        self.output = []
         self.plan = [] # a list of plans
         self.state = {}
 
