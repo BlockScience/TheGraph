@@ -24,78 +24,7 @@ class DelegateFrontRunner(HeuristicAgent):
                 'accountBalance'            : newInput['accountBalance']
             }
         )
-        
-    # updateState should save the delegator's delegations to different indexers
-    # def updateState(self):
-    #     # this gets the only indexer id. 
-    #     indexer_id = list(self._inputs[-1]['availableIndexers'].keys())[0]
-    #     if self._inputs[-1]['availableIndexers'][indexer_id].delegators:
-
-    #         state = {
-    #             'delegations': self.output
-    #         }
-    #     else:
-    #         state = {}
-                    
-    #     output = self.output
-    #     if output:
-    #         if output['status'] == "have cleared delegation":
-    #             state['delegations'].pop(output['target'], None)
-    #         else:
-    #             state['delegations'].update(output)
-                    
-        
-    #     self.state = state
-    
-    # def generatePlan(self):
-    #     state           = self.state
-    #     strategy        = self._strategies[-1]
-    #     inpt            = self._inputs[-1]
-    
-    #     # there won't be any plans if there aren't any allocations to a subgraph.
-    #     t = inpt['currentPeriod']
-    #     delegationPlans = []
-    #     for indexer_id, indexer in inpt['availableIndexers'].items():
-    #         for subgraph in indexer.subgraphs.values():
-    #             for allocation in subgraph.allocations.values(): 
-    #                 plan = {}
-    #                 # the following are the 'if-then' structures for the [C01] front-running attack
-    #                 if t == allocation.start_period + inpt['allocationDays'] - 1: # allocation time in days/epochs
-                        
-    #                     # (state['delegations'][indexer]['status'] != "have delegated" and
-    #                     if indexer_id not in state['delegations'] or \
-    #                             self.shares == 0 and \
-    #                             indexer[allocation]['state'] not in ("claim", "close"):
-    #                         if strategy['delegate']['amount'] <= self.holdings:
-    #                             # correct python: plan = dict(strategy['delegate'],
-    #                             #  **{'target' : indexer}) leaves rule unchanged 
-    #                             #  but updates target for plan; pseudocode used below for semantics
-    #                             strategy['delegate'].update({'target' : indexer}) 
-    #                             plan = strategy['delegate'] # maybe i want the whole strategy
-    #                 elif state['delegations'] and indexer_id in state['delegations']:
-    #                     if t == allocation.start_period + inpt['allocationDays'] + inpt['disputeChannelEpochs']: # epoch = day
-    #                         # if state['delegations'][indexer]['status'] == "have delegated":
-    #                         if self.shares > 0:
-    #                                 if indexer[allocation]['state'] == "close":
-    #                                     strategy['claim'].update({'target' : indexer})
-    #                                     plan = strategy['claim']
-    #                                 elif indexer[allocation]['state'] == "claim":
-    #                                     strategy['undelegate'].update({'target' : indexer})
-    #                                     plan = strategy['undelegate']
-    #                     elif t == allocation.start_period + inpt['allocationDays'] + \
-    #                         inpt['disputeChannelEpochs'] + inpt['delegationUnbondingPeriod']:
-    #                         if state['delegations'][indexer]['status'] == "have sent undelegate()":
-    #                             strategy['withdraw'].update({'target' : indexer})
-    #                             plan = strategy['withdraw']
-    #                         elif state['delegations'][indexer]['status'] == "have sent withdraw()":
-    #                             plan = strategy['checkBalance']
-    #                         elif state['delegations'][indexer]['status'] == "have sent checkAccountBalance":
-    #                             if inpt['accountBalance'] > self.holdings:
-    #                                 strategy['clear'].update({'target' : indexer})     
-    #                                 plan = strategy['clear']
-    #                 if plan: 
-    #                     delegationPlans.append(plan)
-    #     self.plan = delegationPlans
+       
 
     # this only works for one indexer currently because delegator is an attribute of an indexer.
     def generatePlan(self):
@@ -115,10 +44,12 @@ class DelegateFrontRunner(HeuristicAgent):
                 for subgraph in indexer.subgraphs.values():
                     for allocation in subgraph.allocations.values():
                         # If there is an allocation from that indexer which is available to delegate to, the FRD checks to see if the allocation may shortly close (this depends upon the starting time of the allocation, i.e. how long it has been open).
+                        print(f'{currentPeriod=}')                        
                         if currentPeriod == allocation.start_period + inpt['allocationDays'] - 1: # allocation time in days/epochs
                             # If the allocation may shortly close, the FRD delegates to that allocation, for that indexer, if they have the available funds to do so. This is the start of the front-running attack.
-                            if self.holdings > 0: 
+                            if self.holdings > 0:
                                 plan = strategy['delegate']
+                                plan['delegator'] = self.id
                                 break
             # If the FRD has delegated to that indexer, the FRD checks to see if it’s time to begin the process of undelegating.
             else:
@@ -147,11 +78,12 @@ class DelegateFrontRunner(HeuristicAgent):
                             # NOTE: nothing needs to be done here.
                             # If their available funds has increased, they stop keeping track of this delegation and clear it from their memory. This is the end of the front-running attack.
                             # NOTE: nothing needs to be done here.
-        return plan
+        self.plan = plan
+    
+    
     def generateOutput(self):
         if self.plan:
-            # for event in self.plan[-1]:
-                # this appends the keys of the plan, but what should it do?
-            self.output = self.plan[-1]
+            # output must be a list of events.
+            self.output = [self.plan]
 
 

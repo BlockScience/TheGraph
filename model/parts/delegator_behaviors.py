@@ -22,7 +22,7 @@ def delegate_actions(params, step, sL, s):
         agent = s['agents'][0]
         # if previous event shift is < current event shift, WE HAVE AN EVENT from agent!
         if agent.output:
-            if 'delegate' in agent.output:
+            if agent.output['event'] == 'delegate':
                 delegation_events = agent.output 
             else:
                 delegation_events = None
