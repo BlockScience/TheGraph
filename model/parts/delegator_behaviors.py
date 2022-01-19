@@ -4,6 +4,10 @@ from decimal import *
 
 """ this just gets all of the events at this timestep into policy variables """
 def delegate_actions(params, step, sL, s):
+    # get agent and check if there is an output to process.
+    agent = s['agents'][0]
+    print(f'{agent.output=}')
+
     key = 'delegation_events'
     delegation_events = get_shifted_events(s, sL, params['delegation_tokens_events'], 'delegate')
     return {key: delegation_events}
@@ -89,7 +93,7 @@ def process_delegation_event(delegation_tokens_quantity, delegator, delegation_t
     # NOTE: allow this for now.
     # if delegation_tokens_quantity >= delegator.holdings:
     #     delegation_tokens_quantity = delegator.holdings        
-    delegator.holdings -= delegation_tokens_quantity / (1 - delegation_tax_rate)
+    delegator.holdings -= delegation_tokens_quantity
     
     # 5 * (0.995) / 10 * 10 = 4.975
     print(f'BEFORE DELEGATION: {pool_delegated_stake=}, {shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')

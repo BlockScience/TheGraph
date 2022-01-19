@@ -5,6 +5,7 @@ def set_block_number(params, step, sL, s, inputs):
     effective_timestep = s['timestep'] - s['injected_event_shift']
     all_events = params['all_events']
     if is_agent_event_this_timestep(s, sL):
+        print('---INJECTING AGENT EVENT HERE')
         value = s['block_number']
     else:
         event = all_events.get(effective_timestep)[0]
@@ -16,7 +17,7 @@ def set_epoch(params, step, sL, s, inputs):
     effective_timestep = s['timestep'] - s['injected_event_shift']
     all_events = params['all_events']
     
-    if is_agent_event_this_timestep(s, sL):
+    if is_agent_event_this_timestep(s, sL):        
         value = s['epoch']
     else:
         event = all_events.get(effective_timestep)[0]

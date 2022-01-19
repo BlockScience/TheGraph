@@ -11,9 +11,6 @@ def get_stake_deposited_events(params, step, sL, s):
     print(f'\n{timestep=} beginning...')
     print(f'\n{effective_timestep=} beginning...')
     
-    # get agent and check if there is an output to process.
-    agent = s['agents'][0]
-    print(f'{agent.output=}')
     key = 'stake_deposited_events'
     events = get_shifted_events(s, sL, params[key])
     return {key: events}

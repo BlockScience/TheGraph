@@ -28,6 +28,11 @@ class DelegateFrontRunner(HeuristicAgent):
 
     # this only works for one indexer currently because delegator is an attribute of an indexer.
     def generatePlan(self):
+        # if self.output exists then this timestep is actually already an agent action.  zero out the plan here and move onto the next timestep.
+        if self.output:
+            self.plan = {}
+            return
+        
         inpt = self._inputs[-1]
         strategy        = self._strategies[-1]
         currentPeriod = inpt['currentPeriod']
