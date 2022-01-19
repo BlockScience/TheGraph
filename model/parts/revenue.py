@@ -1,26 +1,26 @@
 from model.parts.delegator_behaviors import process_delegation_event
+from .utils import get_shifted_events
+
 
 """ indexing fees increase shares
 query fees do not increase shares """
 
-def revenue_amt(params, step, sL, prev_state):
-    timestep = prev_state['timestep']
-    
+def revenue_amt(params, step, sL, s):
     indexer_id = None
-    subgraph_id = None
-    rewards_assigned_events = params['rewards_assigned_events'].get(timestep)
+    subgraph_id = None    
     indexing_fee_amt = 0
     query_fee_amt = 0
+    rewards_assigned_events = get_shifted_events(s, sL, params['rewards_assigned_events'])
     if rewards_assigned_events is not None:
         indexing_fee_amt = sum([e['amount'] for e in rewards_assigned_events])
         indexer_id = rewards_assigned_events[0]['indexer']
 
-    allocation_closed_events = params['allocation_closed_events'].get(timestep)
+    allocation_closed_events = get_shifted_events(s, sL, params['allocation_closed_events'])
     if allocation_closed_events is not None:
         indexer_id = allocation_closed_events[0]['indexer']
         subgraph_id = allocation_closed_events[0]['subgraphDeploymentID']
 
-    allocation_collected_events = params['allocation_collected_events'].get(timestep)
+    allocation_collected_events = get_shifted_events(s, sL, params['allocation_collected_events'])
     if allocation_collected_events is not None:
         query_fee_amt = sum([e['tokens'] for e in allocation_collected_events])
         indexer_id = allocation_collected_events[0]['indexer']

@@ -1,58 +1,24 @@
-import random
 from model.parts.delegator import Delegator
-from . import utils
+from .utils import get_shifted_events
 from decimal import *
-
-
-# get events for this timestep (should only be 1)
-def get_shifted_events(s, sL, event_type, events_param):
-    timestep = s['timestep']
-    
-    # increment by injected_event_shift to get real timestep.
-    effective_timestep = timestep + s['injected_event_shift']
-    
-    # figure out what the injected_event_shift was last timestep.
-    if len(sL) >= 2:
-        previous_injected_event_shift = sL[-2][-1]['injected_event_shift']
-    else:
-        previous_injected_event_shift = 0
-    
-    # interleave output from agent.    
-    if s['injected_event_shift'] > previous_injected_event_shift:
-        agent = s['agents'][0]
-        # if previous event shift is < current event shift, WE HAVE AN EVENT from agent!
-        if agent.output:
-            output = agent.output[-1]
-            if output['event'] == event_type:
-                events = agent.output 
-            else:
-                events = None
-    else:
-        events = events_param.get(effective_timestep)
-
-    # NOTE: merge this with agent actions by keeping agent action counter and then shift initial events by that counter
-    # delegation_events = params['delegation_tokens_events'].get(timestep+agent_action_counter)
-    
-    return events
-
 
 """ this just gets all of the events at this timestep into policy variables """
 def delegate_actions(params, step, sL, s):
     key = 'delegation_events'
-    delegation_events = get_shifted_events(s, sL, 'delegate', params['delegation_tokens_events'])
+    delegation_events = get_shifted_events(s, sL, params['delegation_tokens_events'], 'delegate')
     return {key: delegation_events}
 
 
 """ this just gets all of the events at this timestep into policy variables """
 def undelegate_actions(params, step, sL, s):
     key = 'undelegation_events'
-    delegation_events = get_shifted_events(s, sL, 'undelegate', params['undelegation_shares_events'])
+    delegation_events = get_shifted_events(s, sL, params['undelegation_shares_events'], 'undelegate')
     return {key: delegation_events}
 
 """ this just gets all of the events at this timestep into policy variables """
 def withdraw_actions(params, step, sL, s):
     key = 'withdraw_events'
-    delegation_events = get_shifted_events(s, sL, 'withdraw', params['withdraw_tokens_events'])
+    delegation_events = get_shifted_events(s, sL, params['withdraw_tokens_events'], 'withdraw')
     return {key: delegation_events}
 
 
@@ -147,9 +113,6 @@ def undelegate(params, step, sL, s, inputs):
         # shares needs to be kept updated
         shares = sum([d.shares for d in indexer.delegators.values()])
         
-        # timestep = s['timestep']
-        # print(undelegation_events)
-        
         delegator_id = event['delegator']
         try:
             delegator = indexer.delegators[delegator_id]                
@@ -210,7 +173,7 @@ def undelegate(params, step, sL, s, inputs):
 
 def withdraw(params, step, sL, s, inputs):
     #  loop through acting delegators id list
-    timestep = s['timestep']
+    effective_timestep = s['timestep'] - s['injected_event_shift']
     event = inputs['withdraw_events'][0] if inputs['withdraw_events'] is not None else None    
     if event:
         indexer = s['indexers'][event['indexer']]
@@ -224,7 +187,7 @@ def withdraw(params, step, sL, s, inputs):
                     {delegator.undelegated_tokens=}, 
                     {delegator.shares=}
                     {tokens=}''')
-        withdrawableDelegatedTokens = delegator.getWithdrawableDelegatedTokens(timestep)
+        withdrawableDelegatedTokens = delegator.getWithdrawableDelegatedTokens(effective_timestep)
         if withdrawableDelegatedTokens > tokens:
             delegator.withdraw(tokens)
         elif withdrawableDelegatedTokens > 0:

@@ -1,16 +1,11 @@
 from .subgraph import Subgraph
 from .allocation import Allocation
+from .utils import get_shifted_events
 
 def allocation_created_events(params, step, sL, s):
-    timestep = s['timestep']
-
-    # TODO increment by injected_event_shift to get real timestep.
-    # if previous event shift is < current event shift, WE HAVE AN EVENT from agent!
-    allocation_created_events = params['allocation_created_events'].get(timestep)
-    
-    #TODO: interleave output from agent.
-
-    return {'allocation_created_events': allocation_created_events}
+    key = 'allocation_created_events'
+    events = get_shifted_events(s, sL, params[key])
+    return {key: events}
 
 def create_allocations(params, step, sL, s, inputs):
     key = 'indexers'
@@ -38,9 +33,10 @@ def create_allocations(params, step, sL, s, inputs):
 
 
 def allocation_closed_events(params, step, sL, s):
-    timestep = s['timestep']
-    allocation_closed_events = params['allocation_closed_events'].get(timestep)
-    return {'allocation_closed_events': allocation_closed_events}
+    key = 'allocation_closed_events'
+    events = get_shifted_events(s, sL, params[key])
+    return {key: events}
+
 
 def close_allocations(params, step, sL, s, inputs):
     key = 'indexers'
