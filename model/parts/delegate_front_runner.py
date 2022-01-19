@@ -21,7 +21,7 @@ class DelegateFrontRunner(HeuristicAgent):
                 'disputeChannelEpochs'      : newInput['disputeChannelEpochs'],
                 'allocationDays'            : newInput['allocationDays'],
                 'delegationUnbondingPeriod' : newInput['delegationUnbondingPeriod'],
-                'accountBalance'            : newInput['accountBalance']
+                'accountBalance'            : newInput['accountBalance'],
             }
         )
        
@@ -83,6 +83,7 @@ class DelegateFrontRunner(HeuristicAgent):
                                 plan['delegator'] = self.id
                                 plan['indexer'] = indexer.id
                                 plan['tokens'] = self.undelegated_tokens
+                                plan['until'] = currentPeriod + inpt['delegationUnbondingPeriod']
                                 break
                             # If they’ve already withdrawn their delegation, they check to see if their available funds has increased due to their withdrawn delegation.                            
                             # NOTE: nothing needs to be done here.
