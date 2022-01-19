@@ -1,7 +1,4 @@
-import random
-
 from model.parts.abstract_agent import AbstractAgent
-from .indexer import Indexer
 """ A Delegator is an actor who delegates native tokens to the revenue sharing pool
 for shares in the revenue stream. """
 

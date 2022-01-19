@@ -8,21 +8,26 @@ def get_agent_actions_next_timestep(params, step, sL, s, inputs):
     # output = agent.getAction(), which triggers the agent workflow and stores the output of the agent 
     # in output; this would then be parsed to extract events according to the agent’s output schema.
         
-    agents = s['agents']
-    agent = agents[0]
-    inpt = {
-                'availableIndexers'         : s['indexers'],
-                'currentPeriod'             : s['epoch'],
-                'disputeChannelEpochs'      : params['dispute_channel_epochs'],
-                'allocationDays'            : params['allocation_days'],
-                'delegationUnbondingPeriod' : params['unbonding_days'],
-                'accountBalance'            : agent.holdings
-            }
+    # agents = s['agents']    
+    # agent = agents[0]
+    indexers = s['indexers']
+    for indexer in indexers.values():        
+        # delegate_front_runner is delegate id 1.
+        agent = indexer.delegators[1]
+
+        inpt = {
+                    'availableIndexers'         : s['indexers'],
+                    'currentPeriod'             : s['epoch'],
+                    'disputeChannelEpochs'      : params['dispute_channel_epochs'],
+                    'allocationDays'            : params['allocation_days'],
+                    'delegationUnbondingPeriod' : params['unbonding_days'],
+                    'accountBalance'            : agent.holdings
+                }
+            
         
-    
-    agent.inputs(inpt)
-    # action = agent.getAction()
-    # this populates an action into the agent object.
-    agent.getAction()
-    key = 'agents'
-    return key, agents
+        agent.inputs(inpt)
+        # action = agent.getAction()
+        # this populates an action into the agent object.
+        agent.getAction()
+    key = 'indexers'
+    return key, indexers

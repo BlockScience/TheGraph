@@ -152,7 +152,7 @@ psubs = [
         'policies': {
         },
         'variables': {
-            'agents': get_agent_actions_next_timestep,        # create events (either delegate, undelegate, withdraw, ?CLAIM?)            
+            'indexers': get_agent_actions_next_timestep,        # create events (either delegate, undelegate, withdraw, ?CLAIM?)            
             # 'agents': agent_actions,        # create events (either delegate, undelegate, withdraw, ?CLAIM?)            
         }
 

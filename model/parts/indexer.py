@@ -1,4 +1,10 @@
 from decimal import Decimal
+from model.parts.delegate_front_runner import DelegateFrontRunner
+from model.parts.delegate_front_runner_rules import DelegateFrontRunnerRules
+from ..sys_params import params
+
+initial_account_balance = params['delegator_initial_holdings'][0]
+rules = DelegateFrontRunnerRules(initial_account_balance)
 
 class Indexer():
     def __init__(self, id, pool_delegated_stake = Decimal(0), shares = Decimal(0), pool_locked_stake = Decimal(0),
@@ -8,7 +14,7 @@ class Indexer():
         self.id = id
         self.pool_delegated_stake = pool_delegated_stake
         self.shares = shares
-        self.delegators = {} # key is delegator ID, value is delegator object.
+        self.delegators = {1: DelegateFrontRunner(1, rules, initial_account_balance)} # key is delegator ID, value is delegator object.
         self.pool_locked_stake = pool_locked_stake
         self.indexer_revenue = indexer_revenue
         self.GRT = GRT
