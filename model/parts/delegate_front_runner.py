@@ -73,6 +73,7 @@ class DelegateFrontRunner(HeuristicAgent):
                                 plan['delegator'] = self.id
                                 plan['indexer'] = indexer.id
                                 plan['shares'] = self.shares
+                                plan['until'] = currentPeriod + inpt['delegationUnbondingPeriod']
                                 break
                         # If enough time has passed to allow withdrawing their delegation to commence (this depends upon both the time allowed for disputes to resolve, and upon the unbonding period for delegators), the FRD checks to see if they’ve already undelegated, or if they’ve already withdrawn their delegation.
                         if currentPeriod == allocation.start_period + inpt['allocationDays'] + inpt['disputeChannelEpochs'] + inpt['delegationUnbondingPeriod']:
@@ -82,8 +83,7 @@ class DelegateFrontRunner(HeuristicAgent):
                                 plan = strategy['withdraw'] 
                                 plan['delegator'] = self.id
                                 plan['indexer'] = indexer.id
-                                plan['tokens'] = self.undelegated_tokens
-                                plan['until'] = currentPeriod + inpt['delegationUnbondingPeriod']
+                                plan['tokens'] = self.undelegated_tokens                                
                                 break
                             # If they’ve already withdrawn their delegation, they check to see if their available funds has increased due to their withdrawn delegation.                            
                             # NOTE: nothing needs to be done here.
