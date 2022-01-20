@@ -23,7 +23,7 @@ class Delegator(AbstractAgent):
         self.minimum_shares = minimum_shares
 
     def __repr__(self):
-        return f'{self.id=}, {self.shares=}'
+        return f'{self.id=}, {self.shares=}, {self.holdings=}, {self.undelegated_tokens=}'
 
     # member of the sharing pool (True/False)
     def is_member(self):

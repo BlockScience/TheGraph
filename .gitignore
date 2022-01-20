@@ -134,3 +134,6 @@ dmypy.json
 profiling_stats.txt
 profiling_stats.txt
 .prof_stats
+.prof_stats
+profiling_stats.txt
+profiling_stats.txt

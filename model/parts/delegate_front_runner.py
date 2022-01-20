@@ -48,9 +48,10 @@ class DelegateFrontRunner(HeuristicAgent):
             # If the FRD has not delegated to that indexer, they check to see what the available allocations are for that indexer.
             if not delegated:
                 for subgraph in indexer.subgraphs.values():
-                    for allocation in subgraph.allocations.values():
+                    allocations = [allocation for allocation in subgraph.allocations.values() if allocation.tokens != 0]
+                    # allocations = subgraph.allocations.values()
+                    for allocation in allocations:
                         # If there is an allocation from that indexer which is available to delegate to, the FRD checks to see if the allocation may shortly close (this depends upon the starting time of the allocation, i.e. how long it has been open).
-                        
                         if currentPeriod == allocation.start_period + inpt['allocationDays'] - 1: # allocation time in days/epochs
                             # If the allocation may shortly close, the FRD delegates to that allocation, for that indexer, if they have the available funds to do so. This is the start of the front-running attack.
                             if self.holdings > 0:

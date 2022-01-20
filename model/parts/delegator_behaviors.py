@@ -51,6 +51,8 @@ def delegate(params, step, sL, s, inputs):
         delegators = indexer.delegators
 
         delegator_id = event['delegator']
+        if delegator_id == 1:
+            print('agent delegation')
         if delegator_id not in delegators:
             delegators[delegator_id] = Delegator(delegator_id, holdings = initial_holdings)
         
@@ -101,7 +103,7 @@ def process_delegation_event(delegation_tokens_quantity, delegator, delegation_t
     delegator.shares += new_shares
     # shares += new_shares
     # store shares locally only--it has to be recomputed each action block because we don't save it until bookkeeping
-    print(f'AFTER DELEGATION: {pool_delegated_stake=}, {shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
+    print(f'AFTER DELEGATION: {pool_delegated_stake=}, {shares+new_shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
     return pool_delegated_stake, delegator
 
 
@@ -114,6 +116,8 @@ def undelegate(params, step, sL, s, inputs):
         shares = sum([d.shares for d in indexer.delegators.values()])
         
         delegator_id = event['delegator']
+        if delegator_id == 1:
+            print('agent undelegation')
         try:
             delegator = indexer.delegators[delegator_id]                
         except KeyError:
@@ -179,6 +183,8 @@ def withdraw(params, step, sL, s, inputs):
         indexer = s['indexers'][event['indexer']]
     
         delegator_id = event['delegator']
+        if delegator_id == 1:
+            print('agent withdraw')
         delegator = indexer.delegators[delegator_id]        
         tokens = event['tokens']
         print(f'''EVENT: WITHDRAW (before)--
