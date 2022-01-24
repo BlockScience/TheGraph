@@ -24,7 +24,8 @@ delegation_gas_cost = [96286]
 undelegate_gas_cost = [107389]
 withdraw_gas_cost = [52101]
 portfolio_tracking = [True]
-delegator_list = [['0x266d8e3b85dd66758854e4e2ae27c4a161236828', '0x1819eba4f13d2693756d38acf8d3e9aabbd8fdb5', '0x77b95ac2de1d21e0c8a9a7a071b0ed17ef675755']]
+# empty means all delegators
+delegator_list = [['0xd776a7306ee6a060cebb46b46d305e88fd39ba84','0x266d8e3b85dd66758854e4e2ae27c4a161236828','0x1819eba4f13d2693756d38acf8d3e9aabbd8fdb5', '0x77b95ac2de1d21e0c8a9a7a071b0ed17ef675755']]
 
 
 # TODO: this will come from allocation file

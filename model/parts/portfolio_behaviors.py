@@ -6,6 +6,7 @@ def delegate_portfolio(params, step, sL, s, inputs):
         portfolios = s['delegator_portfolios']
         event = inputs['event'][0] if inputs['event'] is not None else None
         delegation_tax_rate = params['delegation_tax_rate']
+        print(event['delegator'])
         if event['delegator'] in params['delegator_list'] or len(params['delegator_list']) == 0:
             indexerID = event['indexer']
             delegatorID = event['delegator']
