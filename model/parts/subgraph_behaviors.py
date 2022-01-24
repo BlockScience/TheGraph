@@ -9,7 +9,7 @@ def create_allocations(params, step, sL, s, inputs):
     key = 'indexers'
     indexers = s[key]
 
-    event = inputs['allocation_created_events'][0] if inputs['allocation_created_events'] else None
+    event = inputs['event'][0] if inputs['event'] else None
     if event:
         # process allocation_collected_event
         indexerID = event['indexer']
@@ -38,7 +38,7 @@ def close_allocations(params, step, sL, s, inputs):
     key = 'indexers'
     indexers = s[key]
 
-    event = inputs['allocation_closed_events'][0] if inputs['allocation_closed_events'] else None
+    event = inputs['event'][0] if inputs['event'] else None
     if event:
         # process allocation_closed_event
         indexerID = event['indexer']
