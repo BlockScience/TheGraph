@@ -42,8 +42,8 @@ def get_delegation_parameter_events(params, step, sL, s):
 
 def cumulative_deposited_stake(params, step, sL, s, inputs):    
     key = 'indexers'
-
-    event = inputs['stake_deposited_events'][0] if inputs['stake_deposited_events'] is not None else None
+    print(inputs)
+    event = inputs['event'][0] if inputs['event'][0] is not None else None
     indexers = s['indexers']
 
     if event:
@@ -63,10 +63,11 @@ def cumulative_deposited_stake(params, step, sL, s, inputs):
 def store_delegation_parameters(params, step, SL, s, inputs):
     key = 'indexers'
     indexers = s[key]
+    print(inputs)
 
-    delegation_parameter_events = inputs['delegation_parameter_events'] if inputs['delegation_parameter_events'] is not None else []        
+    event = inputs['event'] if inputs['event'] is not None else []        
     # print(f'store_query_fee_cut {delegation_parameter_events=}')
-    for event in delegation_parameter_events:
+    if event:
         indexer_id = event['indexer']
         if indexer_id not in indexers:
             indexers[indexer_id] = Indexer(indexer_id)        
