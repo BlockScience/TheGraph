@@ -26,7 +26,7 @@ def delegate(params, step, sL, s, inputs):
             #     'pool_delegated_stake': add_delegated_stake_to_pool,
             # 'GRT': account_for_tax,
             # 'delegators': delegate,
-    event = inputs['delegation_events'][0] if inputs['delegation_events'] is not None else None    
+    event = inputs['event'][0] if inputs['event'] is not None else None
     if event:
         indexer = s['indexers'][event['indexer']]
         print("DELEGATE EVENT", event)
@@ -108,13 +108,13 @@ def process_delegation_event(delegation_tokens_quantity, delegator, delegation_t
 
 
 def undelegate(params, step, sL, s, inputs):
-    event = inputs['undelegation_events'][0] if inputs['undelegation_events'] is not None else None    
+    event = inputs['event'][0] if inputs['event'] is not None else None
     if event:
         indexer = s['indexers'][event['indexer']]
     
         # shares needs to be kept updated
         shares = sum([d.shares for d in indexer.delegators.values()])
-        
+
         delegator_id = event['delegator']
         if delegator_id == 1:
             print('agent undelegation')
@@ -178,14 +178,14 @@ def undelegate(params, step, sL, s, inputs):
 def withdraw(params, step, sL, s, inputs):
     #  loop through acting delegators id list
     effective_timestep = s['timestep'] - s['injected_event_shift']
-    event = inputs['withdraw_events'][0] if inputs['withdraw_events'] is not None else None    
+    event = inputs['event'][0] if inputs['event'] is not None else None
     if event:
         indexer = s['indexers'][event['indexer']]
     
         delegator_id = event['delegator']
         if delegator_id == 1:
             print('agent withdraw')
-        delegator = indexer.delegators[delegator_id]        
+        delegator = indexer.delegators[delegator_id]
         tokens = event['tokens']
         print(f'''EVENT: WITHDRAW (before)--
                     {delegator_id=}, 

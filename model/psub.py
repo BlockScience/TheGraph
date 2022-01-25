@@ -4,7 +4,9 @@ from .parts.subgraph_behaviors import *
 from .parts.revenue import *
 from .parts.portfolio_behaviors import *
 from .parts.bookkeeping import *
-from .parts.agent_behaviors import *                            
+from .parts.agent_behaviors import *
+from .parts.revenue_rewrite import *
+from .parts.event_processor import *
 
 
 psubs = [
@@ -12,12 +14,12 @@ psubs = [
         'label': 'Initialization',
         'policies': {
         },
-        'variables': {            
+        'variables': {
         },
     },
     {
         'label': 'Bookkeeping',
-        'policies': {            
+        'policies': {
         },
         'variables': {
             # 'set_event_list': set_event_list,
@@ -26,145 +28,23 @@ psubs = [
         },
     },    
     {
-        'label': 'stakeDepositeds',
+        'label': 'Revenue Processing',
         'policies': {
-            'stake_deposited_events': get_stake_deposited_events
+            'revenue_amt': revenue_amt
         },
         'variables': {
-            'indexers': cumulative_deposited_stake
+            'indexers': revenue_process
         },
     },
     {
-        'label': 'delegationParametersUpdateds',
+        'label': 'Event Processing',
         'policies': {
-            'delegation_parameters_updated_events': get_delegation_parameter_events
+            'event_type': determine_event
         },
         'variables': {
-            'indexers': store_delegation_parameters,
-        },
-    },    
-    {
-        'label': 'Revenue Process - Mint',
-        'policies': {
-            'revenue_amt': revenue_amt, # indexing and query rewards 
-        },
-        'variables': {
-            'indexers': mint_GRT,
-        },
-    },
-    {
-        'label': 'Revenue Process - Revenue to Pool',
-        'policies': {
-            'revenue_amt': revenue_amt, # indexing and query rewards 
-        },
-        'variables': {
-            'indexers': distribute_revenue_to_pool,   
-        },
-    },
-    {
-        'label': 'Revenue Process - Indexing Revenue',
-        'policies': {
-            'revenue_amt': revenue_amt, # indexing and query rewards 
-        },
-        'variables': {
-            'indexers': store_indexing_revenue,
-        },
-    },
-    {
-        'label': 'Revenue Process - Query Revenue',
-        'policies': {
-            'revenue_amt': revenue_amt, # indexing and query rewards 
-        },
-        'variables': {
-            'indexers': store_query_revenue, 
-        },
-    },
-    {
-        'label': 'Revenue Process - Non-Indexer Revenue',
-        'policies': {
-            'revenue_amt': revenue_amt, # indexing and query rewards 
-        },
-        'variables': {
-            'indexers': cumulative_non_indexer_revenue,
-        },
-    },
-    {
-        'label': 'Revenue Process - Indexer Revenue',
-        'policies': {
-            'revenue_amt': revenue_amt, # indexing and query rewards 
-        },
-        'variables': {
-            'indexers': distribute_revenue_to_indexer,
-        },
-    },                    
-    {
-        'label': 'Delegate',
-        'policies': {
-            'delegate_actions': delegate_actions,
-        },
-        'variables': {
-            'indexers': delegate,
-            # 'delegator_portfolios': delegate_portfolio
-        },
-    },
-    {
-        'label': 'Undelegate',
-        'policies': {
-            'undelegate_actions': undelegate_actions
-        },
-        'variables': {
-            # 'pool_delegated_stake': subtract_undelegated_stake_from_pool,            
-            'indexers': undelegate,
-            # 'delegator_portfolios': undelegate_portfolio
-        },
-    },    
-    {
-        'label': 'Withdraw',
-        'policies': {
-            'withdraw_actions': withdraw_actions
-        },
-        'variables': {
-            'indexers': withdraw,
-            # holdings updated for delegator portfolio
-            # 'delegator_portfolios': withdraw_portfolio
-        },
-    },    
-    {
-        'label': 'Allocation Created',
-        'policies': {
-            'allocation_created_events': allocation_created_events
-        },
-        'variables': {
-            'indexers': create_allocations,
-        },
-    },
-    {
-        'label': 'Allocation Closeds',
-        'policies': {
-            'allocation_closed_events': allocation_closed_events
-        },
-        'variables': {
-            'indexers': close_allocations,
-        },
-    },
-    {
-        'label': 'Agent Actions',
-        'policies': {
-        },
-        'variables': {
-            'indexers': get_agent_actions_next_timestep,        # create events (either delegate, undelegate, withdraw, ?CLAIM?)            
-            # 'agents': agent_actions,        # create events (either delegate, undelegate, withdraw, ?CLAIM?)            
+            'indexers': indexer_process,
+            'delegator_portfolios': portfolio_process
         }
-
-    },
-    {
-        'label': 'Increment agent event counter',
-        'policies': {
-        },
-        'variables': { # if there is an event in the hopper, 
-                'injected_event_shift': increment_timestep_due_to_agent_event
-        }
-
-    },
+    }
 ]
 
