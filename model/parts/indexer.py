@@ -36,3 +36,9 @@ class Indexer():
         self.subgraphs = {} # key is subgraphDeploymentID, value is Subgraph
 
         self.buffered_rewards_assigned = 0 # this is indexing rewards--we cannot attribute to subgraph until allocationCloseds event
+        
+    def __str__(self):
+        """
+        Print all attributes of a class
+        """
+        return str(self.__class__) + ": " + str(self.__dict__)   

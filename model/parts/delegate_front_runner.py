@@ -98,5 +98,11 @@ class DelegateFrontRunner(HeuristicAgent):
         if self.plan:
             # output must be a list of events.
             self.output.append(self.plan)
+            
+    def __str__(self):
+        """
+        Print all attributes of a class
+        """
+        return str(self.__class__) + ": " + str(self.__dict__)   
 
 
