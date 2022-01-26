@@ -5,13 +5,9 @@ print("running file: sim_setup.py")
 
 # 3 indexers
 SIMULATION_TIME_STEPS = 1529
-# quick runs - partial
-# SIMULATION_TIME_STEPS = 199
 
 # all indexers
 # SIMULATION_TIME_STEPS = 90957
-
-
 
 # N monte carlo runs
 MONTE_CARLO_RUNS = 1

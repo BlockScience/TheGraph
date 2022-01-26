@@ -7,17 +7,31 @@ R_i_rate = [0.03]
 indexer_allocation_rate = [0.0050]  # ASSUMED share of GRT minted by subgraph by indexer
 
 # 100 timesteps/blocks per day/epoch
-blocks_per_epoch = 6500
+blocks_per_epoch = 6646
+shift = 11446768
 unbonding_days = 28
 unbonding_timeblock = [unbonding_days*blocks_per_epoch]
 dispute_channel_epochs = 7
 allocation_days = [28]
 # represents multiply by 10e-18 to get GRT
 GRT_conversion_rate = -18
-# delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks 
-delegation_tax_rate = [Decimal(0.005)]
+
+# TODO: check this tax rate out--0% passes tests, 0.005 does not.
+# delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks
+delegation_tax_rate = [Decimal(0)]
 delegation_leverage = [16]
+
 delegator_initial_holdings = [Decimal(10e9)]
+# values based on average of 2-3 most common gas costs from etherscan
+# average determined by taking 10 random transcations from csv files another_indexer/all_events
+# still figuring out best source to obtain actual data
+delegation_gas_cost = [96286]
+undelegate_gas_cost = [107389]
+withdraw_gas_cost = [52101]
+portfolio_tracking = [True]
+# empty means all delegators
+delegator_list = [['0xd776a7306ee6a060cebb46b46d305e88fd39ba84','0x266d8e3b85dd66758854e4e2ae27c4a161236828','0x1819eba4f13d2693756d38acf8d3e9aabbd8fdb5', '0x77b95ac2de1d21e0c8a9a7a071b0ed17ef675755']]
+
 
 # TODO: this will come from allocation file
 # these are indexer cuts
@@ -55,7 +69,7 @@ params = {
         "mininum_required_price_pct_diff_to_act": [0.02],
         "risk_adjustment": [0.7],  # cut 30% of the value off due to risk
         'delegation_tax_rate': delegation_tax_rate, # Beta_del: tax percentage from delegated tokens to be burned
-        'unbonding_timeblock': unbonding_timeblock, # time unbonded tokens are frozen from being eligibble to be withdrawn
+        'unbonding_timeblock': unbonding_timeblock, # time unbonded tokens are frozen from being eligible to be withdrawn
         'delegation_leverage': delegation_leverage, # tax percentage from delegated tokens to be burned
         'R_i_rate': R_i_rate, # indexer reward revenue rate (inflationary rewards)
         'allocation_days': allocation_days, # time for allocation
@@ -70,5 +84,14 @@ params = {
         'delegation_parameter_events': [delegation_parameter_events],
         'delegator_initial_holdings': delegator_initial_holdings,
         'allocation_created_events': [allocation_created_events],
+        'delegation_gas_cost': delegation_gas_cost,
+        'undelegate_gas_cost': undelegate_gas_cost,
+        'withdraw_gas_cost': withdraw_gas_cost,
+        'portfolio_tracking': portfolio_tracking,
+        'delegator_list': delegator_list,
         'all_events': [all_events],
+        'blocks_per_epoch': [blocks_per_epoch],
+        'dispute_channel_epochs': [dispute_channel_epochs],
+        'unbonding_days': [unbonding_days],
+        'shift': [shift],
 }

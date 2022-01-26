@@ -8,12 +8,11 @@ class AbstractAgent(ABC):
     # note also no hint for type of identifier (str, int etc.)
     @abstractmethod
     def __init__(self, identifier):
-        self.identifier = identifier
-    
-    @property
-    def states(self):
-        return self._states # List[state]
-    
+        self.id = identifier
+        self.output = []
+        self.plan = [] # a list of plans
+        self.state = {}
+
     @property
     def inputs(self):
         # input is a reserved method in python
@@ -31,27 +30,12 @@ class AbstractAgent(ABC):
     def strategies(self):
         return self._strategies # List[strategy]
     
-    @property
-    def plans(self):
-        return self._plans # List[plan]
     
-    @plans.setter
-    def plans(self, newPlan):
-        self._plans.append(newPlan)
-    
-    @property
-    def outputs(self):
-        return self._outputs # List[output]
-    
-    @outputs.setter
-    def outputs(self, newOutput):
-        self._outputs.append(newOutput)
-    
-    @abstractmethod
-    def updateState(self, states : states):
-        # overridden for subclass state update
-        # abstract class does nothing
-        pass
+    # @abstractmethod
+    # def updateState(self, state):
+    #     # overridden for subclass state update
+    #     # abstract class does nothing
+    #     pass
     
     @abstractmethod
     def updateBeliefs(self, beliefs : beliefs):
@@ -66,16 +50,16 @@ class AbstractAgent(ABC):
         pass
     
     @abstractmethod
-    def generatePlans(self) -> plans:
+    def generatePlan(self):
         # overridden for subclass plan generation
         # abstract class does nothing
         pass
     
-    @abstractmethod
-    def selectPlan(self, plans):
-        # overridden for subclass plan selection
-        # abstract class does nothing
-        pass
+    # @abstractmethod
+    # def selectPlan(self):
+    #     # overridden for subclass plan selection
+    #     # abstract class does nothing
+    #     pass
     
     @abstractmethod
     def generateOutput(self, plan):
@@ -84,8 +68,9 @@ class AbstractAgent(ABC):
         pass
     
     def getAction(self):
-        self.updateState()
+        # self.updateState()
         self.updateBeliefs()
         self.generateStrategies()
-        self.selectPlan(self.generatePlans())
-        return self.generateOutput() 
+        self.generatePlan()
+        # self.selectPlan()
+        self.generateOutput() 

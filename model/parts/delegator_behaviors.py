@@ -1,45 +1,35 @@
-import random
 from model.parts.delegator import Delegator
-from . import utils
+from .utils import get_shifted_events
 from decimal import *
-
 
 """ this just gets all of the events at this timestep into policy variables """
 def delegate_actions(params, step, sL, s):
-    # who delegates, 
-    # how many tokens.
-    timestep = s['timestep']
-    delegation_events = params['delegation_tokens_events'].get(timestep)
+    key = 'delegation_events'
+    delegation_events = get_shifted_events(s, sL, params['delegation_tokens_events'], 'delegate')
+    return {key: delegation_events}
 
-    # NOTE: merge this with agent actions by keeping agent action counter and then shift initial events by that counter
-    # delegation_events = params['delegation_tokens_events'].get(timestep+agent_action_counter)
-    
-    return {'delegation_events': delegation_events}
 
 """ this just gets all of the events at this timestep into policy variables """
 def undelegate_actions(params, step, sL, s):
-    # who delegates, 
-    # how many tokens.
-    timestep = s['timestep']
-    undelegation_events = params['undelegation_shares_events'].get(timestep)
-    return {'undelegation_events': undelegation_events}
+    key = 'undelegation_events'
+    delegation_events = get_shifted_events(s, sL, params['undelegation_shares_events'], 'undelegate')
+    return {key: delegation_events}
 
 """ this just gets all of the events at this timestep into policy variables """
 def withdraw_actions(params, step, sL, s):
-    # who delegates, 
-    # how many tokens.
-    timestep = s['timestep']
-    withdraw_events = params['withdraw_tokens_events'].get(timestep)
-    return {'withdraw_events': withdraw_events}
+    key = 'withdraw_events'
+    delegation_events = get_shifted_events(s, sL, params['withdraw_tokens_events'], 'withdraw')
+    return {key: delegation_events}
+
 
 def delegate(params, step, sL, s, inputs):
             #     'pool_delegated_stake': add_delegated_stake_to_pool,
             # 'GRT': account_for_tax,
             # 'delegators': delegate,
-    event = inputs['delegation_events'][0] if inputs['delegation_events'] is not None else None    
+    event = inputs['event'][0] if inputs['event'] is not None else None
     if event:
         indexer = s['indexers'][event['indexer']]
-        # print("DELEGATE EVENT", event)
+        print("DELEGATE EVENT", event)
         # # Step 1: Account for Tax
         # # sum up the number of tokens delegated this timestep        
         
@@ -61,6 +51,8 @@ def delegate(params, step, sL, s, inputs):
         delegators = indexer.delegators
 
         delegator_id = event['delegator']
+        if delegator_id == 1:
+            print('agent delegation')
         if delegator_id not in delegators:
             delegators[delegator_id] = Delegator(delegator_id, holdings = initial_holdings)
         
@@ -99,10 +91,10 @@ def process_delegation_event(delegation_tokens_quantity, delegator, delegation_t
     # NOTE: allow this for now.
     # if delegation_tokens_quantity >= delegator.holdings:
     #     delegation_tokens_quantity = delegator.holdings        
-    delegator.holdings -= delegation_tokens_quantity / (1 - delegation_tax_rate)
+    delegator.holdings -= delegation_tokens_quantity
     
     # 5 * (0.995) / 10 * 10 = 4.975
-    print(f'{pool_delegated_stake=}, {shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
+    print(f'BEFORE DELEGATION: {pool_delegated_stake=}, {shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
     new_shares = delegation_tokens_quantity * (1 - delegation_tax_rate) if pool_delegated_stake.is_zero() \
                  else ((delegation_tokens_quantity * (1 - delegation_tax_rate)) / pool_delegated_stake) * shares
     
@@ -111,21 +103,21 @@ def process_delegation_event(delegation_tokens_quantity, delegator, delegation_t
     delegator.shares += new_shares
     # shares += new_shares
     # store shares locally only--it has to be recomputed each action block because we don't save it until bookkeeping
+    print(f'AFTER DELEGATION: {pool_delegated_stake=}, {shares+new_shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
     return pool_delegated_stake, delegator
 
 
 def undelegate(params, step, sL, s, inputs):
-    event = inputs['undelegation_events'][0] if inputs['undelegation_events'] is not None else None    
+    event = inputs['event'][0] if inputs['event'] is not None else None
     if event:
         indexer = s['indexers'][event['indexer']]
     
         # shares needs to be kept updated
         shares = sum([d.shares for d in indexer.delegators.values()])
-        
-        # timestep = s['timestep']
-        # print(undelegation_events)
-        
+
         delegator_id = event['delegator']
+        if delegator_id == 1:
+            print('agent undelegation')
         try:
             delegator = indexer.delegators[delegator_id]                
         except KeyError:
@@ -185,13 +177,15 @@ def undelegate(params, step, sL, s, inputs):
 
 def withdraw(params, step, sL, s, inputs):
     #  loop through acting delegators id list
-    timestep = s['timestep']
-    event = inputs['withdraw_events'][0] if inputs['withdraw_events'] is not None else None    
+    effective_timestep = s['timestep'] - s['injected_event_shift']
+    event = inputs['event'][0] if inputs['event'] is not None else None
     if event:
         indexer = s['indexers'][event['indexer']]
     
         delegator_id = event['delegator']
-        delegator = indexer.delegators[delegator_id]        
+        if delegator_id == 1:
+            print('agent withdraw')
+        delegator = indexer.delegators[delegator_id]
         tokens = event['tokens']
         print(f'''EVENT: WITHDRAW (before)--
                     {delegator_id=}, 
@@ -199,7 +193,7 @@ def withdraw(params, step, sL, s, inputs):
                     {delegator.undelegated_tokens=}, 
                     {delegator.shares=}
                     {tokens=}''')
-        withdrawableDelegatedTokens = delegator.getWithdrawableDelegatedTokens(timestep)
+        withdrawableDelegatedTokens = delegator.getWithdrawableDelegatedTokens(effective_timestep)
         if withdrawableDelegatedTokens > tokens:
             delegator.withdraw(tokens)
         elif withdrawableDelegatedTokens > 0:
