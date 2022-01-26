@@ -51,17 +51,17 @@ class Delegator(AbstractAgent):
     # def updateState(self): #, states : states, inputs : inputs):
     #     pass
     
-    def updateBeliefs(self):
+    def update_beliefs(self):
         return None
     
-    def generateStrategies(self):
+    def generate_strategies(self):
         return None
     
-    def generatePlan(self):
+    def generate_plan(self):
         pass
     
     def selectPlan(self):
         pass
     
-    def generateOutput(self, plan):
+    def generate_output(self, plan):
         pass

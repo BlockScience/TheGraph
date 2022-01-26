@@ -16,18 +16,16 @@ def get_agent_actions_next_timestep(params, step, sL, s, inputs):
         agent = indexer.delegators[1]
 
         inpt = {
-                    'availableIndexers'         : s['indexers'],
-                    'currentPeriod'             : s['epoch'],
-                    'disputeChannelEpochs'      : params['dispute_channel_epochs'],
-                    'allocationDays'            : params['allocation_days'],
-                    'delegationUnbondingPeriod' : params['unbonding_days'],
-                    'accountBalance'            : agent.holdings
+                    'availableIndexers': s['indexers'],
+                    'currentPeriod': s['epoch'],
+                    'disputeChannelEpochs': params['dispute_channel_epochs'],
+                    'allocationDays': params['allocation_days'],
+                    'delegationUnbondingPeriod': params['unbonding_days'],
+                    'accountBalance': agent.holdings
                 }
-            
         
         agent.inputs(inpt)
-        # action = agent.getAction()
         # this populates an action into the agent object.
-        agent.getAction()
+        agent.get_action()
     key = 'indexers'
     return key, indexers

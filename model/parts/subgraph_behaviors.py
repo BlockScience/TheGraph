@@ -1,11 +1,13 @@
 from .subgraph import Subgraph
 from .allocation import Allocation
-from .utils import get_shifted_events
+# from .utils import get_shifted_events
 
-def allocation_created_events(params, step, sL, s):
-    key = 'allocation_created_events'
-    events = get_shifted_events(s, sL, params[key])
-    return {key: events}
+#
+# def allocation_created_events(params, step, sL, s):
+#     key = 'allocation_created_events'
+#     events = get_shifted_events(s, sL, params[key])
+#     return {key: events}
+
 
 def create_allocations(params, step, sL, s, inputs):
     key = 'indexers'
@@ -32,10 +34,10 @@ def create_allocations(params, step, sL, s, inputs):
     return key, indexers
 
 
-def allocation_closed_events(params, step, sL, s):
-    key = 'allocation_closed_events'
-    events = get_shifted_events(s, sL, params[key])
-    return {key: events}
+# def allocation_closed_events(params, step, sL, s):
+#     key = 'allocation_closed_events'
+#     events = get_shifted_events(s, sL, params[key])
+#     return {key: events}
 
 
 def close_allocations(params, step, sL, s, inputs):

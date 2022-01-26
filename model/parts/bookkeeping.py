@@ -26,6 +26,7 @@ def set_epoch(params, step, sL, s, inputs):
         value = int((event['blockNumber'] - params['shift']) / params['blocks_per_epoch'])
     return key, value
 
+
 def increment_timestep_due_to_agent_event(params, step, sL, s, inputs):
     key = 'injected_event_shift'
     

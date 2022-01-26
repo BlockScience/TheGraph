@@ -1,11 +1,6 @@
-from .parts.indexer_behaviors import *                                      
-from .parts.delegator_behaviors import *
-from .parts.subgraph_behaviors import *
-from .parts.revenue import *
-from .parts.portfolio_behaviors import *
 from .parts.bookkeeping import *
 from .parts.agent_behaviors import *
-from .parts.revenue_rewrite import *
+from .parts.revenue import *
 from .parts.event_processor import *
 
 
@@ -22,7 +17,6 @@ psubs = [
         'policies': {
         },
         'variables': {
-            # 'set_event_list': set_event_list,
             'block_number': set_block_number,
             'epoch': set_epoch
         },
@@ -45,6 +39,24 @@ psubs = [
             'indexers': indexer_process,
             'delegator_portfolios': portfolio_process
         }
-    }
+    },
+    {
+        'label': 'Agent Actions',
+        'policies': {
+        },
+        'variables': {
+            'indexers': get_agent_actions_next_timestep,
+        }
+
+    },
+    {
+        'label': 'Increment agent event counter',
+        'policies': {
+        },
+        'variables': {  # if there is an event in the hopper,
+            'injected_event_shift': increment_timestep_due_to_agent_event
+        }
+
+    },
 ]
 

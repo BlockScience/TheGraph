@@ -1,40 +1,41 @@
 from .heuristic_agent import HeuristicAgent
 from .delegate_front_runner_rules import DelegateFrontRunnerRules
+
+
 class DelegateFrontRunner(HeuristicAgent):
 
-    def __init__(self, id, rules : DelegateFrontRunnerRules,
-                initialAccountBalance):
-        super().__init__(id, rules, initialAccountBalance)
+    def __init__(self, delegator_id, rules: DelegateFrontRunnerRules,
+                 initialAccountBalance):
+        super().__init__(delegator_id, rules, initialAccountBalance)
         self._inputs = []
         self.state = [
             {
                 # get this from indexer.delegators
-                'delegations'    : {},
+                'delegations': {},
             }
         ]
     
     def inputs(self, newInput):
         self._inputs.append(
             {
-                'availableIndexers'         : newInput['availableIndexers'],
-                'currentPeriod'             : newInput['currentPeriod'],
-                'disputeChannelEpochs'      : newInput['disputeChannelEpochs'],
-                'allocationDays'            : newInput['allocationDays'],
-                'delegationUnbondingPeriod' : newInput['delegationUnbondingPeriod'],
-                'accountBalance'            : newInput['accountBalance'],
+                'availableIndexers': newInput['availableIndexers'],
+                'currentPeriod': newInput['currentPeriod'],
+                'disputeChannelEpochs': newInput['disputeChannelEpochs'],
+                'allocationDays': newInput['allocationDays'],
+                'delegationUnbondingPeriod': newInput['delegationUnbondingPeriod'],
+                'accountBalance': newInput['accountBalance'],
             }
         )
-       
 
     # this only works for one indexer currently because delegator is an attribute of an indexer.
-    def generatePlan(self):
+    def generate_plan(self):
         # if self.output exists then this timestep is actually already an agent action.  zero out the plan here and move onto the next timestep.
         if self.output:
             self.plan = {}
             return
         
         inpt = self._inputs[-1]
-        strategy        = self._strategies[-1]
+        strategy = self._strategies[-1]
         currentPeriod = inpt['currentPeriod']
         print(f'{currentPeriod=}')                        
         plan = {}
@@ -52,13 +53,14 @@ class DelegateFrontRunner(HeuristicAgent):
                     # allocations = subgraph.allocations.values()
                     for allocation in allocations:
                         # If there is an allocation from that indexer which is available to delegate to, the FRD checks to see if the allocation may shortly close (this depends upon the starting time of the allocation, i.e. how long it has been open).
-                        if currentPeriod == allocation.start_period + inpt['allocationDays'] - 1: # allocation time in days/epochs
+                        if currentPeriod == allocation.start_period + inpt['allocationDays'] - 1:  # allocation time in days/epochs
                             # If the allocation may shortly close, the FRD delegates to that allocation, for that indexer, if they have the available funds to do so. This is the start of the front-running attack.
                             if self.holdings > 0:
                                 plan = strategy['delegate']
                                 plan['delegator'] = self.id
                                 plan['indexer'] = indexer.id
-                                break
+                                self.plan = plan
+                                return
             # If the FRD has delegated to that indexer, the FRD checks to see if it’s time to begin the process of undelegating.
             else:
                 for subgraph in indexer.subgraphs.values():
@@ -75,7 +77,8 @@ class DelegateFrontRunner(HeuristicAgent):
                                 plan['indexer'] = indexer.id
                                 plan['shares'] = self.shares
                                 plan['until'] = currentPeriod + inpt['delegationUnbondingPeriod']
-                                break
+                                self.plan = plan
+                                return
                         # If enough time has passed to allow withdrawing their delegation to commence (this depends upon both the time allowed for disputes to resolve, and upon the unbonding period for delegators), the FRD checks to see if they’ve already undelegated, or if they’ve already withdrawn their delegation.
                         if currentPeriod == allocation.start_period + inpt['allocationDays'] + inpt['disputeChannelEpochs'] + inpt['delegationUnbondingPeriod']:
                             # If they’ve already undelegated, they withdraw their delegation.
@@ -85,15 +88,15 @@ class DelegateFrontRunner(HeuristicAgent):
                                 plan['delegator'] = self.id
                                 plan['indexer'] = indexer.id
                                 plan['tokens'] = self.undelegated_tokens                                
-                                break
+                                self.plan = plan
+                                return
                             # If they’ve already withdrawn their delegation, they check to see if their available funds has increased due to their withdrawn delegation.                            
                             # NOTE: nothing needs to be done here.
                             # If their available funds has increased, they stop keeping track of this delegation and clear it from their memory. This is the end of the front-running attack.
                             # NOTE: nothing needs to be done here.
         self.plan = plan
 
-    
-    def generateOutput(self):
+    def generate_output(self):
         self.output = []
         if self.plan:
             # output must be a list of events.
