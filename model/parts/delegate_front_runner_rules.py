@@ -7,6 +7,7 @@ class DelegateFrontRunnerRules(Rules):
         self._rules = {
             'delegate': {
                 'event': "delegate",
+                'type': 'stakeDelegateds',
                 'indexer': None,
                 'tokens': tokens,
                 'status': "have delegated"
@@ -18,11 +19,13 @@ class DelegateFrontRunnerRules(Rules):
             },
             'undelegate': {
                 'event': "undelegate",
+                'type': 'stakeDelegatedLockeds',
                 'indexer': None,
                 'status': "have sent undelegate()"
             },
             'withdraw': {
                 'event': "withdraw",
+                'type': 'stakeDelegatedWithdrawns',
                 'indexer': None,
                 'status': "have sent withdrawDelegation()"
             },

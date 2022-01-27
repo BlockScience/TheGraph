@@ -10,7 +10,7 @@ def determine_event(params, step, sL, s):
     # effective_timestep = s['timestep'] - s['injected_event_shift']
     # event = params['all_events'].get(effective_timestep)
 
-    event = get_shifted_event(s, sL, params['all_events'])
+    event = get_shifted_event(s, sL, params['all_events'], 'any')
 
     event_type = {'event_type': str(),
                   'event': dict()}
