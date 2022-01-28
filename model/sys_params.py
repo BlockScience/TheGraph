@@ -1,5 +1,5 @@
 from .parts import utils
-from decimal import *
+from decimal import Decimal
 from sys import platform
 
 R_i_rate = [0.03]
