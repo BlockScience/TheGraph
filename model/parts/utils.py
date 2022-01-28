@@ -122,6 +122,7 @@ def convert_pandas_df_to_list_of_dicts(all_events):
     print()
     return events_list_of_dicts
 
+
 def is_agent_event_this_timestep(s, sL):
     if len(sL) >= 2:
         previous_injected_event_shift = sL[-2][-1]['injected_event_shift']
@@ -131,7 +132,7 @@ def is_agent_event_this_timestep(s, sL):
 
 
 # get events for this timestep (should only be 1)
-def get_shifted_events(s, sL, events_param, event_type=None):
+def get_shifted_event(s, sL, events_param, event_type=None):
     # increment by injected_event_shift to get real timestep.
     effective_timestep = s['timestep'] - s['injected_event_shift']
     
@@ -140,14 +141,14 @@ def get_shifted_events(s, sL, events_param, event_type=None):
             agent = indexer.delegators[1]
             if agent.output:
                 output = agent.output[-1]
-                if output['event'] == event_type:
-                    events = agent.output 
+                if event_type == 'any' or output['event'] == event_type:
+                    event = agent.output
                 else:
-                    events = None
+                    event = None
     else:
-        events = events_param.get(effective_timestep)
+        event = events_param.get(effective_timestep)
     
-    return events
+    return event
 
 
 if __name__ == '__main__':

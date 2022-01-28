@@ -6,8 +6,8 @@ from model.parts.delegator import Delegator
 
 class HeuristicAgent(Delegator):
 
-    def __init__(self, id, rules, initialAccountBalance): # Dict[id, rule]):
-        super().__init__(id, holdings=initialAccountBalance)
+    def __init__(self, delegator_id, rules, initialaccount_balance):  # Dict[id, rule]):
+        super().__init__(delegator_id, holdings=initialaccount_balance)
         self._strategies = [rules.rules]
         
     def beliefs(self):
@@ -20,15 +20,15 @@ class HeuristicAgent(Delegator):
     #     # internal state
     #     pass
     
-    def updateBeliefs(self):
+    def update_beliefs(self):
         # Heuristic agents do not have beliefs to update
         return None
     
-    def generateStrategies(self):
+    def generate_strategies(self):
         # Heuristic agents do not generate strategies
         return None
     
-    def generatePlan(self):
+    def generate_plan(self):
         # Heuristic agents test alternative rules against their state
         # and return plans that meet rule criteria (if any)
         pass
@@ -38,6 +38,6 @@ class HeuristicAgent(Delegator):
     #     # between them should be placed here
     #     pass
     
-    def generateOutput(self, plan):
+    def generate_output(self, plan):
         # Application of the selected plan occurs here
         pass

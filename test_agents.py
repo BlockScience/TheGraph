@@ -12,7 +12,7 @@ import numpy as np
 from model.sim_setup import SIMULATION_TIME_STEPS
 
 df = pd.read_pickle(r'experiment.p')
-df.reset_index(inplace = True)
+df.reset_index(inplace=True)
 pd.set_option('display.max_rows', None)
 
 if __name__ == '__main__':

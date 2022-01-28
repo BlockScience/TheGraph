@@ -2,11 +2,16 @@ from .delegator_behaviors import *
 from .indexer_behaviors import *
 from .portfolio_behaviors import *
 from .subgraph_behaviors import *
+from .utils import *
 
 
 def determine_event(params, step, sL, s):
-    timestep = s['timestep']
-    event = params['all_events'].get(timestep)
+    # timestep = s['timestep']
+    # effective_timestep = s['timestep'] - s['injected_event_shift']
+    # event = params['all_events'].get(effective_timestep)
+
+    event = get_shifted_event(s, sL, params['all_events'], 'any')
+
     event_type = {'event_type': str(),
                   'event': dict()}
     if event[0]['type'] == 'stakeDelegateds':
