@@ -1,8 +1,9 @@
 from .portfolio import Portfolio
 from decimal import Decimal
 
+
 def delegate_portfolio(params, step, sL, s, inputs):
-    if params['portfolio_tracking'] == True:
+    if params['portfolio_tracking']:
         portfolios = s['delegator_portfolios']
         event = inputs['event'][0] if inputs['event'] is not None else None
         delegation_tax_rate = params['delegation_tax_rate']
@@ -49,8 +50,9 @@ def delegate_portfolio(params, step, sL, s, inputs):
     else:
         return 'delegator_portfolios', s['delegator_portfolios']
 
+
 def undelegate_portfolio(params, step, sL, s, inputs):
-    if params['portfolio_tracking'] == True:
+    if params['portfolio_tracking']:
         portfolios = s['delegator_portfolios']
         event = inputs['event'][0] if inputs['event'] is not None else None    
         if event['delegator'] in params['delegator_list'] or len(params['delegator_list']) == 0:
@@ -72,7 +74,7 @@ def undelegate_portfolio(params, step, sL, s, inputs):
         
     
 def withdraw_portfolio(params, step, sL, s, inputs):
-    if params['portfolio_tracking'] == True:
+    if params['portfolio_tracking']:
         portfolios = s['delegator_portfolios']
         event = inputs['event'][0] if inputs['event'] is not None else None    
         if event['delegator'] in params['delegator_list'] or len(params['delegator_list']) == 0:

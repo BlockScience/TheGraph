@@ -122,6 +122,7 @@ def convert_pandas_df_to_list_of_dicts(all_events):
     print()
     return events_list_of_dicts
 
+
 def is_agent_event_this_timestep(s, sL):
     if len(sL) >= 2:
         previous_injected_event_shift = sL[-2][-1]['injected_event_shift']

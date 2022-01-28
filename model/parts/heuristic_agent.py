@@ -6,8 +6,8 @@ from model.parts.delegator import Delegator
 
 class HeuristicAgent(Delegator):
 
-    def __init__(self, id, rules, initialAccountBalance): # Dict[id, rule]):
-        super().__init__(id, holdings=initialAccountBalance)
+    def __init__(self, delegator_id, rules, initialaccount_balance):  # Dict[id, rule]):
+        super().__init__(delegator_id, holdings=initialaccount_balance)
         self._strategies = [rules.rules]
         
     def beliefs(self):

@@ -30,9 +30,9 @@ class DelegateFrontRunnerRules(Rules):
                 'status': "have sent withdrawDelegation()"
             },
             'checkBalance': {
-                'event': "checkAccountBalance",
+                'event': "checkaccount_balance",
                 'indexer': '<account address>',
-                'status': "have sent checkAccountBalance"
+                'status': "have sent checkaccount_balance"
             },
             'clear': {
                 'event': None,

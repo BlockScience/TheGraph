@@ -16,12 +16,13 @@ def get_agent_actions_next_timestep(params, step, sL, s, inputs):
         agent = indexer.delegators[1]
 
         inpt = {
-                    'availableIndexers': s['indexers'],
-                    'currentPeriod': s['epoch'],
-                    'disputeChannelEpochs': params['dispute_channel_epochs'],
-                    'allocationDays': params['allocation_days'],
-                    'delegationUnbondingPeriod': params['unbonding_days'],
-                    'accountBalance': agent.holdings
+                    'available_indexers': s['indexers'],
+                    'current_period': s['epoch'],
+                    'dispute_channel_epochs': params['dispute_channel_epochs'],
+                    'allocation_days': params['allocation_days'],
+                    'delegation_unbonding_period': params['unbonding_days'],
+                    'account_balance': agent.holdings,
+                    'delegation_tax_rate': params['delegation_tax_rate'],
                 }
         
         agent.inputs(inpt)
