@@ -1,6 +1,7 @@
 # The abstract base class is used
 from abc import ABC, abstractmethod
- 
+
+
 class AbstractAgent(ABC):
     
     # technically AbstractAgent is never instantiated, but enforcing
@@ -10,13 +11,16 @@ class AbstractAgent(ABC):
     def __init__(self, identifier):
         self.id = identifier
         self.output = []
-        self.plan = [] # a list of plans
+        self.plan = []  # a list of plans
         self.state = {}
+        self._inputs = []
+        self._beliefs = []
+        self._strategies = []
 
     @property
     def inputs(self):
         # input is a reserved method in python
-        return self._inputs # List[inpt]
+        return self._inputs  # List[inpt]
     
     @inputs.setter
     def inputs(self, newInput):
@@ -24,53 +28,40 @@ class AbstractAgent(ABC):
     
     @property
     def beliefs(self):
-        return self._beliefs # List[belief]
+        return self._beliefs  # List[belief]
     
     @property
     def strategies(self):
-        return self._strategies # List[strategy]
-    
-    
-    # @abstractmethod
-    # def updateState(self, state):
-    #     # overridden for subclass state update
-    #     # abstract class does nothing
-    #     pass
-    
+        return self._strategies  # List[strategy]
+
     @abstractmethod
-    def updateBeliefs(self, beliefs : beliefs):
+    def update_beliefs(self, beliefs: beliefs):
         # overridden for subclass belief update
         # abstract class does nothing
         pass
-    
+
     @abstractmethod
-    def generateStrategies(self):
+    def generate_strategies(self):
         # overridden for subclass strategy generation
         # abstract class does nothing
         pass
-    
+
     @abstractmethod
-    def generatePlan(self):
+    def generate_plan(self):
         # overridden for subclass plan generation
         # abstract class does nothing
         pass
-    
-    # @abstractmethod
-    # def selectPlan(self):
-    #     # overridden for subclass plan selection
-    #     # abstract class does nothing
-    #     pass
-    
+
     @abstractmethod
-    def generateOutput(self, plan):
+    def generate_output(self, plan):
         # overridden for subclass output generation
         # abstract class does nothing
         pass
-    
-    def getAction(self):
+
+    def get_action(self):
         # self.updateState()
-        self.updateBeliefs()
-        self.generateStrategies()
-        self.generatePlan()
+        self.update_beliefs()
+        self.generate_strategies()
+        self.generate_plan()
         # self.selectPlan()
-        self.generateOutput() 
+        self.generate_output()

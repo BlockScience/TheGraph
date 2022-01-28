@@ -1,50 +1,40 @@
 from model.parts.delegator import Delegator
-from .utils import get_shifted_events
+# from .utils import get_shifted_events
 from decimal import *
 
-""" this just gets all of the events at this timestep into policy variables """
-def delegate_actions(params, step, sL, s):
-    key = 'delegation_events'
-    delegation_events = get_shifted_events(s, sL, params['delegation_tokens_events'], 'delegate')
-    return {key: delegation_events}
 
-
-""" this just gets all of the events at this timestep into policy variables """
-def undelegate_actions(params, step, sL, s):
-    key = 'undelegation_events'
-    delegation_events = get_shifted_events(s, sL, params['undelegation_shares_events'], 'undelegate')
-    return {key: delegation_events}
-
-""" this just gets all of the events at this timestep into policy variables """
-def withdraw_actions(params, step, sL, s):
-    key = 'withdraw_events'
-    delegation_events = get_shifted_events(s, sL, params['withdraw_tokens_events'], 'withdraw')
-    return {key: delegation_events}
+# def delegate_actions(params, step, sL, s):
+#     """ this just gets all of the events at this timestep into policy variables """
+#     key = 'delegation_events'
+#     delegation_events = get_shifted_events(s, sL, params['delegation_tokens_events'], 'delegate')
+#     return {key: delegation_events}
+#
+#
+# def undelegate_actions(params, step, sL, s):
+#     """ this just gets all of the events at this timestep into policy variables """
+#     key = 'undelegation_events'
+#     delegation_events = get_shifted_events(s, sL, params['undelegation_shares_events'], 'undelegate')
+#     return {key: delegation_events}
+#
+#
+# def withdraw_actions(params, step, sL, s):
+#     """ this just gets all of the events at this timestep into policy variables """
+#     key = 'withdraw_events'
+#     delegation_events = get_shifted_events(s, sL, params['withdraw_tokens_events'], 'withdraw')
+#     return {key: delegation_events}
 
 
 def delegate(params, step, sL, s, inputs):
-            #     'pool_delegated_stake': add_delegated_stake_to_pool,
-            # 'GRT': account_for_tax,
-            # 'delegators': delegate,
     event = inputs['event'][0] if inputs['event'] is not None else None
     if event:
         indexer = s['indexers'][event['indexer']]
         print("DELEGATE EVENT", event)
-        # # Step 1: Account for Tax
-        # # sum up the number of tokens delegated this timestep        
-        
-        # # print(f'{delegation_tokens_quantity=}')
-        # delegation_tax_rate = params['delegation_tax_rate']        
-        # tax = delegation_tax_rate * event['tokens']
-        # indexer.GRT -= tax
-
-        # # Step 2: Add Delegated Stake to Pool
-        # indexer.pool_delegated_stake += event['tokens']
-
-        # Step 3: Delegate        
+        # Step 3: Delegate
         # NOTE: must recompute global shares each time because it affects how many tokens go where.
         # TODO: don't think we need to compute shares each time because we have only one event per timestep.
-        shares = sum([d.shares for d in indexer.delegators.values()])
+        # shares = sum([d.shares for d in indexer.delegators.values()])
+        # Try it this way.
+        shares = indexer.shares
         
         delegation_tax_rate = params['delegation_tax_rate']        
         initial_holdings = params['delegator_initial_holdings']
@@ -54,7 +44,7 @@ def delegate(params, step, sL, s, inputs):
         if delegator_id == 1:
             print('agent delegation')
         if delegator_id not in delegators:
-            delegators[delegator_id] = Delegator(delegator_id, holdings = initial_holdings)
+            delegators[delegator_id] = Delegator(delegator_id, holdings=initial_holdings)
         
         delegator = delegators[delegator_id]        
         delegation_tokens_quantity = event['tokens']
@@ -70,7 +60,7 @@ def delegate(params, step, sL, s, inputs):
         #             {delegator.shares=}""")
 
         indexer.pool_delegated_stake, delegator = process_delegation_event(delegation_tokens_quantity, delegator, 
-                                            delegation_tax_rate, indexer.pool_delegated_stake, shares)        
+                                                                           delegation_tax_rate, indexer.pool_delegated_stake, shares)
 
         # print(f"""  (after)--
         #             {indexer.id=},
@@ -81,10 +71,8 @@ def delegate(params, step, sL, s, inputs):
         #             {delegator.holdings=}, 
         #             {delegator.shares=}""")
 
-
     key = 'indexers'
     return key, s['indexers']
-
 
 
 def process_delegation_event(delegation_tokens_quantity, delegator, delegation_tax_rate, pool_delegated_stake, shares):
@@ -95,11 +83,17 @@ def process_delegation_event(delegation_tokens_quantity, delegator, delegation_t
     
     # 5 * (0.995) / 10 * 10 = 4.975
     print(f'BEFORE DELEGATION: {pool_delegated_stake=}, {shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
-    new_shares = delegation_tokens_quantity * (1 - delegation_tax_rate) if pool_delegated_stake.is_zero() \
-                 else ((delegation_tokens_quantity * (1 - delegation_tax_rate)) / pool_delegated_stake) * shares
-    
+    # new_shares = delegation_tokens_quantity * (1 - delegation_tax_rate) \
+    #     if pool_delegated_stake.is_zero() \
+    #     else ((delegation_tokens_quantity * (1 - delegation_tax_rate)) / pool_delegated_stake) * shares
+
+    # NOTE: Tax is already taken out at this point.
+    new_shares = delegation_tokens_quantity \
+        if pool_delegated_stake.is_zero() \
+        else (delegation_tokens_quantity / pool_delegated_stake) * shares
+
     # NOTE: pool_delegated_stake must be updated AFTER new_shares is calculated
-    pool_delegated_stake += delegation_tokens_quantity * (1 - delegation_tax_rate)
+    pool_delegated_stake += delegation_tokens_quantity
     delegator.shares += new_shares
     # shares += new_shares
     # store shares locally only--it has to be recomputed each action block because we don't save it until bookkeeping
@@ -174,6 +168,7 @@ def undelegate(params, step, sL, s, inputs):
     key = 'indexers'
     value = s['indexers']
     return key, value
+
 
 def withdraw(params, step, sL, s, inputs):
     #  loop through acting delegators id list
