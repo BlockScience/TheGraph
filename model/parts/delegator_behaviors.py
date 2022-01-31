@@ -49,33 +49,15 @@ def delegate(params, step, sL, s, inputs):
         delegator = delegators[delegator_id]        
         delegation_tokens_quantity = event['tokens']
 
-        
-        # print(f"""EVENT: DELEGATE (before)--
-        #             {indexer.id=},
-        #             {delegator_id=}, 
-        #             {indexer.pool_delegated_stake=},
-        #             {delegation_tokens_quantity=},
-        #             {shares=},
-        #             {delegator.holdings=}, 
-        #             {delegator.shares=}""")
-
-        indexer.pool_delegated_stake, delegator = process_delegation_event(delegation_tokens_quantity, delegator, 
-                                                                           delegation_tax_rate, indexer.pool_delegated_stake, shares)
-
-        # print(f"""  (after)--
-        #             {indexer.id=},
-        #             {delegator.id=}, 
-        #             {indexer.pool_delegated_stake=},
-        #             {delegation_tokens_quantity=},
-        #             {shares=},                
-        #             {delegator.holdings=}, 
-        #             {delegator.shares=}""")
+        indexer = process_delegation_event(delegation_tokens_quantity, delegator,
+                                           delegation_tax_rate, indexer.pool_delegated_stake, shares,
+                                           indexer)
 
     key = 'indexers'
     return key, s['indexers']
 
 
-def process_delegation_event(delegation_tokens_quantity, delegator, delegation_tax_rate, pool_delegated_stake, shares):
+def process_delegation_event(delegation_tokens_quantity, delegator, delegation_tax_rate, pool_delegated_stake, shares, indexer):
     # NOTE: allow this for now.
     # if delegation_tokens_quantity >= delegator.holdings:
     #     delegation_tokens_quantity = delegator.holdings        
@@ -83,6 +65,8 @@ def process_delegation_event(delegation_tokens_quantity, delegator, delegation_t
     
     # 5 * (0.995) / 10 * 10 = 4.975
     print(f'BEFORE DELEGATION: {pool_delegated_stake=}, {shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
+
+    # NOTE: this is the calculation if tax hadn't already been taken out before event was created.
     # new_shares = delegation_tokens_quantity * (1 - delegation_tax_rate) \
     #     if pool_delegated_stake.is_zero() \
     #     else ((delegation_tokens_quantity * (1 - delegation_tax_rate)) / pool_delegated_stake) * shares
@@ -95,10 +79,11 @@ def process_delegation_event(delegation_tokens_quantity, delegator, delegation_t
     # NOTE: pool_delegated_stake must be updated AFTER new_shares is calculated
     pool_delegated_stake += delegation_tokens_quantity
     delegator.shares += new_shares
+    indexer.shares += new_shares
     # shares += new_shares
     # store shares locally only--it has to be recomputed each action block because we don't save it until bookkeeping
     print(f'AFTER DELEGATION: {pool_delegated_stake=}, {shares+new_shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
-    return pool_delegated_stake, delegator
+    return indexer
 
 
 def undelegate(params, step, sL, s, inputs):
@@ -107,7 +92,7 @@ def undelegate(params, step, sL, s, inputs):
         indexer = s['indexers'][event['indexer']]
     
         # shares needs to be kept updated
-        shares = sum([d.shares for d in indexer.delegators.values()])
+        # shares = sum([d.shares for d in indexer.delegators.values()])
 
         delegator_id = event['delegator']
         if delegator_id == 1:
@@ -146,17 +131,17 @@ def undelegate(params, step, sL, s, inputs):
             # if withdrawableDelegatedTokens > 0:
             #     print(f'INFO: tokens withdrawn {withdrawableDelegatedTokens=}')
             #     delegator.withdraw(withdrawableDelegatedTokens)
-            if shares < 0.000000000001:
+            if indexer.shares < 0.000000000001:
                 print(f'''EXCEPTION, no shares to undelegate,
                         {s['timestep']=}
                         {indexer.id=}''')
                 
-            undelegated_tokens = undelegation_shares_quantity * (indexer.pool_delegated_stake / shares)
+            undelegated_tokens = undelegation_shares_quantity * (indexer.pool_delegated_stake / indexer.shares)
             until = event['until']
             delegator.set_undelegated_tokens(until, undelegated_tokens)
             delegator.shares -= undelegation_shares_quantity
             indexer.pool_delegated_stake -= undelegated_tokens
-            shares -= undelegation_shares_quantity
+            indexer.shares -= undelegation_shares_quantity
             print(f'''  (after)--
                         {delegator_id=}, 
                         {delegator.holdings=}, 
