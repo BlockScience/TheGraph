@@ -11,7 +11,6 @@ class DelegateFrontRunnerRules(Rules):
                 'indexer': None,
                 'tokens': tokens,
                 'status': "have delegated",
-                'blockNumber': 11522107
             },
             'claim': {
                 'event': "claim",
@@ -23,7 +22,6 @@ class DelegateFrontRunnerRules(Rules):
                 'type': 'stakeDelegatedLockeds',
                 'indexer': None,
                 'status': "have sent undelegate()",
-                'blockNumber': 11522303
             },
             'withdraw': {
                 'event': "withdraw",
