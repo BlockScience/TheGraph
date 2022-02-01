@@ -10,7 +10,7 @@ class DelegateFrontRunnerRules(Rules):
                 'type': 'stakeDelegateds',
                 'indexer': None,
                 'tokens': tokens,
-                'status': "have delegated"
+                'status': "have delegated",
             },
             'claim': {
                 'event': "claim",
@@ -21,7 +21,7 @@ class DelegateFrontRunnerRules(Rules):
                 'event': "undelegate",
                 'type': 'stakeDelegatedLockeds',
                 'indexer': None,
-                'status': "have sent undelegate()"
+                'status': "have sent undelegate()",
             },
             'withdraw': {
                 'event': "withdraw",
