@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 class Portfolio():
-    def __init__(self, id, holdings = Decimal(1000000000), eth_holdings = Decimal(10000), gas_spent = Decimal(0), ROI = Decimal(0), ROI_time = Decimal(0), indexer_shares = {},
+    def __init__(self, id, holdings = Decimal(10000000000), eth_holdings = Decimal(10000), gas_spent = Decimal(0), ROI = Decimal(0), ROI_time = Decimal(0), indexer_shares = {},
                 indexer_revenues = {}, indexer_price = {}, indexer_realized_price = {}, indexer_yield = {},
                 indexer_in_tokens = {}, private_price = None, private_yield = None, 
                 indexer_locked_tokens = {}, withdraw_block_number = {}, delegate_block_number = {}, indexer_ROI = {},
