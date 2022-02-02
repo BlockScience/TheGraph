@@ -61,7 +61,9 @@ def process_delegation_event(delegation_tokens_quantity, delegator, delegation_t
     # NOTE: allow this for now.
     # if delegation_tokens_quantity >= delegator.holdings:
     #     delegation_tokens_quantity = delegator.holdings        
-    delegator.holdings -= delegation_tokens_quantity
+
+    # event.tokens already has tax taken out, but holdings calculation has to account for it.
+    delegator.holdings -= delegation_tokens_quantity / (1 - delegation_tax_rate)
     
     # 5 * (0.995) / 10 * 10 = 4.975
     print(f'BEFORE DELEGATION: {pool_delegated_stake=}, {shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
@@ -77,12 +79,12 @@ def process_delegation_event(delegation_tokens_quantity, delegator, delegation_t
         else (delegation_tokens_quantity / pool_delegated_stake) * shares
 
     # NOTE: pool_delegated_stake must be updated AFTER new_shares is calculated
-    pool_delegated_stake += delegation_tokens_quantity
+    indexer.pool_delegated_stake += delegation_tokens_quantity
     delegator.shares += new_shares
     indexer.shares += new_shares
     # shares += new_shares
     # store shares locally only--it has to be recomputed each action block because we don't save it until bookkeeping
-    print(f'AFTER DELEGATION: {pool_delegated_stake=}, {shares+new_shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
+    print(f'AFTER DELEGATION: {indexer.pool_delegated_stake=}, {shares+new_shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
     return indexer
 
 

@@ -15,11 +15,26 @@ df = pd.read_pickle(r'experiment.p')
 df.reset_index(inplace=True)
 pd.set_option('display.max_rows', None)
 
-if __name__ == '__main__':
-    print("UNITTEST RESULTS")
-    debug = False
+
+def show_final_results():
     delegate_front_runner = list(df.iloc[SIMULATION_TIME_STEPS-1].indexers.values())[0].delegators[1]
     print(delegate_front_runner)
+
+
+def show_all_delegations():
+    for timestep in range(1530):
+        delegate_front_runner = list(df.iloc[timestep-1].indexers.values())[0].delegators[1]
+        # shares = delegate_front_runner.shares
+        # holdings = delegate_front_runner.holdings
+        # undelegated_tokens = delegate_front_runner.undelegated_tokens
+        print(f'{timestep=}, {delegate_front_runner}')
+
+
+if __name__ == '__main__':
+    print("UNITTEST RESULTS")
+    # show_final_results()
+
+    show_all_delegations()
     # show here's when they acted, undelegated, delegated, here's what they made
     
 
