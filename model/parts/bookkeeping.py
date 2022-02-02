@@ -4,6 +4,7 @@ from .utils import is_agent_event_this_timestep
 def set_block_number(params, step, sL, s, inputs):
     key = 'block_number'
     effective_timestep = s['timestep'] - s['injected_event_shift']
+    print(f'{effective_timestep=}')
     all_events = params['all_events']
     if is_agent_event_this_timestep(s, sL):
         print('---INJECTING AGENT EVENT HERE')
