@@ -29,7 +29,7 @@ class Delegator(AbstractAgent):
     def is_member(self):
         return self.shares > 0
 
-    def getWithdrawableDelegatedTokens(self, timestep):
+    def get_withdrawable_delegated_tokens(self, timestep):
         if timestep > self.locked_until:
             return self.undelegated_tokens
         else:
@@ -39,7 +39,6 @@ class Delegator(AbstractAgent):
         self.holdings += tokens
         self.undelegated_tokens -= tokens
         self.locked_until = 0
-
 
     def set_undelegated_tokens(self, unbonding_timeblock, undelegated_tokens):
         self.undelegated_tokens += undelegated_tokens

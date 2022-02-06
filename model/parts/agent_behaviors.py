@@ -20,7 +20,7 @@ def get_agent_actions_next_timestep(params, step, sL, s, inputs):
                     'current_period': s['epoch'],
                     'dispute_channel_epochs': params['dispute_channel_epochs'],
                     'allocation_days': params['allocation_days'],
-                    'delegation_unbonding_period': params['unbonding_days'],
+                    'delegation_unbonding_period': params['delegation_unbonding_period'],
                     'account_balance': agent.holdings,
                     'delegation_tax_rate': params['delegation_tax_rate'],
                 }

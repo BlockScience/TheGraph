@@ -9,19 +9,23 @@ indexer_allocation_rate = [0.0050]  # ASSUMED share of GRT minted by subgraph by
 # 100 timesteps/blocks per day/epoch
 blocks_per_epoch = 6646
 shift = 11446768
-unbonding_days = 28
-unbonding_timeblock = [unbonding_days*blocks_per_epoch]
+
+# scenario 2, set delegation_unbonding_period = 0
+#####################
+# delegation_unbonding_period = 28
+delegation_unbonding_period = 0
+minimum_delegation_period = 7
+# delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks
+delegation_tax_rate = [Decimal(0)]
+# delegation_tax_rate = [Decimal(0.005)]
+######################
+
+unbonding_timeblock = [delegation_unbonding_period * blocks_per_epoch]
 dispute_channel_epochs = 7
 allocation_days = [28]
 # represents multiply by 10e-18 to get GRT
 GRT_conversion_rate = -18
-
-# TODO: check this tax rate out--0% passes tests, 0.005 does not.
-# delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks
-# delegation_tax_rate = [Decimal(0)]
-delegation_tax_rate = [Decimal(0.005)]
 delegation_leverage = [16]
-
 delegator_initial_holdings = [Decimal(10e9)]
 # values based on average of 2-3 most common gas costs from etherscan
 # average determined by taking 10 random transcations from csv files another_indexer/all_events
@@ -93,6 +97,6 @@ params = {
         'all_events': [all_events],
         'blocks_per_epoch': [blocks_per_epoch],
         'dispute_channel_epochs': [dispute_channel_epochs],
-        'unbonding_days': [unbonding_days],
+        'delegation_unbonding_period': [delegation_unbonding_period],
         'shift': [shift],
 }

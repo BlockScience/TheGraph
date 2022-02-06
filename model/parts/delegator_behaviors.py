@@ -175,7 +175,7 @@ def withdraw(params, step, sL, s, inputs):
                     {delegator.undelegated_tokens=}, 
                     {delegator.shares=}
                     {tokens=}''')
-        withdrawableDelegatedTokens = delegator.getWithdrawableDelegatedTokens(effective_timestep)
+        withdrawableDelegatedTokens = delegator.get_withdrawable_delegated_tokens(effective_timestep)
         if withdrawableDelegatedTokens > tokens:
             delegator.withdraw(tokens)
         elif withdrawableDelegatedTokens > 0:
