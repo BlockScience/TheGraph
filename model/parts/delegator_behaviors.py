@@ -49,6 +49,10 @@ def delegate(params, step, sL, s, inputs):
         delegator = delegators[delegator_id]        
         delegation_tokens_quantity = event['tokens']
 
+        # this is only for front running delegator -- needs it to know when to undelegate.
+        delegator.allocation_id = event['allocationID']
+        delegator.subgraph_id = event['subgraphDeploymentID']
+
         indexer = process_delegation_event(delegation_tokens_quantity, delegator,
                                            delegation_tax_rate, indexer.pool_delegated_stake, shares,
                                            indexer)

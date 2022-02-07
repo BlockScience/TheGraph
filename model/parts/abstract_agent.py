@@ -10,6 +10,9 @@ class AbstractAgent(ABC):
     @abstractmethod
     def __init__(self, identifier):
         self.id = identifier
+        # FRD needs to keep track of the allocation he delegated to for undelegation purposes.
+        self.allocation_id = ''
+        self.subgraph_id = ''
         self.output = []
         self.plan = []  # a list of plans
         self.state = {}
