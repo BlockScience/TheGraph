@@ -1,4 +1,4 @@
-class Subgraph():
+class Subgraph:
     def __init__(self):
         # these are the cumulative fees collected by the parent indexer for this subgraph.
         # Q_i
@@ -7,7 +7,7 @@ class Subgraph():
         # Q_q
         self.query_fees = 0
 
-        self.allocations = {} # key is allocationID, value is allocation object.
+        self.allocations = {}  # key is allocationID, value is allocation object.
 
     @property
     def tokens(self):

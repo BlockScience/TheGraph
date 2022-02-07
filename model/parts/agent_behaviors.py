@@ -24,7 +24,6 @@ def get_agent_actions_next_timestep(params, step, sL, s, inputs):
                     'account_balance': agent.holdings,
                     'delegation_tax_rate': params['delegation_tax_rate'],
                 }
-        
         agent.inputs(inpt)
         # this populates an action into the agent object.
         agent.get_action()
