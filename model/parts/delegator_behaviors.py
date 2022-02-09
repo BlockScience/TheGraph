@@ -52,6 +52,8 @@ def delegate(params, step, sL, s, inputs):
         # this is only for front running delegator -- needs it to know when to undelegate.
         delegator.allocation_id = event['allocationID']
         delegator.subgraph_id = event['subgraphDeploymentID']
+        if 'until' in event:
+            delegator.locked_in_delegation_until = event['until']
 
         indexer = process_delegation_event(delegation_tokens_quantity, delegator,
                                            delegation_tax_rate, indexer.pool_delegated_stake, shares,
@@ -163,7 +165,7 @@ def undelegate(params, step, sL, s, inputs):
 
 def withdraw(params, step, sL, s, inputs):
     #  loop through acting delegators id list
-    effective_timestep = s['timestep'] - s['injected_event_shift']
+    epoch = s['epoch']
     event = inputs['event'][0] if inputs['event'] is not None else None
     if event:
         indexer = s['indexers'][event['indexer']]
@@ -179,7 +181,7 @@ def withdraw(params, step, sL, s, inputs):
                     {delegator.undelegated_tokens=}, 
                     {delegator.shares=}
                     {tokens=}''')
-        withdrawableDelegatedTokens = delegator.get_withdrawable_delegated_tokens(effective_timestep)
+        withdrawableDelegatedTokens = delegator.get_withdrawable_delegated_tokens(epoch)
         if withdrawableDelegatedTokens > tokens:
             delegator.withdraw(tokens)
         elif withdrawableDelegatedTokens > 0:

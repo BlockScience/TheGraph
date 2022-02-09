@@ -20,9 +20,10 @@ def get_agent_actions_next_timestep(params, step, sL, s, inputs):
                     'current_period': s['epoch'],
                     'dispute_channel_epochs': params['dispute_channel_epochs'],
                     'allocation_days': params['allocation_days'],
-                    'delegation_unbonding_period': params['delegation_unbonding_period'],
+                    'delegation_unbonding_period_epochs': params['delegation_unbonding_period_epochs'],
                     'account_balance': agent.holdings,
                     'delegation_tax_rate': params['delegation_tax_rate'],
+                    'minimum_delegation_period_epochs': params['minimum_delegation_period_epochs'],
                 }
         agent.inputs(inpt)
         # this populates an action into the agent object.

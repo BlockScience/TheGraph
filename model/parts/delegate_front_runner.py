@@ -22,9 +22,10 @@ class DelegateFrontRunner(HeuristicAgent):
                 'current_period': newInput['current_period'],
                 'dispute_channel_epochs': newInput['dispute_channel_epochs'],
                 'allocation_days': newInput['allocation_days'],
-                'delegation_unbonding_period': newInput['delegation_unbonding_period'],
+                'delegation_unbonding_period_epochs': newInput['delegation_unbonding_period_epochs'],
                 'account_balance': newInput['account_balance'],
                 'delegation_tax_rate': newInput['delegation_tax_rate'],
+                'minimum_delegation_period_epochs': newInput['minimum_delegation_period_epochs'],
             }
         )
 
@@ -48,7 +49,7 @@ class DelegateFrontRunner(HeuristicAgent):
         for indexer in inpt['available_indexers'].values():            
             
             # If the FRD has not delegated to that indexer, they check to see what the available allocations are for that indexer.
-            if not delegated:
+            if not delegated and not undelegated:  # should we delegate?
                 for subgraph_id, subgraph in indexer.subgraphs.items():
                     allocations = [allocation for allocation in subgraph.allocations.values() if allocation.tokens != 0]
                     # allocations = subgraph.allocations.values()
@@ -63,45 +64,48 @@ class DelegateFrontRunner(HeuristicAgent):
                                 plan['tokens'] = self.holdings * (1 - inpt['delegation_tax_rate'])
                                 plan['allocationID'] = allocation.allocation_id
                                 plan['subgraphDeploymentID'] = subgraph_id
+                                plan['until'] = current_period + inpt['minimum_delegation_period_epochs']
                                 self.plan = plan
                                 return
             # If the FRD has delegated to that indexer, the FRD checks to see if it’s time to begin the process of undelegating.
-            else:
+            else:  # should we undelegate or withdraw?
+                # if FRD has delegated and not yet undelegated, check if he should undelegate.
                 allocation = indexer.subgraphs[self.subgraph_id].allocations[self.allocation_id]
+                if not undelegated:  # should we undelegate?
+                    # for subgraph in indexer.subgraphs.values():
+                    #     allocation = indexer.subgr
+                    #     for allocation in subgraph.allocations.values():
 
-                # for subgraph in indexer.subgraphs.values():
-                #     allocation = indexer.subgr
-                #     for allocation in subgraph.allocations.values():
-
-                # If enough time has passed to allow undelegation to commence (this depends upon the time allowed for disputes to resolve), the FRD first checks to see if the allocation has already closed, or if indexing rewards have already been claimed.
-                if current_period >= allocation.start_period + inpt['allocation_days'] + inpt['dispute_channel_epochs']:
-                    # If the allocation has already closed and indexing rewards have already been claimed, the FRD undelegates from that indexer.
-                    # If the allocation has already closed but indexing rewards have not been claimed, the FRD issues a claim for the indexing rewards.
-                    # NOTE: allocation_closed and claim events always occur in the same timeblock, so if the allocation closed, we should undelegate.
-                    allocation_closed = allocation.tokens == 0
-                    if allocation_closed:
-                        plan = strategy['undelegate']
-                        plan['delegator'] = self.id
-                        plan['indexer'] = indexer.id
-                        plan['shares'] = self.shares
-                        plan['until'] = current_period + inpt['delegation_unbonding_period']
-                        self.plan = plan
-                        return
-                # If enough time has passed to allow withdrawing their delegation to commence (this depends upon both the time allowed for disputes to resolve, and upon the unbonding period for delegators), the FRD checks to see if they’ve already undelegated, or if they’ve already withdrawn their delegation.
-                if current_period >= allocation.start_period + inpt['allocation_days'] + inpt['dispute_channel_epochs'] + inpt['delegation_unbonding_period']:
-                    # If they’ve already undelegated, they withdraw their delegation.
-
-                    if undelegated:
-                        plan = strategy['withdraw']
-                        plan['delegator'] = self.id
-                        plan['indexer'] = indexer.id
-                        plan['tokens'] = self.undelegated_tokens
-                        self.plan = plan
-                        return
-                    # If they’ve already withdrawn their delegation, they check to see if their available funds has increased due to their withdrawn delegation.
-                    # NOTE: nothing needs to be done here.
-                    # If their available funds has increased, they stop keeping track of this delegation and clear it from their memory. This is the end of the front-running attack.
-                    # NOTE: nothing needs to be done here.
+                    # If enough time has passed to allow undelegation to commence (this depends upon the time allowed for disputes to resolve), the FRD first checks to see if the allocation has already closed, or if indexing rewards have already been claimed.
+                    if current_period >= allocation.start_period + inpt['allocation_days'] + inpt['dispute_channel_epochs']:
+                        # If the allocation has already closed and indexing rewards have already been claimed, the FRD undelegates from that indexer.
+                        # If the allocation has already closed but indexing rewards have not been claimed, the FRD issues a claim for the indexing rewards.
+                        # NOTE: allocation_closed and claim events always occur in the same timeblock, so if the allocation closed, we should undelegate.
+                        allocation_closed = allocation.tokens == 0
+                        if allocation_closed:
+                            if current_period >= self.locked_in_delegation_until:
+                                plan = strategy['undelegate']
+                                plan['delegator'] = self.id
+                                plan['indexer'] = indexer.id
+                                plan['shares'] = self.shares
+                                plan['until'] = current_period + inpt['delegation_unbonding_period_epochs']
+                                self.plan = plan
+                                return
+                else:  # should we withdraw?  if FRD has undelegated already and has tokens locked in undelegation
+                    # If enough time has passed to allow withdrawing their delegation to commence (this depends upon both the time allowed for disputes to resolve, and upon the unbonding period for delegators), the FRD checks to see if they’ve already undelegated, or if they’ve already withdrawn their delegation.
+                    if current_period >= allocation.start_period + inpt['allocation_days'] + inpt['dispute_channel_epochs'] + inpt['delegation_unbonding_period_epochs']:
+                        # If they’ve already undelegated, they withdraw their delegation.
+                        if current_period >= self.locked_in_undelegation_until:
+                            plan = strategy['withdraw']
+                            plan['delegator'] = self.id
+                            plan['indexer'] = indexer.id
+                            plan['tokens'] = self.undelegated_tokens
+                            self.plan = plan
+                            return
+                        # If they’ve already withdrawn their delegation, they check to see if their available funds has increased due to their withdrawn delegation.
+                        # NOTE: nothing needs to be done here.
+                        # If their available funds has increased, they stop keeping track of this delegation and clear it from their memory. This is the end of the front-running attack.
+                        # NOTE: nothing needs to be done here.
         self.plan = plan
 
     def generate_output(self):

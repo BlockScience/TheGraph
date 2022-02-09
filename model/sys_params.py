@@ -10,17 +10,16 @@ indexer_allocation_rate = [0.0050]  # ASSUMED share of GRT minted by subgraph by
 blocks_per_epoch = 6646
 shift = 11446768
 
-# scenario 2, set delegation_unbonding_period = 0
+# scenario 2, set delegation_unbonding_period_epochs = 0
 #####################
-# delegation_unbonding_period = 28
-delegation_unbonding_period = 0
-minimum_delegation_period = 7
+# delegation_unbonding_period_epochs = 28
+delegation_unbonding_period_epochs = 0  # how long delegation is locked after undelegation (before undelegation)
+minimum_delegation_period_epochs = 28  # how long delegation is locked after delegation (before delegation)
 # delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks
 delegation_tax_rate = [Decimal(0)]
 # delegation_tax_rate = [Decimal(0.005)]
 ######################
 
-unbonding_timeblock = [delegation_unbonding_period * blocks_per_epoch]
 dispute_channel_epochs = 7
 allocation_days = [28]
 # represents multiply by 10e-18 to get GRT
@@ -73,11 +72,11 @@ params = {
         "pool_delegated_stake_to_revenue_token_exchange_rate": [1],
         "mininum_required_price_pct_diff_to_act": [0.02],
         "risk_adjustment": [0.7],  # cut 30% of the value off due to risk
-        'delegation_tax_rate': delegation_tax_rate, # Beta_del: tax percentage from delegated tokens to be burned
-        'unbonding_timeblock': unbonding_timeblock, # time unbonded tokens are frozen from being eligible to be withdrawn
-        'delegation_leverage': delegation_leverage, # tax percentage from delegated tokens to be burned
-        'R_i_rate': R_i_rate, # indexer reward revenue rate (inflationary rewards)
-        'allocation_days': allocation_days, # time for allocation
+        'delegation_tax_rate': delegation_tax_rate,  # Beta_del: tax percentage from delegated tokens to be burned
+        'delegation_unbonding_period_epochs': [delegation_unbonding_period_epochs],  # time unbonded tokens are frozen from being eligible to be withdrawn
+        'delegation_leverage': delegation_leverage,  # tax percentage from delegated tokens to be burned
+        'R_i_rate': R_i_rate,  # indexer reward revenue rate (inflationary rewards)
+        'allocation_days': allocation_days,  # time for allocation
         'indexer_allocation_rate': indexer_allocation_rate, # ASSUMED share of minted by subgraph by indexer
         'delegation_tokens_events': [delegation_events],
         'undelegation_shares_events': [undelegation_events],
@@ -97,6 +96,6 @@ params = {
         'all_events': [all_events],
         'blocks_per_epoch': [blocks_per_epoch],
         'dispute_channel_epochs': [dispute_channel_epochs],
-        'delegation_unbonding_period': [delegation_unbonding_period],
+        'minimum_delegation_period_epochs': [minimum_delegation_period_epochs],
         'shift': [shift],
 }
