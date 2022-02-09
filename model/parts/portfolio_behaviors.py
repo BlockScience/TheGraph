@@ -68,6 +68,7 @@ def withdraw_portfolio(params, step, sL, s, inputs):
     if params['portfolio_tracking']:
         portfolios = s['delegator_portfolios']
         event = inputs['event'][0] if inputs['event'] is not None else None    
+        investment_time = 0
         if event['delegator'] in params['delegator_list'] or len(params['delegator_list']) == 0:
             indexerID = event['indexer']
             delegatorID = event['delegator']
@@ -85,11 +86,12 @@ def withdraw_portfolio(params, step, sL, s, inputs):
                 portfolio.withdraw_block_number[indexerID] = []
                 portfolio.withdraw_block_number[indexerID].append(event['blockNumber'])
             elif event.get('blockNumber') is not None:
-                portfolio.delegate_block_number[indexerID].append(event['blockNumber'])
-            investment_time = portfolio.withdraw_block_number[indexerID][-1] - portfolio.delegate_block_number[indexerID][0] 
-            if indexerID not in portfolio.indexer_ROI_time:
+                portfolio.withdraw_block_number[indexerID].append(event['blockNumber'])
+            if indexerID in portfolio.withdraw_block_number:
+                investment_time = portfolio.withdraw_block_number[indexerID][-1] - portfolio.delegate_block_number[indexerID][0] 
+            if indexerID not in portfolio.indexer_ROI_time and investment_time != 0:
                 portfolio.indexer_ROI_time[indexerID] = 1/Decimal(investment_time) * (portfolio.indexer_revenues[indexerID] / portfolio.indexer_in_tokens[indexerID]) + 1
-            else:
+            elif investment_time != 0:
                 portfolio.indexer_ROI_time[indexerID] = 1/Decimal(investment_time) * (portfolio.indexer_revenues[indexerID] / portfolio.indexer_in_tokens[indexerID]) + 1
             portfolio.indexer_ROI[indexerID] = (portfolio.indexer_revenues[indexerID] / portfolio.indexer_in_tokens[indexerID]) + 1
             portfolio.indexer_realized_price[indexerID] = portfolio.indexer_shares[indexerID] / portfolio.indexer_revenues[indexerID]
