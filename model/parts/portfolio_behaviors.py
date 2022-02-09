@@ -81,10 +81,10 @@ def withdraw_portfolio(params, step, sL, s, inputs):
                 portfolio.indexer_revenues[indexerID] = event['tokens']
             else:
                 portfolio.indexer_revenues[indexerID] += event['tokens']
-            if indexerID not in portfolio.withdraw_block_number and event['blockNumber']:
+            if indexerID not in portfolio.withdraw_block_number and event.get('blockNumber') is not None:
                 portfolio.withdraw_block_number[indexerID] = []
                 portfolio.withdraw_block_number[indexerID].append(event['blockNumber'])
-            elif event['blockNumber']:
+            elif event.get('blockNumber') is not None:
                 portfolio.delegate_block_number[indexerID].append(event['blockNumber'])
             investment_time = portfolio.withdraw_block_number[indexerID][-1] - portfolio.delegate_block_number[indexerID][0] 
             if indexerID not in portfolio.indexer_ROI_time:
