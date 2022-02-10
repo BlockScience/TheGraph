@@ -13,11 +13,11 @@ shift = 11446768
 # scenario 2, set delegation_unbonding_period_epochs = 0
 #####################
 # delegation_unbonding_period_epochs = 28
-delegation_unbonding_period_epochs = 0  # how long delegation is locked after undelegation (before undelegation)
-minimum_delegation_period_epochs = 28  # how long delegation is locked after delegation (before delegation)
+delegation_unbonding_period_epochs = 28  # how long delegation is locked after undelegation (before undelegation)
+minimum_delegation_period_epochs = 0  # how long delegation is locked after delegation (before delegation)
 # delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks
-delegation_tax_rate = [Decimal(0)]
-# delegation_tax_rate = [Decimal(0.005)]
+# delegation_tax_rate = [Decimal(0)]
+delegation_tax_rate = [Decimal(0.005)]
 ######################
 
 dispute_channel_epochs = 7
