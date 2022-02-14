@@ -2,6 +2,11 @@ from .parts import utils
 from decimal import *
 from sys import platform
 
+# Associated Stake Parameters
+associated_stake = [True, False]
+
+
+# Inflation rate
 R_i_rate = [0.03]
 
 indexer_allocation_rate = [0.0050]  # ASSUMED share of GRT minted by subgraph by indexer
@@ -95,4 +100,5 @@ params = {
         'dispute_channel_epochs': [dispute_channel_epochs],
         'unbonding_days': [unbonding_days],
         'shift': [shift],
+        'associated_stake': [associated_stake]
 }
