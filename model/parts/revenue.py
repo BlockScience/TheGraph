@@ -5,44 +5,54 @@ query fees do not increase shares """
 
 def revenue_amt(params, step, sL, prev_state):
     timestep = prev_state['timestep']
-    print(f'{timestep=} beginning...')
     
+    indexer_id = None
+    subgraph_id = None
     rewards_assigned_events = params['rewards_assigned_events'].get(timestep)
     indexing_fee_amt = 0
+    query_fee_amt = 0
     if rewards_assigned_events is not None:
         indexing_fee_amt = sum([e['amount'] for e in rewards_assigned_events])
-    
-    query_fee_events = params['query_fee_events'].get(timestep)
-    # print(query_fee_events)
-    if query_fee_events is None:
-        query_fee_amt = 0
-    else:
-        query_fee_amt = sum([e['tokens'] for e in query_fee_events])
+        indexer_id = rewards_assigned_events[0]['indexer']
 
-    return {'indexing_fee_amt': indexing_fee_amt,
+    allocation_closed_events = params['allocation_closed_events'].get(timestep)
+    if allocation_closed_events is not None:
+        indexer_id = allocation_closed_events[0]['indexer']
+        subgraph_id = allocation_closed_events[0]['subgraphDeploymentID']
+
+    allocation_collected_events = params['allocation_collected_events'].get(timestep)
+    if allocation_collected_events is not None:
+        query_fee_amt = sum([e['tokens'] for e in allocation_collected_events])
+        indexer_id = allocation_collected_events[0]['indexer']
+        subgraph_id = allocation_collected_events[0]['subgraphDeploymentID']
+    
+
+    return {'indexer_id': indexer_id,
+            'subgraph_id': subgraph_id,
+            'indexing_fee_amt': indexing_fee_amt,
             'query_fee_amt': query_fee_amt}
 
-def mint_GRT(params, step, sL, prev_state, inputs):
-    key = 'GRT'
-    GRT = prev_state['GRT']
-    
-    # GRT Increases from indexing and not querying.
-    delta = inputs['indexing_fee_amt']
-    
-    return key, GRT + delta
+def mint_GRT(params, step, sL, s, inputs):
+    key = 'indexers'
+    if inputs['indexer_id']:
+        # GRT Increases from indexing and not querying.
+        s['indexers'][inputs['indexer_id']].GRT += inputs['indexing_fee_amt']
+    value = s['indexers']
+    return key, value
 
 def distribute_revenue_to_indexer(params, step, sL, s, inputs):
     """ Calculate and distribute query and indexing rewards to indexer """
+    indexer_id = inputs['indexer_id']
     indexing_revenue = inputs['indexing_fee_amt']
     query_revenue = inputs['query_fee_amt']   
     
     # step 1: collect revenue from the state
     if indexing_revenue != 0 or query_revenue != 0:
-        query_fee_cut = params['query_fee_cut']
-        indexing_revenue_cut = params['indexer_revenue_cut']
+        indexer = s['indexers'][indexer_id]
+        query_fee_cut = indexer.query_fee_cut
+        indexing_revenue_cut = indexer.indexer_revenue_cut
 
-        print(f'ACTION: DISTRIBUTE REVENUE TO INDEXER')
-        indexer = s['delegators']['indexer']
+        print(f'--DISTRIBUTE REVENUE TO INDEXER')
         
         # take indexer cut here, the rest goes to indexer pool
         revenue_to_indexer = (indexing_revenue + 
@@ -53,57 +63,88 @@ def distribute_revenue_to_indexer(params, step, sL, s, inputs):
         print(f'''  {s["timestep"]=}, {indexing_revenue=}, {query_revenue=}, {indexer.holdings=} (after)''')
         ## NOTE: Non-indexer delegators get nothing.  Their rewards are added back to the pool and no new shares are issues.
         
-    key = 'delegators'
-    value = s['delegators']
+    key = 'indexers'
+    value = s['indexers']
     return key, value
 
 def distribute_revenue_to_pool(params, step, sL, s, inputs):
     """ Calculate and distribute query and indexing rewards to indexer pool """
-
+    indexer_id = inputs['indexer_id']
     indexing_revenue = inputs['indexing_fee_amt']
     query_revenue = inputs['query_fee_amt']
-    pool_delegated_stake = s['pool_delegated_stake']
-
+    
+    indexers = s['indexers']
     if indexing_revenue != 0 or query_revenue != 0:
-        print(f'ACTION: DISTRIBUTE REVENUE TO POOL')
+        print(f'--DISTRIBUTE REVENUE TO POOL')
 
+        indexer = s['indexers'][indexer_id]
         
-        query_fee_cut = params['query_fee_cut']
-        indexing_revenue_cut = params['indexer_revenue_cut']
+        # do not add anything to the delegated stake if there are no delegators.  
+        if not indexer.pool_delegated_stake.is_zero():
+            query_fee_cut = indexer.query_fee_cut
+            indexing_revenue_cut = indexer.indexer_revenue_cut
 
-        # 5.2 D+ = D + Ri * (1 - phi)
-        non_indexer_revenue = calculate_revenue_to_indexer_pool(indexing_revenue, query_revenue, query_fee_cut, indexing_revenue_cut)
+            # 5.2 D+ = D + Ri * (1 - phi)
+            non_indexer_revenue = calculate_revenue_to_indexer_pool(indexing_revenue, query_revenue, query_fee_cut, indexing_revenue_cut)
 
-        print(f'  {indexing_revenue=}, {query_revenue=}, {pool_delegated_stake=} (before)')
-        pool_delegated_stake += non_indexer_revenue
-        print(f'  {indexing_revenue=}, {query_revenue=}, {pool_delegated_stake=} (after)')
-    key = 'pool_delegated_stake'
-    return key, pool_delegated_stake
+            print(f'  {indexing_revenue=}, {query_revenue=}, {indexer.pool_delegated_stake=} (before)')
+            
+            indexer.pool_delegated_stake += non_indexer_revenue
+            print(f'  {indexing_revenue=}, {query_revenue=}, {indexer.pool_delegated_stake=} (after)')
+    key = 'indexers'
+    return key, indexers
 
 def cumulative_non_indexer_revenue(params, step, sL, s, inputs):
     indexing_revenue = inputs['indexing_fee_amt']
     query_revenue = inputs['query_fee_amt']
-    cumulative_non_indexer_revenue = s['cumulative_non_indexer_revenue']
-
     if indexing_revenue != 0 or query_revenue != 0:
-        query_fee_cut = params['query_fee_cut']
-        indexing_revenue_cut = params['indexer_revenue_cut']
+        indexer = s['indexers'][inputs['indexer_id']]
+        query_fee_cut = indexer.query_fee_cut
+        indexing_revenue_cut = indexer.indexer_revenue_cut
         # print(f'  {indexing_revenue=}, {query_revenue=}, {cumulative_non_indexer_revenue=} (before)')
-        cumulative_non_indexer_revenue += calculate_revenue_to_indexer_pool(indexing_revenue, query_revenue, query_fee_cut, indexing_revenue_cut)
+        indexer.cumulative_non_indexer_revenue += calculate_revenue_to_indexer_pool(indexing_revenue, query_revenue, query_fee_cut, indexing_revenue_cut)
         # print(f'  {indexing_revenue=}, {query_revenue=}, {cumulative_non_indexer_revenue=} (after)')
-    key = 'cumulative_non_indexer_revenue'
-    return key, cumulative_non_indexer_revenue
+        
+    key = 'indexers'
+    return key, s['indexers']
+
 
 def store_indexing_revenue(params, step, sL, s, inputs):
+    print(f'store_indexing_revenue: {inputs=}')
+
     key = 'cumulative_indexing_revenue'
-    value = s['cumulative_indexing_revenue'] + inputs['indexing_fee_amt']
-    return key, value
+    indexers = s['indexers']
+    if inputs['indexer_id']:
+        indexer = indexers[inputs['indexer_id']]
+        if inputs['indexing_fee_amt'] or indexer.buffered_rewards_assigned:
+            if inputs['subgraph_id']:
+                # it's an allocation_closed_event or allocation_created_event or allocation_collected_event
+                subgraph = indexer.subgraphs[inputs['subgraph_id']]
+                print(f'--before {subgraph.indexing_fees=}')
+                print('EVENT: ALLOCATION CLOSED EVENT/ASSIGN INDEXING FEE TO SUBGRAPH')
+                subgraph.indexing_fees += indexer.buffered_rewards_assigned
+                print(f'--after {subgraph.indexing_fees=}')
+                indexer.cumulative_indexing_revenue += indexer.buffered_rewards_assigned
+                
+            else:
+                print('EVENT: REWARDS ASSIGNED/INDEXING FEE EVENT')
+                # it's a rewards assigned events, so just buffer the rewards until we figure out what subgraph to assign them to.
+                indexer.buffered_rewards_assigned += inputs['indexing_fee_amt']
+
+    return key, indexers
 
 def store_query_revenue(params, step, sL, s, inputs):
+    print(f'store_query_revenue: {inputs=}')
     key = 'cumulative_query_revenue'
-    value = s['cumulative_query_revenue'] + inputs['query_fee_amt']
-    return key, value
+    if inputs['query_fee_amt']:
+        print('EVENT: ALLOCATION COLLECTED/QUERY FEE EVENT')
+        indexer = s['indexers'][inputs['indexer_id']]
+        subgraph = indexer.subgraphs[inputs['subgraph_id']]
+        indexer.cumulative_query_revenue += inputs['query_fee_amt']
+        subgraph.query_fees += inputs['query_fee_amt']
+    return key, s['indexers']
 
+# helper function
 def calculate_revenue_to_indexer_pool(indexing_revenue, query_revenue, query_fee_cut, indexing_revenue_cut):
     """ Calculate and distribute query and indexing rewards to indexer pool """
     # D+ = D + Ri * (1 - alpha)
