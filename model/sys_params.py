@@ -13,10 +13,11 @@ shift = 11446768
 # scenario 2, set delegation_unbonding_period_epochs = 0
 #####################
 # delegation_unbonding_period_epochs = 28
-delegation_unbonding_period_epochs = 0  # how long delegation is locked after undelegation (before undelegation)
-minimum_delegation_period_epochs = 28  # how long delegation is locked after delegation (before delegation)
+delegation_unbonding_period_epochs = [34, 42, 48]
+  # how long delegation is locked after undelegation (before undelegation)
+minimum_delegation_period_epochs = 0  # how long delegation is locked after delegation (before delegation)
 # delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks
-delegation_tax_rate = [Decimal(0)]
+delegation_tax_rate = [Decimal(0.075), Decimal(0.01), Decimal(0.0125)]
 # delegation_tax_rate = [Decimal(0.005)]
 ######################
 
@@ -73,7 +74,7 @@ params = {
         "mininum_required_price_pct_diff_to_act": [0.02],
         "risk_adjustment": [0.7],  # cut 30% of the value off due to risk
         'delegation_tax_rate': delegation_tax_rate,  # Beta_del: tax percentage from delegated tokens to be burned
-        'delegation_unbonding_period_epochs': [delegation_unbonding_period_epochs],  # time unbonded tokens are frozen from being eligible to be withdrawn
+        'delegation_unbonding_period_epochs': delegation_unbonding_period_epochs,  # time unbonded tokens are frozen from being eligible to be withdrawn
         'delegation_leverage': delegation_leverage,  # tax percentage from delegated tokens to be burned
         'R_i_rate': R_i_rate,  # indexer reward revenue rate (inflationary rewards)
         'allocation_days': allocation_days,  # time for allocation
