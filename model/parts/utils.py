@@ -102,7 +102,7 @@ def convert_pandas_df_to_list_of_dicts(all_events):
     # NOTE: there should be no duplicates anymore.
     event_types = ['stakeDelegateds', 'stakeDelegatedLockeds', 'stakeDelegatedWithdrawns', 'allocationCloseds', 
                    'allocationCollecteds', 'stakeDepositeds', 'rewardsAssigneds', 'delegationParametersUpdateds',
-                   'allocationCreateds']
+                   'allocationCreateds', 'stakeSlasheds']
     events_list_of_dicts = []
     for event_type in event_types:
         events = all_events[all_events['type'] == event_type]
@@ -133,7 +133,8 @@ if __name__ == '__main__':
     delegation_events, undelegation_events, withdraw_events, rewards_assigned_events, \
             allocation_collected_events, stake_deposited_events, rewards_assigned_events, \
             delegation_parameter_events, \
-            allocation_created_events, all_events = load_all_events(event_path, agent_event_path)
+            allocation_created_events, \
+            stake_slashed_events, all_events = load_all_events(event_path, agent_event_path)
     # print(allocation_created_events)
 
 
