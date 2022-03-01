@@ -17,7 +17,7 @@ delegation_unbonding_period_epochs = [34, 42, 48]
   # how long delegation is locked after undelegation (before undelegation)
 minimum_delegation_period_epochs = 0  # how long delegation is locked after delegation (before delegation)
 # delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks
-delegation_tax_rate = [Decimal(0.075), Decimal(0.01), Decimal(0.0125)]
+delegation_tax_rate = [Decimal(0.0075), Decimal(0.01), Decimal(0.0125)]
 # delegation_tax_rate = [Decimal(0.005)]
 ######################
 
