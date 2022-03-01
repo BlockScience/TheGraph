@@ -1,0 +1,1 @@
+id,blockNumber,logIndex,indexer,subgraphDeploymentID,epoch,tokens,allocationID,type,sender,isDelegator,from,curationFees,rebateFees,delegator,shares,eventTime,until,indexingRewardCut,queryFeeCut,delegationFees,amount,reward,beneficiary

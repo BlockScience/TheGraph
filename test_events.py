@@ -1,23 +1,16 @@
 import pandas as pd
 import numpy as np
 
-# import os
-# import sys
-# module_path = os.path.abspath(os.path.join('..'))
-# print(module_path)
-# sys.path.append(module_path)
-# from .model.parts.utils import *
-# import model.parts.utils
 from model.sys_params import *
-
 
 df = pd.read_pickle(r'experiment.p')
 df.reset_index(inplace = True)
 pd.set_option('display.max_rows', None)
 max_timestep = len(df)
 
+
 def test_delegation(debug):
-    delegation_events_dict = {i:j for (i, j) in delegation_events.items() if i < max_timestep}
+    delegation_events_dict = {i: j for (i, j) in delegation_events.items() if i < max_timestep}
     if debug:        
         print("EXPECTED TRUTH FROM DELEGATION EVENTS:")
         for timestep, events in delegation_events_dict.items():
@@ -28,6 +21,7 @@ def test_delegation(debug):
         print("MODELED RESULTS")
     delegation_event_shares = {}
     for timestep, events in delegation_events_dict.items():
+        event = delegation_events_dict[timestep]
         for event in events:
             # curTimestepShares = df.iloc[timestep-1].delegators[event['delegator']].shares
             curTimestepShares = df.iloc[timestep-1].indexers[event['indexer']].delegators[event['delegator']].shares
@@ -151,10 +145,15 @@ def test_withdraw(debug):
     if debug:
         print("EXPECTED TRUTH--Tokens withdrawn via withdraw events:")
         for timestep, withdraw_event in withdraw_events_dict.items():
+            if not withdraw_event: # there were no withdraw events
+                break
+            
             print(f"{timestep}, {withdraw_event[0]['delegator']}, {withdraw_event[0]['tokens']}")
     
         print("MODELED RESULTS--Tokens locked in undelegation.")
         for timestep, withdraw_event in withdraw_events_dict.items():
+            if not withdraw_event: # there were no withdraw events
+                break
             event = withdraw_event[0]
             new_tokens_withdrawn = df.iloc[timestep-1].indexers[event['indexer']].delegators[event['delegator']].holdings
             old_tokens_withdrawn = df.iloc[timestep-2].indexers[event['indexer']].delegators[event['delegator']].holdings
@@ -168,7 +167,10 @@ def test_withdraw(debug):
     cntClose = 0
     cnt = 0
     cntWrong = 0
-    for timestep, withdraw_event in withdraw_events_dict.items():
+
+    for timestep, withdraw_event in withdraw_events_dict.items():        
+        if not withdraw_event: # there were no withdraw events
+            break
         event = withdraw_event[0]
         new_tokens_withdrawn = df.iloc[timestep-1].indexers[event['indexer']].delegators[event['delegator']].holdings
         old_tokens_withdrawn = df.iloc[timestep-2].indexers[event['indexer']].delegators[event['delegator']].holdings
@@ -293,6 +295,8 @@ def test_allocation_collecteds(debug):
     if debug:
         print("MODELED RESULTS")
         for timestep, allocation_collected_events_list in allocation_collected_events_dict.items():    
+            if not allocation_collected_events_list:
+                break
             event = allocation_collected_events_list[0]
             new_query_fee_amt = df.iloc[timestep-1].indexers[event['indexer']].cumulative_query_revenue
             old_query_fee_amt = df.iloc[timestep-2].indexers[event['indexer']].cumulative_query_revenue
@@ -311,6 +315,8 @@ def test_allocation_collecteds(debug):
             event_query_fee_amt = 0
         else:
             event_query_fee_amt = sum([e['tokens'] for e in allocation_collected_events_list])
+        if not allocation_collected_events_list:
+            break
         event = allocation_collected_events_list[0]
         new_query_fee_amt = df.iloc[timestep-1].indexers[event['indexer']].cumulative_query_revenue
         old_query_fee_amt = df.iloc[timestep-2].indexers[event['indexer']].cumulative_query_revenue

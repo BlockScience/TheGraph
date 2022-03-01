@@ -100,6 +100,7 @@ def convert_pandas_df_to_list_of_dicts(all_events):
 
     # create a dict from the df where duplicate timesteps appear in a list of dicts under the same timestep index. 
     # NOTE: there should be no duplicates anymore.
+    # TODO: Add rebateClaimed
     event_types = ['stakeDelegateds', 'stakeDelegatedLockeds', 'stakeDelegatedWithdrawns', 'allocationCloseds', 
                    'allocationCollecteds', 'stakeDepositeds', 'rewardsAssigneds', 'delegationParametersUpdateds',
                    'allocationCreateds', 'stakeSlasheds']
@@ -113,7 +114,7 @@ def convert_pandas_df_to_list_of_dicts(all_events):
     
     d = convert_df_to_dict(all_events)    
 
-    # also append all_events so you can lookup by timestep
+    # also append all_events so you can lookup by timestep, so you can set the current blockNumber
     events_list_of_dicts.append(d)
     
     print(f'TOTAL NUMBER OF EVENTS: {len(all_events)}')
@@ -122,8 +123,36 @@ def convert_pandas_df_to_list_of_dicts(all_events):
     return events_list_of_dicts
 
 
+def is_agent_event_this_timestep(s, sL):
+    if len(sL) >= 2:
+        previous_injected_event_shift = sL[-2][-1]['injected_event_shift']
+    else:
+        previous_injected_event_shift = 0
+    return s['injected_event_shift'] > previous_injected_event_shift
+
+
+# get events for this timestep (should only be 1)
+def get_shifted_event(s, sL, events_param, event_type=None):
+    # increment by injected_event_shift to get real timestep.
+    effective_timestep = s['timestep'] - s['injected_event_shift']
+    
+    if is_agent_event_this_timestep(s, sL):
+        for indexer in s['indexers'].values():
+            agent = indexer.delegators[1]
+            if agent.output:
+                output = agent.output[-1]
+                if event_type == 'any' or output['event'] == event_type:
+                    event = agent.output
+                else:
+                    event = None
+    else:
+        event = events_param.get(effective_timestep)
+    
+    return event
+
+
 if __name__ == '__main__':
-    event_path = 'another_indexer/single_indexer/singleIndexer.csv'
+    event_path = 'another_indexer/single_indexer/singleIndexer_200events_a.csv'
     # event_path = 'multiple_indexer/multipleIndexer.csv'
     # event_path = 'multiple_indexer/allindexer/allEvents.csv'
     
