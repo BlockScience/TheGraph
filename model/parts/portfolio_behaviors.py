@@ -57,6 +57,13 @@ def undelegate_portfolio(params, step, sL, s, inputs):
                 portfolio.indexer_locked_tokens[indexerID] += event['tokens']
             else:
                 portfolio.indexer_locked_tokens[indexerID] = portfolio.indexer_in_tokens[indexerID]
+                
+            # if indexerID not in portfolio.indexer_shares and event.get('shares') is not None:
+            #     portfolio.indexer_shares[indexerID] -= event['shares']
+            if event.get('shares') is not None:
+                portfolio.indexer_shares[indexerID] -= event['shares']
+            else:
+                portfolio.indexer_shares[indexerID] = portfolio.indexer_shares[indexerID]
             portfolio.gas_spent += params['undelegate_gas_cost']
         key = 'delegator_portfolios'
         return key, s['delegator_portfolios']
