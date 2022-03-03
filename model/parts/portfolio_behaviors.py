@@ -23,12 +23,12 @@ def delegate_portfolio(params, step, sL, s, inputs):
             if indexerID not in portfolio.indexer_in_tokens:
                 portfolio.indexer_in_tokens[indexerID] = event['tokens'] / (1 - delegation_tax_rate)
             else:
-                portfolio.indexer_in_tokens[indexerID] += event['tokens'] / (1 - delegation_tax_rate) # to calculate ROI, won't sum to pool delegated stake 
+                portfolio.indexer_in_tokens[indexerID] = event['tokens'] / (1 - delegation_tax_rate) # to calculate ROI, won't sum to pool delegated stake 
             if indexerID not in portfolio.indexer_shares:
                 portfolio.indexer_shares[indexerID] = event['tokens'] if pool_delegated_stake.is_zero() \
                                                      else (event['tokens'] / pool_delegated_stake) * shares
             else:
-                portfolio.indexer_shares[indexerID] += event['tokens'] if pool_delegated_stake.is_zero() \
+                portfolio.indexer_shares[indexerID] = event['tokens'] if pool_delegated_stake.is_zero() \
                                                      else (event['tokens'] / pool_delegated_stake) * shares
             portfolio.indexer_price[indexerID] = portfolio.indexer_shares[indexerID] / portfolio.indexer_in_tokens[indexerID]
             if indexerID not in portfolio.delegate_block_number and event.get('blockNumber') is not None:
