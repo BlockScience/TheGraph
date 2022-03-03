@@ -44,6 +44,24 @@ def cumulative_deposited_stake(params, step, sL, s, inputs):
     value = indexers
     return key, value
 
+def stake_slashed(params, step, sL, s, inputs):
+    key = 'indexers'
+    event = inputs['event'][0] if inputs['event'][0] is not None else None
+    indexers = s['indexers']
+
+    if event:
+        indexer_id = event['indexer']
+        indexer = indexers[indexer_id]
+        indexer.cumulative_deposited_stake -= event['tokens']
+        #indexer.initial_stake_deposited = True
+        print(f'''EVENT: STAKE SLASHED: 
+            {indexer.id=},
+            {event["tokens"]=}''')
+
+    value = indexers
+    return key, value
+
+
 def store_delegation_parameters(params, step, SL, s, inputs):
     key = 'indexers'
     indexers = s[key]

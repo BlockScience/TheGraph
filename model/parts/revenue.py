@@ -6,6 +6,7 @@ def revenue_amt(params, step, sL, s):
     subgraph_id = None
     indexing_fee_amt = 0
     query_fee_amt = 0
+    slash_amt = 0
     rewards_assigned_events = get_shifted_event(s, sL, params['rewards_assigned_events'])
     if rewards_assigned_events is not None:
         indexing_fee_amt = sum([e['amount'] for e in rewards_assigned_events])
@@ -21,6 +22,7 @@ def revenue_amt(params, step, sL, s):
         query_fee_amt = sum([e['tokens'] for e in allocation_collected_events])
         indexer_id = allocation_collected_events[0]['indexer']
         subgraph_id = allocation_collected_events[0]['subgraphDeploymentID']
+
 
     return {'indexer_id': indexer_id,
             'subgraph_id': subgraph_id,

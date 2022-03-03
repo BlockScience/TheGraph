@@ -143,7 +143,8 @@ def undelegate(params, step, sL, s, inputs):
                         {indexer.id=}''')
                 
             undelegated_tokens = undelegation_shares_quantity * (indexer.pool_delegated_stake / indexer.shares)
-            until = event['until']
+            #until = event['until']
+            until = 1
             delegator.set_undelegated_tokens(until, undelegated_tokens)
             delegator.shares -= undelegation_shares_quantity
             indexer.pool_delegated_stake -= undelegated_tokens

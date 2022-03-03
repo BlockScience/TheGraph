@@ -40,23 +40,23 @@ psubs = [
             'delegator_portfolios': portfolio_process
         }
     },
-    {
-        'label': 'Agent Actions',
-        'policies': {
-        },
-        'variables': {
-            'indexers': get_agent_actions_next_timestep,
-        }
+    # {
+    #     'label': 'Agent Actions',
+    #     'policies': {
+    #     },
+    #     'variables': {
+    #         'indexers': get_agent_actions_next_timestep,
+    #     }
 
-    },
-    {
-        'label': 'Increment agent event counter',
-        'policies': {
-        },
-        'variables': {  # if there is an event in the hopper,
-            'injected_event_shift': increment_timestep_due_to_agent_event
-        }
+    # },
+    # {
+    #     'label': 'Increment agent event counter',
+    #     'policies': {
+    #     },
+    #     'variables': {  # if there is an event in the hopper,
+    #         'injected_event_shift': increment_timestep_due_to_agent_event
+    #     }
 
-    },
+    # },
 ]
 

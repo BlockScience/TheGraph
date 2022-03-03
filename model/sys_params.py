@@ -41,8 +41,8 @@ delegator_list = [[1, '0xd776a7306ee6a060cebb46b46d305e88fd39ba84','0x266d8e3b85
 agent_event_path = None
 
 # 1 indexer
-event_path = 'another_indexer/single_indexer/singleIndexer.csv'
-# event_path = 'another_indexer/single_indexer/singleIndexer_200events_a.csv'
+event_path = 'another_indexer/slashed_indexer/slashedIndexer.csv'
+#event_path = 'another_indexer/single_indexer/singleIndexer.csv'
 # event_path = 'GraphQL_data/singleIndexer.csv'
 
 # 2 indexers

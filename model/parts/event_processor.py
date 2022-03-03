@@ -55,6 +55,8 @@ def indexer_process(params, step, sL, s, inputs):
         return create_allocations(params, step, sL, s, inputs)
     elif event == 'allocationCloseds':
         return close_allocations(params, step, sL, s, inputs)
+    elif event == 'stakeSlasheds':
+        return stake_slashed(params, step, sL, s, inputs)
 
     return 'indexers', s['indexers']
 
