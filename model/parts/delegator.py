@@ -4,9 +4,9 @@ for shares in the revenue stream. """
 
 
 class Delegator(AbstractAgent):
-    def __init__(self, id, shares=0, holdings=0,
+    def __init__(self, delegator_id, shares=0, holdings=0,
                  minimum_shares=0):
-        super().__init__(id)
+        super().__init__(delegator_id)
 
         self.shares = shares
 
@@ -27,10 +27,6 @@ class Delegator(AbstractAgent):
 
     def __repr__(self):
         return f'{self.id=}, {self.shares=}, {self.holdings=}, {self.undelegated_tokens=}'
-
-    # member of the sharing pool (True/False)
-    def is_member(self):
-        return self.shares > 0
 
     def get_withdrawable_delegated_tokens(self, epoch):
         if epoch > self.locked_in_undelegation_until:
@@ -67,3 +63,9 @@ class Delegator(AbstractAgent):
     
     def generate_output(self, plan):
         pass
+
+    def is_delegated(self):
+        return self.shares > 0
+
+    def is_undelegated(self):
+        return self.undelegated_tokens > 0

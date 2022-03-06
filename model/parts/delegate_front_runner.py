@@ -16,6 +16,7 @@ class DelegateFrontRunner(HeuristicAgent):
         ]
     
     def inputs(self, newInput):
+        # todo: only save current input, no need for all historical inputs.
         self._inputs.append(
             {
                 'available_indexers': newInput['available_indexers'],
@@ -41,15 +42,12 @@ class DelegateFrontRunner(HeuristicAgent):
         current_period = inpt['current_period']
         print(f'{current_period=}')                        
         plan = {}
-        # withdrawn = self.shares == 0
-        delegated = self.shares > 0
-        undelegated = self.undelegated_tokens > 0
 
         # For each available indexer, the FRD checks to see if they have already delegated to that indexer.
         for indexer in inpt['available_indexers'].values():            
             
             # If the FRD has not delegated to that indexer, they check to see what the available allocations are for that indexer.
-            if not delegated and not undelegated:  # should we delegate?
+            if not self.is_delegated() and not self.is_undelegated():  # should we delegate?
                 for subgraph_id, subgraph in indexer.subgraphs.items():
                     allocations = [allocation for allocation in subgraph.allocations.values() if allocation.tokens != 0]
                     # allocations = subgraph.allocations.values()
@@ -71,7 +69,7 @@ class DelegateFrontRunner(HeuristicAgent):
             else:  # should we undelegate or withdraw?
                 # if FRD has delegated and not yet undelegated, check if he should undelegate.
                 allocation = indexer.subgraphs[self.subgraph_id].allocations[self.allocation_id]
-                if not undelegated:  # should we undelegate?
+                if not self.is_undelegated():  # should we undelegate?
                     # for subgraph in indexer.subgraphs.values():
                     #     allocation = indexer.subgr
                     #     for allocation in subgraph.allocations.values():
