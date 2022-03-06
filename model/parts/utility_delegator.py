@@ -25,6 +25,8 @@ class UtilityComponentsDelegator(UtilityComponents):
             },
         }
 
+        # NOTE: global allows this function to pickle, somehow (https://www.pythonpool.com/cant-pickle-local-object/)
+        global utility
         def utility(delegator, indexer, ownDelegation=None,
                     opportunityCost=0, rewardCycles=1):
             # if indexer in delegator.states()[-1]['delegated']:
