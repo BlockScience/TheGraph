@@ -34,23 +34,24 @@ class UtilityComponentsDelegator(UtilityComponents):
                 # ownDelegation = delegator.states()[-1]['delegated'][indexer]['amount']
                 ownDelegation = delegator.shares
 
-            # TODO: Check if these three have correct values.
-            reward = delegator.beliefs[-1][indexer.id]['reward']
+            reward = delegator.beliefs[-1][indexer.id]['most_recent_indexing_reward']
             cut = indexer.indexer_revenue_cut
             delegation = indexer.pool_delegated_stake
 
             r = opportunityCost
-            # ell = delegator._inputs[-1]['epochsPerAllocation']
             ell = delegator._inputs[-1]['allocation_days']
-            # allocation_days
             d = delegator._inputs[-1]['delegation_unbonding_period_epochs']
             tau = delegator._inputs[-1]['delegation_tax_rate']
             n = rewardCycles
 
-            # TODO: Check this change
-            # revenue = n * reward * (1 - cut) * (ownDelegation / delegation)
-            revenue = 0 if delegation == 0 else n * reward * (1 - cut) * (ownDelegation / delegation)
+            revenue = n * reward * (1 - cut) if delegation == 0 else n * reward * (1 - cut) * (ownDelegation / delegation)
+            if reward > 0:
+                print('reward > 0')
 
+            if revenue > 0:
+                print('revenue > 0')
+
+            # TODO: fix cost, it's costing amount_delegated per day.
             cost = ownDelegation * (r * ((n - 1) * ell + d) + tau / (1 - tau))
             return revenue - cost
 
@@ -98,20 +99,13 @@ class UtilityDelegator(UtilityAgent):
             belief = {}
         available_indexers = self._inputs[-1]['available_indexers']
 
-        # i
-        # TODO: What is this supposed to do? You can't update a list... -Josh
         for indexer_id, indexer in available_indexers.items():
-            # TODO: is indexer_revenue the right thing to put here? - Josh
+            # NOTE: is indexer_revenue the right thing to put here? - we are using the most_recent_indexing_reward.
             belief.update(
                 {
-                    indexer_id: {'reward': indexer.indexer_revenue}
+                    indexer_id: {'most_recent_indexing_reward': indexer.most_recent_indexing_reward}
                 }
             )
-            # belief.update(
-            #     {
-            #         indexer: {'reward': indexer['indexer_revenue']}
-            #     }
-            # )
 
         self._beliefs.append(belief)
         return
@@ -143,7 +137,9 @@ class UtilityDelegator(UtilityAgent):
         best_indexer = max(payoff, key=payoff.get)
 
         # 4. If not delegating to best currently, delegate to best if profitable and affordable
-        if payoff[best_indexer] >= 0 and best_indexer not in self.is_delegated():
+        # if payoff[best_indexer] >= 0 and best_indexer not in self.is_delegated():
+        # TODO: make sure we are not delegated to the indexer we chose, not just any indexer. (this works in single indexer scenario)
+        if payoff[best_indexer] >= 0 and not self.is_delegated():
             if self._delegationAmount <= self.holdings:
                 strategy.append(
                     dict(self._actions['delegate'], **{'target': best_indexer})

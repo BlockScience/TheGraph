@@ -1,6 +1,7 @@
 from .utils import get_shifted_event
 
 
+# buffer the rewards_assigned_events until the allocation_closed event and save it all then.
 def revenue_amt(params, step, sL, s):
     indexer_id = None
     subgraph_id = None
@@ -28,6 +29,8 @@ def revenue_amt(params, step, sL, s):
             'query_fee_amt': query_fee_amt}
 
 
+# step 1: rewards_assigned_event comes in and we buffer the rewards
+# step 2: save the rewards when the allocation_closed_event comes in
 def revenue_process(params, step, sL, s, inputs):
     key = 'indexers'
     value = s['indexers']
@@ -37,7 +40,8 @@ def revenue_process(params, step, sL, s, inputs):
     if inputs['indexer_id']:
         s['indexers'][inputs['indexer_id']].GRT += inputs['indexing_fee_amt']
         indexer = value[inputs['indexer_id']]
-        if inputs['indexing_fee_amt'] or indexer.buffered_rewards_assigned:
+        # if inputs['indexing_fee_amt'] or indexer.buffered_rewards_assigned:
+        if indexer.buffered_rewards_assigned:  # then this should be allocation closed
             if inputs['subgraph_id']:
                 # it's an allocation_closed_event or allocation_created_event or allocation_collected_event
                 subgraph = indexer.subgraphs[inputs['subgraph_id']]
@@ -46,8 +50,9 @@ def revenue_process(params, step, sL, s, inputs):
                 subgraph.indexing_fees += indexer.buffered_rewards_assigned
                 print(f'--after {subgraph.indexing_fees=}')
                 indexer.cumulative_indexing_revenue += indexer.buffered_rewards_assigned
+                indexer.most_recent_indexing_reward = indexer.buffered_rewards_assigned
                 
-        else:
+        elif inputs['indexing_fee_amt']:  # then this should be rewards assigned.
             print('EVENT: REWARDS ASSIGNED/INDEXING FEE EVENT')
             # it's a rewards assigned events, so just buffer the rewards until we figure out what subgraph to assign them to.
             indexer.buffered_rewards_assigned += inputs['indexing_fee_amt']

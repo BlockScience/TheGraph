@@ -17,17 +17,17 @@ pd.set_option('display.max_rows', None)
 
 
 def show_final_results():
-    delegate_front_runner = list(df.iloc[SIMULATION_TIME_STEPS-1].indexers.values())[0].delegators[1]
-    print(delegate_front_runner)
+    delegator_one = list(df.iloc[SIMULATION_TIME_STEPS-1].indexers.values())[0].delegators[1]
+    print(delegator_one)
 
 
 def show_all_delegations():
     for timestep in range(1530):
-        delegate_front_runner = list(df.iloc[timestep-1].indexers.values())[0].delegators[1]
+        delegator_one = list(df.iloc[timestep-1].indexers.values())[0].delegators[1]
         # shares = delegate_front_runner.shares
         # holdings = delegate_front_runner.holdings
         # undelegated_tokens = delegate_front_runner.undelegated_tokens
-        print(f'{timestep=}, {delegate_front_runner}')
+        print(f'{timestep=}, {delegator_one}')
 
 
 if __name__ == '__main__':
