@@ -1,5 +1,5 @@
 from .parts import utils
-from decimal import *
+from decimal import Decimal
 from sys import platform
 
 R_i_rate = [0.03]
@@ -9,22 +9,20 @@ indexer_allocation_rate = [0.0050]  # ASSUMED share of GRT minted by subgraph by
 # 100 timesteps/blocks per day/epoch
 blocks_per_epoch = 6646
 shift = 11446768
-
-# scenario 2, set delegation_unbonding_period_epochs = 0
-#####################
-# delegation_unbonding_period_epochs = 28
 delegation_unbonding_period_epochs = 28  # how long delegation is locked after undelegation (before undelegation)
 minimum_delegation_period_epochs = 0  # how long delegation is locked after delegation (before delegation)
-# delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks
-# delegation_tax_rate = [Decimal(0)]
-delegation_tax_rate = [Decimal(0.005)]
-######################
-
+unbonding_timeblock = [delegation_unbonding_period_epochs*blocks_per_epoch]
 dispute_channel_epochs = 7
 allocation_days = [28]
 # represents multiply by 10e-18 to get GRT
 GRT_conversion_rate = -18
+
+# TODO: check this tax rate out--0% passes tests, 0.005 does not.
+# delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks
+# delegation_tax_rate = [Decimal(0)]
+delegation_tax_rate = [Decimal(0.005)]
 delegation_leverage = [16]
+
 delegator_initial_holdings = [Decimal(10e9)]
 # values based on average of 2-3 most common gas costs from etherscan
 # average determined by taking 10 random transcations from csv files another_indexer/all_events
@@ -34,8 +32,7 @@ undelegate_gas_cost = [107389]
 withdraw_gas_cost = [52101]
 portfolio_tracking = [True]
 # empty means all delegators
-delegator_list = [[1, '0xd776a7306ee6a060cebb46b46d305e88fd39ba84','0x266d8e3b85dd66758854e4e2ae27c4a161236828','0x1819eba4f13d2693756d38acf8d3e9aabbd8fdb5', '0x77b95ac2de1d21e0c8a9a7a071b0ed17ef675755']]
-
+delegator_list = [[1, '0x527b077ae93cbbd67234cd575a32c20235896d44','0xd079f00944d783f631d1af4d6c37039c4479352d','0x3a6f569c1cc6494578a7bcacd0ff0b9ac1859aa6', '0x698b40f200f6c8145f9dee82c06884152c2f4a86']]
 
 # TODO: this will come from allocation file
 # these are indexer cuts
@@ -74,6 +71,7 @@ params = {
         "risk_adjustment": [0.7],  # cut 30% of the value off due to risk
         'delegation_tax_rate': delegation_tax_rate,  # Beta_del: tax percentage from delegated tokens to be burned
         'delegation_unbonding_period_epochs': [delegation_unbonding_period_epochs],  # time unbonded tokens are frozen from being eligible to be withdrawn
+        'unbonding_timeblock': unbonding_timeblock,  # time unbonded tokens are frozen from being eligible to be withdrawn
         'delegation_leverage': delegation_leverage,  # tax percentage from delegated tokens to be burned
         'R_i_rate': R_i_rate,  # indexer reward revenue rate (inflationary rewards)
         'allocation_days': allocation_days,  # time for allocation

@@ -23,12 +23,12 @@ def delegate_portfolio(params, step, sL, s, inputs):
             if indexerID not in portfolio.indexer_in_tokens:
                 portfolio.indexer_in_tokens[indexerID] = event['tokens'] / (1 - delegation_tax_rate)
             else:
-                portfolio.indexer_in_tokens[indexerID] += event['tokens'] / (1 - delegation_tax_rate) # to calculate ROI, won't sum to pool delegated stake 
+                portfolio.indexer_in_tokens[indexerID] = event['tokens'] / (1 - delegation_tax_rate) # to calculate ROI, won't sum to pool delegated stake 
             if indexerID not in portfolio.indexer_shares:
                 portfolio.indexer_shares[indexerID] = event['tokens'] if pool_delegated_stake.is_zero() \
                                                      else (event['tokens'] / pool_delegated_stake) * shares
             else:
-                portfolio.indexer_shares[indexerID] += event['tokens'] if pool_delegated_stake.is_zero() \
+                portfolio.indexer_shares[indexerID] = event['tokens'] if pool_delegated_stake.is_zero() \
                                                      else (event['tokens'] / pool_delegated_stake) * shares
             portfolio.indexer_price[indexerID] = portfolio.indexer_shares[indexerID] / portfolio.indexer_in_tokens[indexerID]
             if indexerID not in portfolio.delegate_block_number and event.get('blockNumber') is not None:
@@ -51,12 +51,26 @@ def undelegate_portfolio(params, step, sL, s, inputs):
             indexerID = event['indexer']
             delegatorID = event['delegator']
             portfolio = portfolios[delegatorID]
-            if indexerID not in portfolio.indexer_locked_tokens and event.get('tokens') is not None:
-                portfolio.indexer_locked_tokens[indexerID] = event['tokens']
-            elif event.get('tokens') is not None:
-                portfolio.indexer_locked_tokens[indexerID] += event['tokens']
+            indexer = s['indexers'][event['indexer']]
+            pool_delegated_stake = indexer.pool_delegated_stake
+            pool_shares = indexer.shares
+            
+            # tokens are not of the event for undelegate so this will always go to the else case
+            if indexerID not in portfolio.indexer_locked_tokens and event.get('shares') is not None:
+                portfolio.indexer_locked_tokens[indexerID] = event['shares'] * pool_delegated_stake / pool_shares
+            elif event.get('shares') is not None:
+                portfolio.indexer_locked_tokens[indexerID] += event['shares'] * pool_delegated_stake / pool_shares
+            # else:
+            #     portfolio.indexer_locked_tokens[indexerID] = {}# portfolio.indexer_locked_tokens[indexerID] #CHANGE FROM indexer_in_tokens on right side
+                
+            # if indexerID not in portfolio.indexer_shares and event.get('shares') is not None:
+            #     portfolio.indexer_shares[indexerID] -= event['shares']
+            if event.get('shares') is not None:
+                portfolio.indexer_shares[indexerID] -= event['shares']
             else:
-                portfolio.indexer_locked_tokens[indexerID] = portfolio.indexer_in_tokens[indexerID]
+                portfolio.indexer_shares[indexerID] = portfolio.indexer_shares[indexerID]
+                
+                
             portfolio.gas_spent += params['undelegate_gas_cost']
         key = 'delegator_portfolios'
         return key, s['delegator_portfolios']

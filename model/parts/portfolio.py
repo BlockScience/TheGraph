@@ -22,3 +22,9 @@ class Portfolio():
         self.withdraw_block_number = withdraw_block_number
         self.indexer_ROI = indexer_ROI
         self.indexer_ROI_time = indexer_ROI_time
+        
+    def __str__(self):
+        """
+        Print all attributes of the class
+        """
+        return str(self.__class__) + ": " + str(self.__dict__)   
