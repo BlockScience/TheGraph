@@ -128,4 +128,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-experiment.p
+*.p
+.prof_stats
+profiling_stats.txt

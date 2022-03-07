@@ -2,12 +2,18 @@ from .delegator_behaviors import *
 from .indexer_behaviors import *
 from .portfolio_behaviors import *
 from .subgraph_behaviors import *
+from .utils import *
+
 
 def determine_event(params, step, sL, s):
-    timestep = s['timestep']
-    event = params['all_events'].get(timestep)
+    # timestep = s['timestep']
+    # effective_timestep = s['timestep'] - s['injected_event_shift']
+    # event = params['all_events'].get(effective_timestep)
+
+    event = get_shifted_event(s, sL, params['all_events'], 'any')
+
     event_type = {'event_type': str(),
-                    'event': dict()}
+                  'event': dict()}
     if event[0]['type'] == 'stakeDelegateds':
         event_type['event_type'] = 'stakeDelegateds'
         event_type['event'] = event
@@ -32,6 +38,7 @@ def determine_event(params, step, sL, s):
 
     return event_type
 
+
 def indexer_process(params, step, sL, s, inputs):
     event = inputs['event_type']
     if event == 'stakeDelegateds':
@@ -50,6 +57,7 @@ def indexer_process(params, step, sL, s, inputs):
         return close_allocations(params, step, sL, s, inputs)
 
     return 'indexers', s['indexers']
+
 
 def portfolio_process(params, step, sL, s, inputs):
     event = inputs['event_type']
