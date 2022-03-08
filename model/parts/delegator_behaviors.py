@@ -50,8 +50,9 @@ def delegate(params, step, sL, s, inputs):
         delegation_tokens_quantity = event['tokens']
 
         # this is only for front running delegator -- needs it to know when to undelegate.
-        delegator.allocation_id = event['allocationID']
-        delegator.subgraph_id = event['subgraphDeploymentID']
+        delegator.allocation_id = event['allocationID'] if 'allocationID' in event else None
+        delegator.subgraph_id = event['subgraphDeploymentID'] if 'subgraphDeploymentID' in event else None
+
         if 'until' in event:
             delegator.locked_in_delegation_until = event['until']
 

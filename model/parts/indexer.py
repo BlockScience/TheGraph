@@ -6,13 +6,14 @@ from model.parts.delegate_front_runner_rules import DelegateFrontRunnerRules
 from ..sys_params import params
 
 initial_account_balance = params['delegator_initial_holdings'][0]
+opportunity_cost = params['opportunity_cost'][0]
 rules = DelegateFrontRunnerRules(initial_account_balance)
 
 # G = how much will they delegate if they delegate
 G = initial_account_balance
 
 # TODO: Make interest_rate/opportunity_cost a param.
-opportunity_cost = 0.0  # this is the interest rate, r
+  # this is the interest rate, r
 
 amount_to_delegate = 1000
 components = UtilityComponentsDelegator(amount_to_delegate, opportunity_cost)

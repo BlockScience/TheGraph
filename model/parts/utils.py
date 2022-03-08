@@ -141,7 +141,7 @@ def get_shifted_event(s, sL, events_param, event_type=None):
             agent = indexer.delegators[1]
             if agent.output:
                 output = agent.output[-1]
-                if event_type == 'any' or output['event'] == event_type:
+                if event_type and (event_type == 'any' or output['event'] == event_type):
                     event = agent.output
                 else:
                     event = None

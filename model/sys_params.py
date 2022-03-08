@@ -19,8 +19,8 @@ GRT_conversion_rate = -18
 
 # TODO: check this tax rate out--0% passes tests, 0.005 does not.
 # delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks
-# delegation_tax_rate = [Decimal(0)]
-delegation_tax_rate = [Decimal(0.005)]
+delegation_tax_rate = [Decimal(0)]
+# delegation_tax_rate = [Decimal(0.005)]
 delegation_leverage = [16]
 
 delegator_initial_holdings = [Decimal(10e9)]
@@ -33,11 +33,8 @@ withdraw_gas_cost = [52101]
 portfolio_tracking = [True]
 # empty means all delegators
 delegator_list = [[1, '0x527b077ae93cbbd67234cd575a32c20235896d44','0xd079f00944d783f631d1af4d6c37039c4479352d','0x3a6f569c1cc6494578a7bcacd0ff0b9ac1859aa6', '0x698b40f200f6c8145f9dee82c06884152c2f4a86']]
+opportunity_cost = Decimal(0.002/365)
 
-# TODO: this will come from allocation file
-# these are indexer cuts
-# query_fee_cut = [Decimal(0.8)]
-# indexer_revenue_cut = [Decimal(0.8)]
 agent_event_path = None
 
 # 1 indexer
@@ -59,8 +56,8 @@ delegation_events, undelegation_events, withdraw_events, allocation_closed_event
 
 # print(delegation_events)
 params = {
-        "r_del": [10],        #	Indexer’s initial delegated stake
-        "s_del": [10],        # Indexer’s initial delegated stake share of pool
+        "r_del": [10],  # Indexer’s initial delegated stake
+        "s_del": [10],  # Indexer’s initial delegated stake share of pool
         "expected_revenue": [7],
         "arrival_rate": [0.5],
         "expected_initial_token_holdings": [25],
@@ -96,4 +93,5 @@ params = {
         'dispute_channel_epochs': [dispute_channel_epochs],
         'minimum_delegation_period_epochs': [minimum_delegation_period_epochs],
         'shift': [shift],
+        'opportunity_cost': [opportunity_cost]
 }

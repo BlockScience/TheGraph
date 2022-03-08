@@ -1,5 +1,6 @@
 from .utility_agent import UtilityAgent, UtilityComponents
 from .delegate_front_runner_rules import DelegateFrontRunnerRules
+from decimal import Decimal
 
 
 class UtilityComponentsDelegator(UtilityComponents):
@@ -14,13 +15,15 @@ class UtilityComponentsDelegator(UtilityComponents):
         self._actions = {
             'delegate': {
                 'event': "delegate",
-                'target': None,
-                'amount': self._attributes['delegationAmount'],
+                'type': 'stakeDelegateds',
+                'indexer': None,
+                'tokens': self._attributes['delegationAmount'],
                 'status': "have delegated"
             },
             'undelegate': {
                 'event': "undelegate",
-                'targt': None,
+                'type': 'stakeDelegatedLockeds',
+                'indexer': None,
                 'status': "have sent undelegate()"
             },
         }
@@ -45,14 +48,15 @@ class UtilityComponentsDelegator(UtilityComponents):
             n = rewardCycles
 
             revenue = n * reward * (1 - cut) if delegation == 0 else n * reward * (1 - cut) * (ownDelegation / delegation)
+
+            cost = ownDelegation * (r * ((n - 1) * ell + d) + tau / (1 - tau))
+
             if reward > 0:
-                print('reward > 0')
+                print(f'{reward=}')
 
             if revenue > 0:
-                print('revenue > 0')
+                print(f'{revenue=}')
 
-            # TODO: fix cost, it's costing amount_delegated per day.
-            cost = ownDelegation * (r * ((n - 1) * ell + d) + tau / (1 - tau))
             return revenue - cost
 
         self._utility = utility
@@ -122,7 +126,7 @@ class UtilityDelegator(UtilityAgent):
 
             payoff[indexer_id] = self.utility(self, indexer,
                                               ownDelegation=self._attributes['delegationAmount'],
-                                              opportunityCost=1)
+                                              opportunityCost=self._attributes['opportunityCost'])
 
         for indexer in available_indexers:
             # 2. If already delegated to this indexer, see if worth extending
@@ -130,7 +134,7 @@ class UtilityDelegator(UtilityAgent):
                 if payoff[indexer] < 0:
                     # Not worth extending, so undelegate from this indexer
                     strategy.append(
-                        dict(self._actions['undelegate'], **{'target': indexer})
+                        dict(self._actions['undelegate'], **{'indexer': indexer})
                     )
 
         # 3. Get indexer with highest marginal utility gain
@@ -140,12 +144,21 @@ class UtilityDelegator(UtilityAgent):
         # if payoff[best_indexer] >= 0 and best_indexer not in self.is_delegated():
         # TODO: make sure we are not delegated to the indexer we chose, not just any indexer. (this works in single indexer scenario)
         if payoff[best_indexer] >= 0 and not self.is_delegated():
-            if self._delegationAmount <= self.holdings:
+            if self._attributes['delegationAmount'] <= self.holdings:
+                # plan['delegator'] = self.id
+                # plan['indexer'] = indexer.id
+                # plan['tokens'] = self.holdings * (1 - inpt['delegation_tax_rate'])
+                # plan['allocationID'] = allocation.allocation_id
+                # plan['subgraphDeploymentID'] = subgraph_id
+                # plan['until'] = current_period + inpt['minimum_delegation_period_epochs']
+
                 strategy.append(
-                    dict(self._actions['delegate'], **{'target': best_indexer})
+                    dict(self._actions['delegate'],
+                         **{'indexer': best_indexer,
+                            'delegator': self.id})
                 )
         if strategy:
-            self.plan = strategy
+            self.plan = strategy[-1]
 
     def generate_output(self):
         self.output = []
