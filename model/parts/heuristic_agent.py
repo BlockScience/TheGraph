@@ -1,13 +1,14 @@
 # The abstract class 'AbstractAgent' is used, 
 # assumed to lie within an 'agent' module
 from .abstract_agent import AbstractAgent
-from model.parts.delegator import Delegator
+#from model.parts.delegator import Delegator
+from .indexer import Indexer
  
 
-class HeuristicAgent(Delegator):
+class HeuristicAgent(Indexer):
 
-    def __init__(self, delegator_id, rules, initialaccount_balance):  # Dict[id, rule]):
-        super().__init__(delegator_id, holdings=initialaccount_balance)
+    def __init__(self, indexer_id, rules, initialaccount_balance):  # Dict[id, rule]):
+        super().__init__(indexer_id, GRT=initialaccount_balance)
         self._strategies = [rules.rules]
         
     def beliefs(self):

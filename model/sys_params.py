@@ -25,6 +25,7 @@ slashing_percentage = [Decimal(0.025)]
 delegation_leverage = [16]
 
 delegator_initial_holdings = [Decimal(10e9)]
+indexer_initial_holdings = [Decimal(10e9)]
 # values based on average of 2-3 most common gas costs from etherscan
 # average determined by taking 10 random transcations from csv files another_indexer/all_events
 # still figuring out best source to obtain actual data
@@ -96,4 +97,5 @@ params = {
         'dispute_channel_epochs': [dispute_channel_epochs],
         'unbonding_days': [unbonding_days],
         'shift': [shift],
+        'indexer_initial_holdings': indexer_initial_holdings
 }

@@ -9,19 +9,19 @@ class IndexSpoofer(HeuristicAgent):
         self._states = [
             {
                 'stake': {},
-                'subgraphs': {},
-                'available_funds': initialaccount_balance,
-                'timeWaited': {}
+                # 'subgraphs': {},
+                # 'available_funds': initialaccount_balance,
+                # 'timeWaited': {}
             }
         ]
 
-    def input(self, newInput):
+    def inputs(self, newInput):
         self._inputs.append(
             {
-                'availableSubgraphs': newInput['availableSubgraphs'],
+                'available_subgraphs': newInput['available_subgraphs'],
                 'currentPeriod': newInput['currentPeriod'],
-                'delegation_unbonding_period': newInput['delegationUnbondingPeriod'],
-                'accountBalance': newInput['accountBalance']
+                'delegation_unbonding_period': newInput['delegation_unbonding_period'],
+                'account_balance': newInput['account_balance']
             }
         )
 
@@ -36,87 +36,102 @@ class IndexSpoofer(HeuristicAgent):
     
         plan = {}
         current_period = inpt['currentPeriod']
+        staked = self.cumulative_deposited_stake > 0
         delegated = self.shares > 0
         funds = self.GRT
-        if not state['subgraphs'] and inpt['availableSubgraphs']:
-            if state['stake']['status'] == "have staked to self":
+        indexer_revenue = self.indexer_revenue_cut
+        allocated_subgraph = self.subgraphs
+        rewardTransferred = 0
+        for subgraph in inpt['available_subgraphs'].values():
+            allocations = [allocation for allocation in subgraph.allocations.values() if allocation.tokens != 0]
+            if len(allocations) == 0 and inpt['available_subgraphs']:
+                    if staked:
                 # delegate to self
-                if strategy['delegate']['tokens'] <= funds:
-                    plan = strategy['delegate']
-                    plan['indexer'] = self.id
-                    plan['delegator'] = self.id
-                    plan['subgraphDeploymentID'] = inpt['availableSubgraphs'][0]
-            elif state['stake']['status'] != "have delegated to self":
-                # create an ownIndexer stake
-                if strategy['stake']['tokens'] <= funds:
-                    plan = strategy['stake']
-                    plan['indexer'] = self.id
-                    plan['delegator'] = self.id
-                    plan['subgraphDeploymentID'] = inpt['availableSubgraphs'][0]
-            else:
-                # have staked and delegated, so open an allocation
-                if strategy['open']['tokens'] <= delegated:
-                    plan = strategy['open']
-                    plan['target'] = inpt['availableSubgraphs'][0]
-            self.plan = plan
-        elif inpt['availableSubgraphs']:
-            rewardTransferred = 0
-            for subgraph in inpt['availableSubgraphs']:
-                plan = {}
-                if subgraph not in state['subgraphs']:
-                    if strategy['open']['tokens'] <= state['stake']['available']:
-                        plan = strategy['open']
-                        plan['target'] = subgraph
-                else:
-                    if state['stake']['indexingRewardCut'] is None:
-                        # set indexingRewardCut for this subgraph's allocation
-                        plan = strategy['set_cut']
-                        plan['amount'] = 1
-                        plan['target'] = self.id
+                        if strategy['delegate']['tokens'] <= funds:
+                            plan = strategy['delegate']
+                            plan['indexer'] = self.id
+                            plan['delegator'] = self.id
+                            plan['subgraphDeploymentID'] = inpt['available_subgraphs'].keys()[0]
+                    elif not staked:
+                        # create an ownIndexer stake
+                        if strategy['stake']['tokens'] <= funds:
+                            plan = strategy['stake']
+                            plan['indexer'] = self.id
+                            plan['delegator'] = self.id
+                            plan['subgraphDeploymentID'] = inpt['available_subgraphs'].keys()[0]
                     else:
-                        if state['timeWaited'][subgraph] < strategy['wait']['timeWaited']:
-                            # wait according to agent preferences on waiting time, timeWaited
-                            plan = strategy['wait']
-                            plan['target'] = subgraph
+                        # have staked and delegated, so open an allocation
+                        if strategy['open']['tokens'] <= funds:
+                            plan = strategy['open']
+                            plan['indexer'] = self.id
+                            plan['epoch'] = current_period
+                            plan['allocationID'] = '1'
+                            plan['subgraphDeploymentID'] = inpt['available_subgraphs'].keys()[0]
+                    self.plan = plan
+            elif inpt['available_subgraphs']:
+                for avail_subgraph in inpt['available_subgraphs']:
+                    plan = {}
+                    if avail_subgraph not in allocated_subgraph.keys():
+                        if strategy['open']['tokens'] <= funds:
+                            plan = strategy['open']
+                            plan['indexer'] = self.id
+                            plan['epoch'] = current_period
+                            plan['allocationID'] = '1'
+                            plan['subgraphDeploymentID'] = subgraph
+                    else:
+                        if indexer_revenue is None:
+                            # set indexingRewardCut for this subgraph's allocation
+                            plan = strategy['set_cut']
+                            plan['amount'] = 1
+                            plan['indexer'] = self.id
                         else:
-                            if subgraph['status'] == "rewardPaid": 
-                                rewardTransferred += 1
-                            elif subgraph['status'] != "closed":
-                                if state['stake']['indexingRewardCut'] != 0:
-                                    # waited long enough,  switch reward cut to zero
-                                    plan = strategy['set_cut']
-                                    plan['target'] = subgraph
-                                    plan['amount'] = 0
+                            for allocation in allocations:
+
+                                if current_period - allocation.start_period < strategy['wait']['timeWaited']:
+                                # wait according to agent preferences on waiting time, timeWaited
+                                    plan = strategy['wait']
+                                    plan['indexer']  = self.id
+                                    plan['subgraphDeploymentID'] = subgraph
                                 else:
-                                    # waited long enough and index cut is zero, close the allocation
-                                    plan = strategy['close']
-                                    plan['target'] = subgraph
+                                    if subgraph['status'] == "rewardPaid": 
+                                        rewardTransferred += 1
+                                    elif subgraph['status'] != "closed":
+                                        if indexer_revenue != 0:
+                                        # waited long enough,  switch reward cut to zero
+                                            plan = strategy['set_cut']
+                                            plan['indexer'] = self.id
+                                            plan['amount'] = 0
+                                    else:
+                                        # waited long enough and index cut is zero, close the allocation
+                                        plan = strategy['close']
+                                        plan['indexer'] = self.id
+                    if plan: 
+                        self.plan = plan
+            if rewardTransferred == len(allocated_subgraph) and len(allocated_subgraph) > 0:
+                plan = {}
+                if current_period >= inpt['delegation_unbonding_period']:
+                    if not delegated:
+                        # check balance to see if delegation reward has been deposited
+                        plan = strategy['checkBalance']
+                        state['stake']['status'] = 'have sent checkAccountBalance'
+                    elif state['stake']['status'] == "have sent checkAccountBalance":
+                        # clear the delegation
+                        plan = strategy['clear']
+                        plan['indexer'] = self.id
+                    else:
+                        # withdraw from delegation to recoup rewards from allocation
+                        plan = strategy['withdraw']
+                        plan['indexer'] = self.id
+                else:
+                    # rewards have been distributed, undelegate
+                    plan = strategy['undelegate']
+                    plan['indexer'] = self.id
+                    plan['delegator'] = self.id
+                    plan['until'] = current_period + inpt['delegation_unbonding_period']
                 if plan: 
                     self.plan = plan
-        if rewardTransferred == len(state['subgraphs']):
-            plan = {}
-            if current_period >= state['stake']['undelegatePeriod'] + \
-                inpt['delegationUnbondingPeriod']:
-                if state['stake']['status'] is "have withdrawn from own delegation":
-                    # check balance to see if delegation reward has been deposited
-                    plan = strategy['checkBalance']
-                elif state['stake']['status'] is "have sent checkAccountBalance":
-                    # clear the delegation
-                    plan = strategy['clear']
-                    plan['target'] = self.id
-                else:
-                    # withdraw from delegation to recoup rewards from allocation
-                    plan = strategy['withdraw']
-                    plan['target'] = self.id
-            else:
-                # rewards have been distributed, undelegate
-                plan = strategy['undelegate'].update({'target' : self.identifier, 'undelegatePeriod' : current_period})
-                plan['target'] = self.id
-                plan['until'] = current_period + inpt['delegation_unbonding_period']
-            if plan: 
-                self.plan = plan
-                
-        self.plan = plan
+                    
+            self.plan = plan
 
     def generate_output(self):
         self.output = []
