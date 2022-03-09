@@ -34,10 +34,17 @@ class IndexSpoofingRules(Rules):
                 'status'   : "have set indexingRewardCut"
             },
             'wait' : {
-                'event'    : None,
-                'target'   : None,
-                'amount'   : waitingPeriod,
-                'status'   : "am waiting"
+                'event'     : "waiting",
+                'type'      : None,
+                'target'    : None,
+                'timeWaited': waitingPeriod,
+                'status'    : "am waiting"
+            },
+            'give_rewards': {
+                'event'     : "rewards",
+                'type'      : "rewardsAssigneds",
+                'target'    : None,
+                'status'    : "rewards given"
             },
             'close' : {
                 'event'    : "close",
@@ -59,11 +66,13 @@ class IndexSpoofingRules(Rules):
             },
             'checkBalance' : {
                 'event'    : "checkAccountBalance",
+                'type'     : None,
                 'target'   : '<account address>',
                 'status'   : "have sent checkAccountBalance"
             },
             'clear' : {
                 'event'    : None,
+                'type'     : None, 
                 'target'   : None,
                 'status'   : "have cleared delegation"
             }  

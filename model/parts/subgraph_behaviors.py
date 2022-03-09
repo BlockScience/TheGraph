@@ -26,7 +26,7 @@ def create_allocations(params, step, sL, s, inputs):
             indexer.subgraphs[subgraphID] = subgraph
         else:
             subgraph = indexer.subgraphs[subgraphID]
-        
+        indexer.GRT -= event['tokens']
         allocation = Allocation(event['allocationID'], event['tokens'], event['epoch'])
         subgraph.allocations[event['allocationID']] = allocation
         

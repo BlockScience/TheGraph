@@ -41,35 +41,37 @@ class IndexSpoofer(HeuristicAgent):
         funds = self.GRT
         indexer_revenue = self.indexer_revenue_cut
         allocated_subgraph = self.subgraphs
+        index_rewards = self.cumulative_indexing_revenue
         rewardTransferred = 0
-        for subgraph in inpt['available_subgraphs'].values():
-            allocations = [allocation for allocation in subgraph.allocations.values() if allocation.tokens != 0]
-            if len(allocations) == 0 and inpt['available_subgraphs']:
+        for subgraph_id, subgraph in inpt['available_subgraphs'].items():
+            open_allocations = [allocation for allocation in subgraph.allocations.values() if allocation.tokens != 0]
+            allocations = [allocation for allocation in subgraph.allocations.values()]
+            if len(open_allocations) == 0 and inpt['available_subgraphs']:
                     if staked:
                 # delegate to self
                         if strategy['delegate']['tokens'] <= funds:
                             plan = strategy['delegate']
                             plan['indexer'] = self.id
                             plan['delegator'] = self.id
-                            plan['subgraphDeploymentID'] = inpt['available_subgraphs'].keys()[0]
+                            plan['allocationID'] = '1'
+                            plan['subgraphDeploymentID'] = subgraph_id
                     elif not staked:
                         # create an ownIndexer stake
                         if strategy['stake']['tokens'] <= funds:
                             plan = strategy['stake']
                             plan['indexer'] = self.id
                             plan['delegator'] = self.id
-                            plan['subgraphDeploymentID'] = inpt['available_subgraphs'].keys()[0]
-                    else:
+                            plan['subgraphDeploymentID'] = subgraph_id
                         # have staked and delegated, so open an allocation
                         if strategy['open']['tokens'] <= funds:
                             plan = strategy['open']
                             plan['indexer'] = self.id
                             plan['epoch'] = current_period
                             plan['allocationID'] = '1'
-                            plan['subgraphDeploymentID'] = inpt['available_subgraphs'].keys()[0]
+                            plan['subgraphDeploymentID'] = subgraph_id
                     self.plan = plan
             elif inpt['available_subgraphs']:
-                for avail_subgraph in inpt['available_subgraphs']:
+                for avail_subgraph in inpt['available_subgraphs'].keys():
                     plan = {}
                     if avail_subgraph not in allocated_subgraph.keys():
                         if strategy['open']['tokens'] <= funds:
@@ -77,30 +79,38 @@ class IndexSpoofer(HeuristicAgent):
                             plan['indexer'] = self.id
                             plan['epoch'] = current_period
                             plan['allocationID'] = '1'
-                            plan['subgraphDeploymentID'] = subgraph
+                            plan['subgraphDeploymentID'] = avail_subgraph
                     else:
                         if indexer_revenue is None:
                             # set indexingRewardCut for this subgraph's allocation
                             plan = strategy['set_cut']
-                            plan['amount'] = 1
+                            plan['queryFeeCut'] = 1
+                            plan['indexingRewardCut'] = 1
                             plan['indexer'] = self.id
                         else:
                             for allocation in allocations:
 
                                 if current_period - allocation.start_period < strategy['wait']['timeWaited']:
                                 # wait according to agent preferences on waiting time, timeWaited
-                                    plan = strategy['wait']
-                                    plan['indexer']  = self.id
-                                    plan['subgraphDeploymentID'] = subgraph
+                                   # plan = strategy['wait']
+                                   # plan['indexer']  = self.id
+                                   # plan['subgraphDeploymentID'] = avail_subgraph
+                                   pass
                                 else:
-                                    if subgraph['status'] == "rewardPaid": 
+                                    if index_rewards == 0:
+                                        plan = strategy['give_rewards']
+                                        plan['indexer'] = self.id
+                                        plan['amount'] = allocation.tokens * 0.01
+                                    if index_rewards > 0: 
                                         rewardTransferred += 1
-                                    elif subgraph['status'] != "closed":
+                                        print(rewardTransferred)
+                                    elif allocation.tokens == 0:
                                         if indexer_revenue != 0:
                                         # waited long enough,  switch reward cut to zero
                                             plan = strategy['set_cut']
                                             plan['indexer'] = self.id
-                                            plan['amount'] = 0
+                                            plan['queryFeeCut'] = 0
+                                            plan['indexingRewardCut'] = 0
                                     else:
                                         # waited long enough and index cut is zero, close the allocation
                                         plan = strategy['close']

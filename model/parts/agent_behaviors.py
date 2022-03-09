@@ -14,20 +14,20 @@ def get_agent_actions_next_timestep(params, step, sL, s, inputs):
     subgraphs = {}
     for indexer_id, indexer in indexers.items():        
         # delegate_front_runner is delegate id 1.
-        agent = indexers[1]
         # try:
         for subgraph_id, subgraph in indexer.subgraphs.items():
             subgraphs[subgraph_id] = subgraph
         # except AttributeError:
         #     subgraphs = subgraphs
-        inpt = {
-                    'available_subgraphs': subgraphs,
-                    'currentPeriod': s['epoch'],
-                    'delegation_unbonding_period': params['unbonding_days'],
-                    'account_balance': agent.holdings,
-                }
-        agent.inputs(inpt)
+    agent = indexers[1]
+    inpt = {
+                'available_subgraphs': subgraphs,
+                'currentPeriod': s['epoch'],
+                'delegation_unbonding_period': params['unbonding_days'],
+                'account_balance': agent.holdings,
+            }
+    agent.inputs(inpt)
         # this populates an action into the agent object.
-        agent.get_action()
+    agent.get_action()
     key = 'indexers'
     return key, indexers
