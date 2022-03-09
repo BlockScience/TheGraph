@@ -25,6 +25,9 @@ class Delegator(AbstractAgent):
         # Not allowed to sell below this amount
         self.minimum_shares = minimum_shares
 
+        self.epoch_of_last_action = 0
+        self.has_rewards_assigned_since_delegation = False
+
     def __repr__(self):
         return f'{self.id=}, {self.shares=}, {self.holdings=}, {self.undelegated_tokens=}'
 
@@ -58,7 +61,7 @@ class Delegator(AbstractAgent):
     def generate_plan(self):
         pass
     
-    def selectPlan(self):
+    def select_plan(self):
         pass
     
     def generate_output(self, plan):

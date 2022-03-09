@@ -51,6 +51,9 @@ def revenue_process(params, step, sL, s, inputs):
                 print(f'--after {subgraph.indexing_fees=}')
                 indexer.cumulative_indexing_revenue += indexer.buffered_rewards_assigned
                 indexer.most_recent_indexing_reward = indexer.buffered_rewards_assigned
+
+                for delegator in indexer.delegators.values():
+                    delegator.has_rewards_assigned_since_delegation = True
                 
         elif inputs['indexing_fee_amt']:  # then this should be rewards assigned.
             print('EVENT: REWARDS ASSIGNED/INDEXING FEE EVENT')

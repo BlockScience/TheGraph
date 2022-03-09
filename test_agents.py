@@ -22,8 +22,8 @@ def show_final_results():
 
 
 def show_all_delegations():
-    for timestep in range(1530):
-        delegator_one = list(df.iloc[timestep-1].indexers.values())[0].delegators[1]
+    for timestep in range(1529):
+        delegator_one = list(df.iloc[timestep].indexers.values())[0].delegators[1]
         # shares = delegate_front_runner.shares
         # holdings = delegate_front_runner.holdings
         # undelegated_tokens = delegate_front_runner.undelegated_tokens

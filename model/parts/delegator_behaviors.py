@@ -3,27 +3,6 @@ from model.parts.delegator import Delegator
 from decimal import *
 
 
-# def delegate_actions(params, step, sL, s):
-#     """ this just gets all of the events at this timestep into policy variables """
-#     key = 'delegation_events'
-#     delegation_events = get_shifted_events(s, sL, params['delegation_tokens_events'], 'delegate')
-#     return {key: delegation_events}
-#
-#
-# def undelegate_actions(params, step, sL, s):
-#     """ this just gets all of the events at this timestep into policy variables """
-#     key = 'undelegation_events'
-#     delegation_events = get_shifted_events(s, sL, params['undelegation_shares_events'], 'undelegate')
-#     return {key: delegation_events}
-#
-#
-# def withdraw_actions(params, step, sL, s):
-#     """ this just gets all of the events at this timestep into policy variables """
-#     key = 'withdraw_events'
-#     delegation_events = get_shifted_events(s, sL, params['withdraw_tokens_events'], 'withdraw')
-#     return {key: delegation_events}
-
-
 def delegate(params, step, sL, s, inputs):
     event = inputs['event'][0] if inputs['event'] is not None else None
     if event:
@@ -59,6 +38,9 @@ def delegate(params, step, sL, s, inputs):
         indexer = process_delegation_event(delegation_tokens_quantity, delegator,
                                            delegation_tax_rate, indexer.pool_delegated_stake, shares,
                                            indexer)
+
+        delegator.epoch_of_last_action = s['epoch']
+        delegator.has_rewards_assigned_since_delegation = False
 
     key = 'indexers'
     return key, s['indexers']
@@ -149,6 +131,7 @@ def undelegate(params, step, sL, s, inputs):
             until = event['until']
             delegator.set_undelegated_tokens(until, undelegated_tokens)
             delegator.shares -= undelegation_shares_quantity
+            delegator.epoch_of_last_action = s['epoch']
             indexer.pool_delegated_stake -= undelegated_tokens
             indexer.shares -= undelegation_shares_quantity
             print(f'''  (after)--
@@ -175,6 +158,7 @@ def withdraw(params, step, sL, s, inputs):
         if delegator_id == 1:
             print('agent withdraw')
         delegator = indexer.delegators[delegator_id]
+        delegator.epoch_of_last_action = s['epoch']
         tokens = event['tokens']
         print(f'''EVENT: WITHDRAW (before)--
                     {delegator_id=}, 

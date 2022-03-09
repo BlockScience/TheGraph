@@ -68,6 +68,8 @@ class UtilityComponentsDelegator(UtilityComponents):
         # self._beliefs = beliefs
 
 
+
+
 class UtilityDelegator(UtilityAgent):
 
     def __init__(self, delegator_id, initial_account_balance, components):
@@ -116,6 +118,11 @@ class UtilityDelegator(UtilityAgent):
 
     # this only works for one indexer currently because delegator is an attribute of an indexer.
     def generate_strategies(self):
+        if self._inputs[-1]['current_period'] == self.epoch_of_last_action:
+            # the delegator already acted this period.
+            self.plan = None
+            return
+
         available_indexers = self._inputs[-1]['available_indexers']
         payoff = {}
         strategy = []
@@ -127,15 +134,22 @@ class UtilityDelegator(UtilityAgent):
             payoff[indexer_id] = self.utility(self, indexer,
                                               ownDelegation=self._attributes['delegationAmount'],
                                               opportunityCost=self._attributes['opportunityCost'])
+            print(f'{payoff[indexer_id]=}')
 
         for indexer in available_indexers:
             # 2. If already delegated to this indexer, see if worth extending
             if self.is_delegated():
                 if payoff[indexer] < 0:
-                    # Not worth extending, so undelegate from this indexer
-                    strategy.append(
-                        dict(self._actions['undelegate'], **{'indexer': indexer})
-                    )
+                    if self.has_rewards_assigned_since_delegation:
+                        # Not worth extending, so undelegate from this indexer
+                        inpt = self._inputs[-1]
+                        current_period = inpt['current_period']
+                        strategy.append(
+                            dict(self._actions['undelegate'], **{'indexer': indexer,
+                                                                 'delegator': self.id,
+                                                                 'shares': self.shares,
+                                                                 'until': current_period + inpt['delegation_unbonding_period_epochs']})
+                        )
 
         # 3. Get indexer with highest marginal utility gain
         best_indexer = max(payoff, key=payoff.get)
@@ -145,13 +159,6 @@ class UtilityDelegator(UtilityAgent):
         # TODO: make sure we are not delegated to the indexer we chose, not just any indexer. (this works in single indexer scenario)
         if payoff[best_indexer] >= 0 and not self.is_delegated():
             if self._attributes['delegationAmount'] <= self.holdings:
-                # plan['delegator'] = self.id
-                # plan['indexer'] = indexer.id
-                # plan['tokens'] = self.holdings * (1 - inpt['delegation_tax_rate'])
-                # plan['allocationID'] = allocation.allocation_id
-                # plan['subgraphDeploymentID'] = subgraph_id
-                # plan['until'] = current_period + inpt['minimum_delegation_period_epochs']
-
                 strategy.append(
                     dict(self._actions['delegate'],
                          **{'indexer': best_indexer,

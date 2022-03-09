@@ -13,9 +13,9 @@ rules = DelegateFrontRunnerRules(initial_account_balance)
 G = initial_account_balance
 
 # TODO: Make interest_rate/opportunity_cost a param.
-  # this is the interest rate, r
+# this is the interest rate, r
 
-amount_to_delegate = 1000
+amount_to_delegate = 1000000
 components = UtilityComponentsDelegator(amount_to_delegate, opportunity_cost)
 
 
