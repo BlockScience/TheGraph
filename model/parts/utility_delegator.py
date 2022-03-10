@@ -35,11 +35,12 @@ class UtilityComponentsDelegator(UtilityComponents):
             # if indexer in delegator.states()[-1]['delegated']:
             if delegator.is_delegated():
                 # ownDelegation = delegator.states()[-1]['delegated'][indexer]['amount']
-                ownDelegation = delegator.shares
+                ownDelegation = delegator.shares # This should really be the amount of delegated tokens not shares
 
             reward = delegator.beliefs[-1][indexer.id]['most_recent_indexing_reward']
             cut = indexer.indexer_revenue_cut
-            delegation = indexer.pool_delegated_stake
+            delegation = indexer.shares
+            # delegation = indexer.pool_delegated_stake
 
             r = opportunityCost
             ell = delegator._inputs[-1]['allocation_days']
@@ -47,10 +48,13 @@ class UtilityComponentsDelegator(UtilityComponents):
             tau = delegator._inputs[-1]['delegation_tax_rate']
             n = rewardCycles
 
-            revenue = n * reward * (1 - cut) if delegation == 0 else n * reward * (1 - cut) * (ownDelegation / delegation)
+            revenue = n * reward * (1 - cut) if delegation == 0 else n * reward * (1 - cut) * (ownDelegation / (delegation + ownDelegation))
 
             cost = ownDelegation * (r * ((n - 1) * ell + d) + tau / (1 - tau))
 
+            if delegation != 0:
+                tax_threshold = (n * reward * (1 - cut) / delegation) / (1+(n * reward * (1 - cut)  / delegation))
+                print(f'{tax_threshold=}')
             if reward > 0:
                 print(f'{reward=}')
 
