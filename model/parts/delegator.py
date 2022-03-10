@@ -29,7 +29,7 @@ class Delegator(AbstractAgent):
         self.has_rewards_assigned_since_delegation = False
 
     def __repr__(self):
-        return f'{self.id=}, {self.shares=}, {self.holdings=}, {self.undelegated_tokens=}'
+        return f'{self.id=}, {self.shares=}, {self.holdings=}, {self.undelegated_tokens=}, {self.plan=}'
 
     def get_withdrawable_delegated_tokens(self, epoch):
         if epoch > self.locked_in_undelegation_until:

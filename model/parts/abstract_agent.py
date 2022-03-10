@@ -14,7 +14,7 @@ class AbstractAgent(ABC):
         self.allocation_id = ''
         self.subgraph_id = ''
         self.output = []
-        self.plan = []  # a list of plans
+        self.plan = None  # changed to None from empty list of plans
         self.state = {}
         self._inputs = []
         self._beliefs = []

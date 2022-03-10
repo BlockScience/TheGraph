@@ -8,8 +8,8 @@ class UtilityComponentsDelegator(UtilityComponents):
         super().__init__()
 
         self._attributes = {
-            'delegationAmount': G,
-            'opportunityCost': opportunity_cost
+            'delegation_amount': G,
+            'opportunity_cost': opportunity_cost
         }
 
         self._actions = {
@@ -17,7 +17,7 @@ class UtilityComponentsDelegator(UtilityComponents):
                 'event': "delegate",
                 'type': 'stakeDelegateds',
                 'indexer': None,
-                'tokens': self._attributes['delegationAmount'],
+                'tokens': self._attributes['delegation_amount'],
                 'status': "have delegated"
             },
             'undelegate': {
@@ -30,27 +30,28 @@ class UtilityComponentsDelegator(UtilityComponents):
 
         # NOTE: global allows this function to pickle, somehow (https://www.pythonpool.com/cant-pickle-local-object/)
         global utility
-        def utility(delegator, indexer, ownDelegation=None,
-                    opportunityCost=0, rewardCycles=1):
+        def utility(delegator, indexer, own_delegation=None,
+                    opportunity_cost=0, reward_cycles=1):
             # if indexer in delegator.states()[-1]['delegated']:
             if delegator.is_delegated():
-                # ownDelegation = delegator.states()[-1]['delegated'][indexer]['amount']
-                ownDelegation = delegator.shares # This should really be the amount of delegated tokens not shares
+                # own_delegation = delegator.states()[-1]['delegated'][indexer]['amount']
+                # own_delegation = delegator.shares  # This should really be the amount of delegated tokens not shares
+                own_delegation = own_delegation / indexer.shares * indexer.pool_delegated_stake  # this is in tokens
 
             reward = delegator.beliefs[-1][indexer.id]['most_recent_indexing_reward']
             cut = indexer.indexer_revenue_cut
             delegation = indexer.shares
             # delegation = indexer.pool_delegated_stake
 
-            r = opportunityCost
+            r = opportunity_cost
             ell = delegator._inputs[-1]['allocation_days']
             d = delegator._inputs[-1]['delegation_unbonding_period_epochs']
             tau = delegator._inputs[-1]['delegation_tax_rate']
-            n = rewardCycles
+            n = reward_cycles
 
-            revenue = n * reward * (1 - cut) if delegation == 0 else n * reward * (1 - cut) * (ownDelegation / (delegation + ownDelegation))
+            revenue = n * reward * (1 - cut) if delegation == 0 else n * reward * (1 - cut) * (own_delegation / (delegation + own_delegation))
 
-            cost = ownDelegation * (r * ((n - 1) * ell + d) + tau / (1 - tau))
+            cost = own_delegation * (r * ((n - 1) * ell + d) + tau / (1 - tau))
 
             if delegation != 0:
                 tax_threshold = (n * reward * (1 - cut) / delegation) / (1+(n * reward * (1 - cut)  / delegation))
@@ -64,14 +65,6 @@ class UtilityComponentsDelegator(UtilityComponents):
             return revenue - cost
 
         self._utility = utility
-
-        # NOTE: if _beliefs is set to a function, we can't use it to hold the beliefs set later.
-        # def beliefs():
-        #     return []
-        #
-        # self._beliefs = beliefs
-
-
 
 
 class UtilityDelegator(UtilityAgent):
@@ -133,11 +126,11 @@ class UtilityDelegator(UtilityAgent):
         for indexer_id, indexer in available_indexers.items():
             # 1. Evaluate marginal utility of each indexer for fixed delegation amount
             # Note that ._utility will use an existing delegation amount (if it
-            # exists) instead of using self._delegationAmount, if the two are different
+            # exists) instead of using self._delegation_amount, if the two are different
 
             payoff[indexer_id] = self.utility(self, indexer,
-                                              ownDelegation=self._attributes['delegationAmount'],
-                                              opportunityCost=self._attributes['opportunityCost'])
+                                              own_delegation=self._attributes['delegation_amount'],
+                                              opportunity_cost=self._attributes['opportunity_cost'])
             print(f'{payoff[indexer_id]=}')
 
         for indexer in available_indexers:
@@ -162,7 +155,7 @@ class UtilityDelegator(UtilityAgent):
         # if payoff[best_indexer] >= 0 and best_indexer not in self.is_delegated():
         # TODO: make sure we are not delegated to the indexer we chose, not just any indexer. (this works in single indexer scenario)
         if payoff[best_indexer] >= 0 and not self.is_delegated():
-            if self._attributes['delegationAmount'] <= self.holdings:
+            if self._attributes['delegation_amount'] <= self.holdings:
                 strategy.append(
                     dict(self._actions['delegate'],
                          **{'indexer': best_indexer,
