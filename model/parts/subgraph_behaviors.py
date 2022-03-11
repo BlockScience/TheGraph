@@ -27,6 +27,8 @@ def create_allocations(params, step, sL, s, inputs):
         else:
             subgraph = indexer.subgraphs[subgraphID]
         indexer.GRT -= event['tokens']
+        pool_delegated_stake = indexer.pool_delegated_stake
+        indexer.shares += event['tokens'] if pool_delegated_stake.is_zero() else (event['tokens'] / pool_delegated_stake) * indexer.shares
         allocation = Allocation(event['allocationID'], event['tokens'], event['epoch'])
         subgraph.allocations[event['allocationID']] = allocation
         
@@ -58,8 +60,11 @@ def close_allocations(params, step, sL, s, inputs):
         else:
             subgraph = indexer.subgraphs[subgraphID]
 
-        # 0 out tokens instead of deleting allocation for delegate_front_runner.            
-        subgraph.allocations[event['allocationID']].tokens = 0
+        # 0 out tokens instead of deleting allocation for delegate_front_runner. 
+        try:           
+            subgraph.allocations[event['allocationID']].tokens = 0
+        except KeyError: 
+            pass
         # del subgraph.allocations[event['allocationID']]
 
     return key, indexers

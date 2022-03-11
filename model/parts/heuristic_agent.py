@@ -1,14 +1,17 @@
 # The abstract class 'AbstractAgent' is used, 
 # assumed to lie within an 'agent' module
+#from model.parts.delegate_front_runner import DelegateFrontRunner
+from model.parts.subgraph import Subgraph
 from .abstract_agent import AbstractAgent
-#from model.parts.delegator import Delegator
+from model.parts.delegator import Delegator
 from .indexer import Indexer
+from decimal import Decimal
  
 
 class HeuristicAgent(Indexer):
 
     def __init__(self, indexer_id, rules, initialaccount_balance):  # Dict[id, rule]):
-        super().__init__(indexer_id, GRT=initialaccount_balance)
+        super().__init__(indexer_id, GRT=initialaccount_balance, subgraphs = {'1': Subgraph()}, delegators = {1: Delegator(1, holdings = Decimal(10e9))})
         self._strategies = [rules.rules]
         
     def beliefs(self):

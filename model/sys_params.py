@@ -19,12 +19,12 @@ GRT_conversion_rate = -18
 # TODO: check this tax rate out--0% passes tests, 0.005 does not.
 # delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks
 # delegation_tax_rate = [Decimal(0), Decimal(0.005)]
-delegation_tax_rate = [Decimal(0.000)]
+delegation_tax_rate = [Decimal(0.005)]
 slashing_percentage = [Decimal(0.025)]
 # delegation_tax_rate = [Decimal(0.20)]
 delegation_leverage = [16]
 
-delegator_initial_holdings = [Decimal(10e9)]
+delegator_initial_holdings = [Decimal(10e10)]
 indexer_initial_holdings = [Decimal(10e9)]
 # values based on average of 2-3 most common gas costs from etherscan
 # average determined by taking 10 random transcations from csv files another_indexer/all_events
@@ -34,7 +34,7 @@ undelegate_gas_cost = [107389]
 withdraw_gas_cost = [52101]
 portfolio_tracking = [True]
 # empty means all delegators
-delegator_list = [[1, '0x527b077ae93cbbd67234cd575a32c20235896d44','0xd079f00944d783f631d1af4d6c37039c4479352d','0x3a6f569c1cc6494578a7bcacd0ff0b9ac1859aa6', '0x698b40f200f6c8145f9dee82c06884152c2f4a86']]
+delegator_list = [['0x527b077ae93cbbd67234cd575a32c20235896d44','0xd079f00944d783f631d1af4d6c37039c4479352d','0x3a6f569c1cc6494578a7bcacd0ff0b9ac1859aa6', '0x698b40f200f6c8145f9dee82c06884152c2f4a86']]
 
 # TODO: this will come from allocation file
 # these are indexer cuts

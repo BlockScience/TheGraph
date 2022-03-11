@@ -40,6 +40,7 @@ def cumulative_deposited_stake(params, step, sL, s, inputs):
         print(f'''EVENT: STAKE DEPOSITED: 
             {indexer.id=},
             {event["tokens"]=}''')
+        indexer.GRT -= event['tokens']
 
     value = indexers
     return key, value

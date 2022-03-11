@@ -44,6 +44,7 @@ class IndexSpoofingRules(Rules):
                 'event'     : "rewards",
                 'type'      : "rewardsAssigneds",
                 'target'    : None,
+                'amount'    : None,
                 'status'    : "rewards given"
             },
             'close' : {

@@ -1,15 +1,15 @@
 from .utils import get_shifted_event
 
-
 def revenue_amt(params, step, sL, s):
     indexer_id = None
     subgraph_id = None
     indexing_fee_amt = 0
     query_fee_amt = 0
+    event = get_shifted_event(s, sL, params['all_events'], 'any')
     rewards_assigned_events = get_shifted_event(s, sL, params['rewards_assigned_events'])
-    if rewards_assigned_events is not None:
-        indexing_fee_amt = sum([e['amount'] for e in rewards_assigned_events])
-        indexer_id = rewards_assigned_events[0]['indexer']
+    if event[0]['type'] == 'rewardsAssigneds':
+        indexing_fee_amt = event[0]['amount']
+        indexer_id = event[0]['indexer']
 
     allocation_closed_events = get_shifted_event(s, sL, params['allocation_closed_events'])
     if allocation_closed_events is not None:
