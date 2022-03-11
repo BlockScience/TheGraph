@@ -1,5 +1,5 @@
 from .parts import utils
-from decimal import *
+from decimal import Decimal
 from sys import platform
 
 R_i_rate = [0.03]
@@ -24,6 +24,12 @@ dispute_channel_epochs = 7
 allocation_days = [28]
 # represents multiply by 10e-18 to get GRT
 GRT_conversion_rate = -18
+
+# TODO: check this tax rate out--0% passes tests, 0.005 does not.
+# delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks
+# delegation_tax_rate = [Decimal(0), Decimal(0.005)]
+delegation_tax_rate = [Decimal(0.000) ,Decimal(0.005)]
+# delegation_tax_rate = [Decimal(0.20)]
 delegation_leverage = [16]
 delegator_initial_holdings = [Decimal(10e9)]
 # values based on average of 2-3 most common gas costs from etherscan
@@ -34,8 +40,7 @@ undelegate_gas_cost = [107389]
 withdraw_gas_cost = [52101]
 portfolio_tracking = [True]
 # empty means all delegators
-delegator_list = [[1, '0xd776a7306ee6a060cebb46b46d305e88fd39ba84','0x266d8e3b85dd66758854e4e2ae27c4a161236828','0x1819eba4f13d2693756d38acf8d3e9aabbd8fdb5', '0x77b95ac2de1d21e0c8a9a7a071b0ed17ef675755']]
-
+delegator_list = [[1, '0x527b077ae93cbbd67234cd575a32c20235896d44','0xd079f00944d783f631d1af4d6c37039c4479352d','0x3a6f569c1cc6494578a7bcacd0ff0b9ac1859aa6', '0x698b40f200f6c8145f9dee82c06884152c2f4a86']]
 
 # TODO: this will come from allocation file
 # these are indexer cuts
