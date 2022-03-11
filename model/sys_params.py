@@ -13,11 +13,11 @@ shift = 11446768
 # scenario 2, set delegation_unbonding_period_epochs = 0
 #####################
 # delegation_unbonding_period_epochs = 28
-delegation_unbonding_period_epochs = [34, 42, 48]
+delegation_unbonding_period_epochs = [34, 42]
   # how long delegation is locked after undelegation (before undelegation)
 minimum_delegation_period_epochs = 0  # how long delegation is locked after delegation (before delegation)
 # delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks
-delegation_tax_rate = [Decimal(0.0075), Decimal(0.01), Decimal(0.0125)]
+delegation_tax_rate = [Decimal(0.005)]
 # delegation_tax_rate = [Decimal(0.005)]
 ######################
 
@@ -40,7 +40,7 @@ undelegate_gas_cost = [107389]
 withdraw_gas_cost = [52101]
 portfolio_tracking = [True]
 # empty means all delegators
-delegator_list = [[1, '0x527b077ae93cbbd67234cd575a32c20235896d44','0xd079f00944d783f631d1af4d6c37039c4479352d','0x3a6f569c1cc6494578a7bcacd0ff0b9ac1859aa6', '0x698b40f200f6c8145f9dee82c06884152c2f4a86']]
+delegator_list = [[1,'0x3a6f569c1cc6494578a7bcacd0ff0b9ac1859aa6']]
 
 # TODO: this will come from allocation file
 # these are indexer cuts
