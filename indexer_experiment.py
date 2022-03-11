@@ -9,7 +9,7 @@ from model import config
 sys.path.append("..")
 
 df = run.run()
-with open('experiment.p', 'wb') as f:
+with open('baseline_experiment.p', 'wb') as f:
     pickle.dump(df, f)
 
 
