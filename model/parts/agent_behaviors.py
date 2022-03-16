@@ -25,6 +25,7 @@ def get_agent_actions_next_timestep(params, step, sL, s, inputs):
                 'currentPeriod': s['epoch'],
                 'delegation_unbonding_period': params['unbonding_days'],
                 'account_balance': agent.holdings,
+                'change_cut': params['change_cut']
             }
     agent.inputs(inpt)
         # this populates an action into the agent object.

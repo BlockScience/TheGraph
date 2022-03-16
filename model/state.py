@@ -6,7 +6,7 @@ from .sys_params import params
 
 initial_account_balance = params['delegator_initial_holdings'][0]
 index_account_balance = params['indexer_initial_holdings'][0]
-indexer_rules = IndexSpoofingRules(index_account_balance, 1, 2)
+indexer_rules = IndexSpoofingRules(index_account_balance, 1, 5)
 
 rules = DelegateFrontRunnerRules(initial_account_balance)
 """ System state/state of the delegation pool for multiple indexers. """

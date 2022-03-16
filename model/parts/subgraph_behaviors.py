@@ -62,6 +62,7 @@ def close_allocations(params, step, sL, s, inputs):
 
         # 0 out tokens instead of deleting allocation for delegate_front_runner. 
         try:           
+            indexer.holdings += subgraph.allocations[event['allocationID']].tokens
             subgraph.allocations[event['allocationID']].tokens = 0
         except KeyError: 
             pass

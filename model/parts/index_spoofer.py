@@ -1,5 +1,6 @@
 from .heuristic_agent import HeuristicAgent
 from .index_spoofer_rules import IndexSpoofingRules
+from ..sys_params import params
 from decimal import Decimal
 
 class IndexSpoofer(HeuristicAgent):
@@ -22,7 +23,8 @@ class IndexSpoofer(HeuristicAgent):
                 'available_subgraphs': newInput['available_subgraphs'],
                 'currentPeriod': newInput['currentPeriod'],
                 'delegation_unbonding_period': newInput['delegation_unbonding_period'],
-                'account_balance': newInput['account_balance']
+                'account_balance': newInput['account_balance'],
+                'change_cut': newInput['change_cut']
             }
         )
 
@@ -41,7 +43,8 @@ class IndexSpoofer(HeuristicAgent):
         funds = self.GRT
         indexer_revenue = self.indexer_revenue_cut
         allocated_subgraph = self.subgraphs
-        index_rewards = self.buffered_rewards_assigned
+        index_rewards = self.holdings
+        indexer_pool_delegated_stake = self.pool_delegated_stake
         if allocated_subgraph['1'].allocations == {}  and inpt['available_subgraphs']:
             for avail_subgraph in inpt['available_subgraphs'].keys():
                 open_allocations = [allocation for allocation in inpt['available_subgraphs'][avail_subgraph].allocations.values() if allocation.tokens != 0]
@@ -99,60 +102,57 @@ class IndexSpoofer(HeuristicAgent):
                     if indexer_revenue is None:
                         # set indexingRewardCut for this subgraph's allocation
                         plan = strategy['set_cut']
-                        plan['queryFeeCut'] = 1
-                        plan['indexingRewardCut'] = 1
+                        plan['queryFeeCut'] = Decimal(0.999)
+                        plan['indexingRewardCut'] = Decimal(0.999)
                         plan['indexer'] = self.id
                         self.plan = plan
                         return
                     else:
                         for allocation in allocations:
                             if current_period - allocation.start_period < strategy['wait']['timeWaited']:
+                                if index_rewards <= Decimal((current_period - allocation.start_period)) * Decimal(indexer_pool_delegated_stake) * Decimal(0.03):
+                                   plan = strategy['give_rewards']
+                                   plan['indexer'] = self.id
+                                   plan['amount'] = Decimal(indexer_pool_delegated_stake) * Decimal(0.03)
+                                   self.plan = plan
+                                   return
                             # wait according to agent preferences on waiting time, timeWaited
                                 # plan = strategy['wait']
                                 # plan['indexer']  = self.id
                                 # plan['subgraphDeploymentID'] = avail_subgraph
-                                pass
                             else:
-                                #print(index_rewards)
-                                # if index_rewards <= Decimal(0.0000001):
-                                #    plan = strategy['give_rewards']
-                                #    plan['indexer'] = self.id
-                                #    plan['amount'] = allocation.tokens * Decimal(0.05)
-                                #    self.plan = plan
-                                #    rewardTransferred += 1
-                                #    return
-                                if allocation.tokens != 0:
-                                    if indexer_revenue != 0.001:
-                                    # waited long enough,  switch reward cut to zero
+                                if indexer_revenue != 0.001 and inpt['change_cut']:
+                                # waited long enough,  switch reward cut to zero
                                         plan = strategy['set_cut']
                                         plan['indexer'] = self.id
                                         plan['queryFeeCut'] = 0.001
                                         plan['indexingRewardCut'] = 0.001
                                         self.plan = plan
                                         return
-                                    else:
-                                        # waited long enough and index cut is zero, close the allocation
-                                        plan = strategy['close']
-                                        plan['indexer'] = self.id
-                                        plan['allocationID'] = '1'
-                                        plan['subgraphDeploymentID'] = avail_subgraph
-                                        self.plan = plan
-                                        return
+                                else:
+                                    # waited long enough and index cut is zero, close the allocation
+                                    plan = strategy['close']
+                                    plan['indexer'] = self.id
+                                    plan['allocationID'] = '1'
+                                    plan['subgraphDeploymentID'] = avail_subgraph
+                                    self.plan = plan
+                                    return
             if plan: 
                 self.plan = plan
-        if indexer_revenue == 0.001:
+        if indexer_revenue == 0.001 or inpt['change_cut'] == False:
             plan = {}
             for avail_subgraph in inpt['available_subgraphs'].keys():
                 allocations = [allocation for allocation in inpt['available_subgraphs'][avail_subgraph].allocations.values() if allocation.tokens != 0]
                 for allocation in allocations:
-                    if current_period >= allocation.start_period + inpt['delegation_unbonding_period']:
+                    if current_period >= self.delegators[1].locked_until \
+                        and self.delegators[1].undelegated_tokens > 0.00001:
                         plan = strategy['withdraw']
                         plan['indexer'] = self.id
                         plan['delegator'] = self.id
-                        plan['tokens'] = Decimal(1)
+                        plan['tokens'] = self.delegators[1].undelegated_tokens
                         self.plan = plan
                         return
-                    else:
+                    elif self.delegators[1].shares > 0.00001:
                         # rewards have been distributed, undelegate
                         plan = strategy['undelegate']
                         plan['indexer'] = self.id

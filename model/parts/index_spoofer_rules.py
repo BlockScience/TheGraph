@@ -51,6 +51,7 @@ class IndexSpoofingRules(Rules):
                 'event'    : "close",
                 'type'     : "allocationCloseds",
                 'target'   : None,
+                #'tokens'   : tokens,
                 'status'   : "have closed an allocation"
             },
             'undelegate': {

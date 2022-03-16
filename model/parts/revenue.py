@@ -12,9 +12,9 @@ def revenue_amt(params, step, sL, s):
         indexer_id = event[0]['indexer']
 
     allocation_closed_events = get_shifted_event(s, sL, params['allocation_closed_events'])
-    if allocation_closed_events is not None:
-        indexer_id = allocation_closed_events[0]['indexer']
-        subgraph_id = allocation_closed_events[0]['subgraphDeploymentID']
+    if event[0]['type'] == 'allocationCloseds':
+        indexer_id = event[0]['indexer']
+        subgraph_id = event[0]['subgraphDeploymentID']
 
     allocation_collected_events = get_shifted_event(s, sL, params['allocation_collected_events'])
     if allocation_collected_events is not None:
