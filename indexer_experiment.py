@@ -9,7 +9,7 @@ from model import config
 sys.path.append("..")
 
 df = run.run()
-with open('index_spoofer_scenario_2.p', 'wb') as f:
+with open('index_spoofer_scen_3_slash_chance.p', 'wb') as f:
     pickle.dump(df, f)
 
 

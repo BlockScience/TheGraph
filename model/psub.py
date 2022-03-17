@@ -2,6 +2,7 @@ from .parts.bookkeeping import *
 from .parts.agent_behaviors import *
 from .parts.revenue import *
 from .parts.event_processor import *
+from .parts.agent_slashing import *
 
 
 psubs = [
@@ -18,7 +19,8 @@ psubs = [
         },
         'variables': {
             'block_number': set_block_number,
-            'epoch': set_epoch
+            'epoch': set_epoch,
+            'indexers': check_to_slash
         },
     },    
     {
