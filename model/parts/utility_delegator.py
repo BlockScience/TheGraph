@@ -26,6 +26,12 @@ class UtilityComponentsDelegator(UtilityComponents):
                 'indexer': None,
                 'status': "have sent undelegate()"
             },
+            'withdraw': {
+                'event': "withdraw",
+                'type': 'stakeDelegatedWithdrawns',
+                'indexer': None,
+                'status': "have withdrawn"
+            },
         }
 
         # NOTE: global allows this function to pickle, somehow (https://www.pythonpool.com/cant-pickle-local-object/)
@@ -133,21 +139,36 @@ class UtilityDelegator(UtilityAgent):
                                               opportunity_cost=self._attributes['opportunity_cost'])
             print(f'{payoff[indexer_id]=}')
 
-        for indexer in available_indexers:
+        inpt = self._inputs[-1]
+
+        # TODO: make this work with multiple indexers
+        # ---- should we withdraw?
+        if self.undelegated_tokens > 0:
+            if self.locked_in_undelegation_until <= inpt['current_period']:
+                strategy.append(
+                    dict(self._actions['withdraw'], **{'indexer': indexer_id,
+                                                       'delegator': self.id,
+                                                       'tokens': self.undelegated_tokens})
+                )
+
+        inpt['delegation_unbonding_period_epochs']
+
+        # ---- should we undelegate?
+        for indexer_id in available_indexers:
             # 2. If already delegated to this indexer, see if worth extending
             if self.is_delegated():
-                if payoff[indexer] < 0:
-                    if self.has_rewards_assigned_since_delegation:
-                        # Not worth extending, so undelegate from this indexer
-                        inpt = self._inputs[-1]
+                if payoff[indexer_id] < 0:
+                    if self.has_rewards_assigned_since_delegation:                        # Not worth extending, so undelegate from this indexer
+
                         current_period = inpt['current_period']
                         strategy.append(
-                            dict(self._actions['undelegate'], **{'indexer': indexer,
+                            dict(self._actions['undelegate'], **{'indexer': indexer_id,
                                                                  'delegator': self.id,
                                                                  'shares': self.shares,
                                                                  'until': current_period + inpt['delegation_unbonding_period_epochs']})
                         )
 
+        # ---- should we delegate?
         # 3. Get indexer with highest marginal utility gain
         best_indexer = max(payoff, key=payoff.get)
 
@@ -161,6 +182,7 @@ class UtilityDelegator(UtilityAgent):
                          **{'indexer': best_indexer,
                             'delegator': self.id})
                 )
+
         if strategy:
             self.plan = strategy[-1]
 

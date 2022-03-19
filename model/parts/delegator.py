@@ -32,7 +32,7 @@ class Delegator(AbstractAgent):
         return f'{self.id=}, {self.shares=}, {self.holdings=}, {self.undelegated_tokens=}, {self.plan=}'
 
     def get_withdrawable_delegated_tokens(self, epoch):
-        if epoch > self.locked_in_undelegation_until:
+        if epoch >= self.locked_in_undelegation_until:
             return self.undelegated_tokens
         else:
             return 0
