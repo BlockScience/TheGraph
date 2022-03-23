@@ -1,6 +1,4 @@
 from decimal import Decimal
-from model.parts.delegate_front_runner import DelegateFrontRunner
-from model.parts.utility_delegator import UtilityDelegator, UtilityComponentsDelegator
 from model.parts.delegate_front_runner_rules import DelegateFrontRunnerRules
 
 from ..sys_params import params
@@ -15,9 +13,6 @@ G = initial_account_balance
 # TODO: Make interest_rate/opportunity_cost a param.
 # this is the interest rate, r
 
-amount_to_delegate = 1000000
-components = UtilityComponentsDelegator(amount_to_delegate, opportunity_cost)
-
 
 class Indexer:
     def __init__(self, indexer_id, pool_delegated_stake=Decimal(0), shares=Decimal(0), pool_locked_stake=Decimal(0),
@@ -29,7 +24,7 @@ class Indexer:
         self.pool_delegated_stake = pool_delegated_stake
         self.shares = shares
         # self.delegators = {1: DelegateFrontRunner(1, rules, initial_account_balance)}  # key is delegator ID, value is delegator object.
-        self.delegators = {1: UtilityDelegator(1, initial_account_balance, components)}  # key is delegator ID, value is delegator object.
+        self.delegators = {}  # key is delegator ID, value is delegator object.
         self.pool_locked_stake = pool_locked_stake
 
         # removed as not used.

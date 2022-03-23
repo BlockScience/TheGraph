@@ -32,11 +32,13 @@ def increment_timestep_due_to_agent_event(params, step, sL, s, inputs):
     key = 'injected_event_shift'
     
     injected_event_shift = s['injected_event_shift']
-    for indexer in s['indexers'].values():
-        if indexer.delegators[1].output:
-            injected_event_shift += 1
-            # TODO: if multiple front runners inject events at the same time, this won't work.
-            break
-        
+
+    agent_id = 1
+    agent = s['delegator_portfolios'][agent_id]
+
+    if agent.output:
+        injected_event_shift += 1
+        # TODO: if multiple front runners inject events at the same time, this won't work.
+
     return key, injected_event_shift
 

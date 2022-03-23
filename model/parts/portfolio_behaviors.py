@@ -37,6 +37,9 @@ def delegate_portfolio(params, step, sL, s, inputs):
             elif event.get('blockNumber') is not None:
                 portfolio.delegate_block_number[indexerID].append(event['blockNumber'])               
             portfolio.gas_spent += params['delegation_gas_cost']
+
+            portfolio.epoch_of_last_action = s['epoch']
+
         key = 'delegator_portfolios'
         return key, s['delegator_portfolios']
     else:
@@ -69,9 +72,11 @@ def undelegate_portfolio(params, step, sL, s, inputs):
                 portfolio.indexer_shares[indexerID] -= event['shares']
             else:
                 portfolio.indexer_shares[indexerID] = portfolio.indexer_shares[indexerID]
-                
-                
+
             portfolio.gas_spent += params['undelegate_gas_cost']
+
+            portfolio.epoch_of_last_action = s['epoch']
+
         key = 'delegator_portfolios'
         return key, s['delegator_portfolios']
     else:
@@ -112,6 +117,9 @@ def withdraw_portfolio(params, step, sL, s, inputs):
             portfolio.ROI = sum(portfolio.indexer_ROI.values()) 
             portfolio.ROI_time = sum(portfolio.indexer_ROI_time.values())
             portfolio.gas_spent += params['withdraw_gas_cost']
+
+            portfolio.epoch_of_last_action = s['epoch']
+
         key = 'delegator_portfolios'
         return key, s['delegator_portfolios']
     else:

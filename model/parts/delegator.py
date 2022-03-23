@@ -4,8 +4,7 @@ for shares in the revenue stream. """
 
 
 class Delegator(AbstractAgent):
-    def __init__(self, delegator_id, shares=0, holdings=0,
-                 minimum_shares=0):
+    def __init__(self, delegator_id, shares=0, holdings=0):
         super().__init__(delegator_id)
 
         self.shares = shares
@@ -16,14 +15,11 @@ class Delegator(AbstractAgent):
         # Epoch at which undelegation is allowed
         self.locked_in_delegation_until = 0
 
-        # Tokens locked in undelegation, l
+        # Tokens locked in undelegation, l2222222
         self.undelegated_tokens = 0
 
         # Epoch at which withdraw is allowed
         self.locked_in_undelegation_until = 0
-
-        # Not allowed to sell below this amount
-        self.minimum_shares = minimum_shares
 
         self.epoch_of_last_action = 0
         self.has_rewards_assigned_since_delegation = False

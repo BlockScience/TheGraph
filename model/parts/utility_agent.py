@@ -1,7 +1,4 @@
-# The abstract class 'AbstractAgent' is used, 
-# assumed to lie within an 'agent' module
-from .abstract_agent import AbstractAgent
-from model.parts.delegator import Delegator
+from model.parts.portfolio import Portfolio
 
 
 class UtilityComponents(object):
@@ -21,7 +18,7 @@ class UtilityComponents(object):
         }
 
 
-class UtilityAgent(Delegator):
+class UtilityAgent(Portfolio):
 
     def __init__(self, delegator_id, initialaccount_balance, components):
         super().__init__(delegator_id, holdings=initialaccount_balance)

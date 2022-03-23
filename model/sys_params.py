@@ -33,7 +33,9 @@ delegation_gas_cost = [96286]
 undelegate_gas_cost = [107389]
 withdraw_gas_cost = [52101]
 portfolio_tracking = [True]
-# empty means all delegators
+
+# empty means track all delegators, slow
+# if you list some, it will track those only, and the ones that are ommitted will not know their full picture (fine for event-based delegators)
 delegator_list = [[1, '0x527b077ae93cbbd67234cd575a32c20235896d44','0xd079f00944d783f631d1af4d6c37039c4479352d','0x3a6f569c1cc6494578a7bcacd0ff0b9ac1859aa6', '0x698b40f200f6c8145f9dee82c06884152c2f4a86']]
 # opportunity_cost = Decimal(0.002/365)
 opportunity_cost = Decimal(0.000/365)

@@ -8,25 +8,28 @@ def get_agent_actions_next_timestep(params, step, sL, s, inputs):
     # output = agent.getAction(), which triggers the agent workflow and stores the output of the agent 
     # in output; this would then be parsed to extract events according to the agent’s output schema.
         
-    # agents = s['agents']    
-    # agent = agents[0]
-    indexers = s['indexers']
-    for indexer in indexers.values():        
-        # delegate_front_runner is delegate id 1.
-        agent = indexer.delegators[1]
+    # indexers = s['indexers']
 
-        inpt = {
-                    'available_indexers': s['indexers'],
-                    'current_period': s['epoch'],
-                    'dispute_channel_epochs': params['dispute_channel_epochs'],
-                    'allocation_days': params['allocation_days'],
-                    'delegation_unbonding_period_epochs': params['delegation_unbonding_period_epochs'],
-                    'account_balance': agent.holdings,
-                    'delegation_tax_rate': params['delegation_tax_rate'],
-                    'minimum_delegation_period_epochs': params['minimum_delegation_period_epochs'],
-                }
-        agent.inputs(inpt)
-        # this populates an action into the agent object.
-        agent.get_action()
-    key = 'indexers'
-    return key, indexers
+    # for indexer in indexers.values():
+
+    # agent = indexer.delegators[1]  #NOTE: this is not the agent
+
+    # NOTE: Agent has to be in the portfolio.
+    delegator_portfolios = s['delegator_portfolios']
+    agent = delegator_portfolios[1]
+
+    inpt = {
+                'available_indexers': s['indexers'],
+                'current_period': s['epoch'],
+                'dispute_channel_epochs': params['dispute_channel_epochs'],
+                'allocation_days': params['allocation_days'],
+                'delegation_unbonding_period_epochs': params['delegation_unbonding_period_epochs'],
+                'account_balance': agent.holdings,
+                'delegation_tax_rate': params['delegation_tax_rate'],
+                'minimum_delegation_period_epochs': params['minimum_delegation_period_epochs'],
+            }
+    agent.inputs(inpt)
+    # this populates an action into the agent object.
+    agent.get_action()
+    key = 'delegator_portfolios'
+    return key, delegator_portfolios

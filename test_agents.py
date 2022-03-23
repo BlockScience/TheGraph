@@ -1,14 +1,4 @@
 import pandas as pd
-import numpy as np
-
-# import os
-# import sys
-# module_path = os.path.abspath(os.path.join('..'))
-# print(module_path)
-# sys.path.append(module_path)
-# from .model.parts.utils import *
-# import model.parts.utils
-# from model.sys_params import *
 from model.sim_setup import SIMULATION_TIME_STEPS
 
 df = pd.read_pickle(r'experiment.p')
@@ -23,11 +13,12 @@ def show_final_results():
 
 def show_all_delegations():
     for timestep in range(1529):
-        delegator_one = list(df.iloc[timestep].indexers.values())[0].delegators[1]
+        # delegator_one = list(df.iloc[timestep].indexers.values())[0].delegators[1]
+        delegator_one = df.iloc[timestep].delegator_portfolios[1]
         # shares = delegate_front_runner.shares
         # holdings = delegate_front_runner.holdings
         # undelegated_tokens = delegate_front_runner.undelegated_tokens
-        print(f'{timestep=}, {delegator_one}')
+        print(f'{timestep=}, {delegator_one.pretty_print()}')
 
 
 if __name__ == '__main__':
