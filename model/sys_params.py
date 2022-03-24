@@ -43,14 +43,14 @@ opportunity_cost = Decimal(0.000/365)
 agent_event_path = None
 
 # 1 indexer
-event_path = 'another_indexer/single_indexer/singleIndexer.csv'
+# event_path = 'another_indexer/single_indexer/singleIndexer.csv'
 # event_path = 'another_indexer/single_indexer/singleIndexer_200events_a.csv'
 # event_path = 'GraphQL_data/singleIndexer.csv'
 
 # 2 indexers
 # event_path = 'multiple_indexer/multipleIndexer.csv'
 
-# event_path = 'multiple_indexer/3indexer/3indexer.csv'
+event_path = 'multiple_indexer/3indexer/3indexer.csv'
 # agent_event_path = 'multiple_indexer/agent_events/agent_events.csv'
 # event_path = 'multiple_indexer/allindexer/allEvents.csv'
 
