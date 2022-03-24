@@ -2,6 +2,7 @@
 class Delegator:
     def __init__(self, delegator_id, shares=0):
         # super().__init__(delegator_id)
+        self.id = delegator_id
 
         self.shares = shares
 
@@ -14,10 +15,11 @@ class Delegator:
         # Epoch at which withdraw is allowed
         self.locked_in_undelegation_until = 0
 
+        # NOTE: has_rewards_assigned_since_delegation is only available on indexer's delegators.  not on portfolio delegations.
         self.has_rewards_assigned_since_delegation = False
 
     def __repr__(self):
-        return f'{self.id=}, {self.shares=}, {self.holdings=}, {self.undelegated_tokens=}, {self.plan=}'
+        return f'{self.id=}, {self.shares=}, {self.undelegated_tokens=}'
 
     def get_withdrawable_delegated_tokens(self, epoch):
         if epoch >= self.locked_in_undelegation_until:
@@ -26,7 +28,6 @@ class Delegator:
             return 0
 
     def withdraw(self, tokens):
-        self.holdings += tokens
         self.undelegated_tokens -= tokens
         self.locked_in_undelegation_until = 0
 

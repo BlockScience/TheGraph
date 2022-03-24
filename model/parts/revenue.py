@@ -52,6 +52,9 @@ def revenue_process(params, step, sL, s, inputs):
                 indexer.cumulative_indexing_revenue += indexer.buffered_rewards_assigned
                 indexer.most_recent_indexing_reward = indexer.buffered_rewards_assigned
 
+                # must reset the buffered_rewards_assigned back to 0 after it has been added to other variables.
+                indexer.buffered_rewards_assigned = 0
+
                 for delegator in indexer.delegators.values():
                     delegator.has_rewards_assigned_since_delegation = True
                 

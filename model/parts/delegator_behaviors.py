@@ -47,13 +47,6 @@ def delegate(params, step, sL, s, inputs):
 
 
 def process_delegation_event(delegation_tokens_quantity, delegator, delegation_tax_rate, pool_delegated_stake, shares, indexer):
-    # NOTE: allow this for now.
-    # if delegation_tokens_quantity >= delegator.holdings:
-    #     delegation_tokens_quantity = delegator.holdings        
-
-    # event.tokens already has tax taken out, but holdings calculation has to account for it.
-    # delegator.holdings -= delegation_tokens_quantity / (1 - delegation_tax_rate)
-    
     # 5 * (0.995) / 10 * 10 = 4.975
     print(f'BEFORE DELEGATION: {pool_delegated_stake=}, {shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
 

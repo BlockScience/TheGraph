@@ -18,7 +18,8 @@ def show_all_delegations():
         # shares = delegate_front_runner.shares
         # holdings = delegate_front_runner.holdings
         # undelegated_tokens = delegate_front_runner.undelegated_tokens
-        print(f'{timestep=}, {delegator_one.pretty_print()}')
+        indexer_id = '0x7ab4cf25330ed7277ac7ab59380b68eea68abb0e'
+        print(f'{timestep=}, {delegator_one.delegations.get(indexer_id)}, {delegator_one.plan}')
 
 
 if __name__ == '__main__':

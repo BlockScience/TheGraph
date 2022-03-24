@@ -17,6 +17,9 @@ class Portfolio(AbstractAgent):
 
         # Amount of free/withdrawn token the delegator is holding, h
         self.holdings = holdings
+
+        # delegations is all of the delegations made by THIS Delegator,
+        # not to be confused with delegators on the indexer, which is all of the delegations for that Indexer.
         self.delegations = {}  # key = indexer_id, value = "Delegator"
 
         self.eth_holdings = eth_holdings
@@ -30,7 +33,6 @@ class Portfolio(AbstractAgent):
         self.delegate_block_number = delegate_block_number
         self.withdraw_block_number = withdraw_block_number
 
-
     def __str__(self):
         """
         Print all attributes of the class
@@ -38,7 +40,7 @@ class Portfolio(AbstractAgent):
         return str(self.__class__) + ": " + str(self.__dict__)
 
     def pretty_print(self):
-        return f'{self.id=}, {self.shares=}, {self.holdings=}, {self.undelegated_tokens=}, {self.plan=}'
+        return f'{self.id=}, {self.plan=}'
 
     def beliefs(self):
         return None

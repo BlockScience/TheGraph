@@ -73,11 +73,11 @@ class UtilityDelegator(UtilityAgent):
         # ---- should we withdraw from each indexer?
         for indexer_id in available_indexers:
             if indexer_id in self.delegations and self.delegations[indexer_id].undelegated_tokens > 0:
-                if self.locked_in_undelegation_until <= inpt['current_period']:
+                if self.delegations[indexer_id].locked_in_undelegation_until <= inpt['current_period']:
                     strategy.append(
                         dict(self._actions['withdraw'], **{'indexer': indexer_id,
                                                            'delegator': self.id,
-                                                           'tokens': self.undelegated_tokens})
+                                                           'tokens': self.delegations[indexer_id].undelegated_tokens})
                     )
 
         # ---- should we undelegate to each indexer?
@@ -86,12 +86,13 @@ class UtilityDelegator(UtilityAgent):
             if indexer_id in self.delegations and self.delegations[indexer_id].is_delegated():
                 if payoff[indexer_id] < 0:
                     # Not worth extending, so undelegate from this indexer
-                    if self.delegations[indexer_id].has_rewards_assigned_since_delegation:
+                    # must get has_rewards_assigned_since_delegation from indexer, because not available on portfolio
+                    if available_indexers[indexer_id].delegators[self.id].has_rewards_assigned_since_delegation:
                         current_period = inpt['current_period']
                         strategy.append(
                             dict(self._actions['undelegate'], **{'indexer': indexer_id,
                                                                  'delegator': self.id,
-                                                                 'shares': self.shares,
+                                                                 'shares': self.delegations[indexer_id].shares,
                                                                  'until': current_period + inpt['delegation_unbonding_period_epochs']})
                         )
 

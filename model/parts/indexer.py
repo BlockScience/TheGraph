@@ -24,6 +24,9 @@ class Indexer:
         self.pool_delegated_stake = pool_delegated_stake
         self.shares = shares
         # self.delegators = {1: DelegateFrontRunner(1, rules, initial_account_balance)}  # key is delegator ID, value is delegator object.
+
+        # delegators is all of the delegations made to THIS Indexer
+        # not to be confused with delegations on the delegator object, which is all of the delegations for that delegator.
         self.delegators = {}  # key is delegator ID, value is delegator object.
         self.pool_locked_stake = pool_locked_stake
 

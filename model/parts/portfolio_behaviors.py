@@ -43,7 +43,7 @@ def delegate_portfolio(params, step, sL, s, inputs):
 
             # TODO: replace portfolio.indexer_shares with this Delegator
             if indexerID not in portfolio.delegations:
-                portfolio.delegations[indexerID] = Delegator(portfolio.indexer_shares[indexerID])
+                portfolio.delegations[indexerID] = Delegator(delegatorID, portfolio.indexer_shares[indexerID])
             else:
                 portfolio.delegations[indexerID].shares = portfolio.indexer_shares[indexerID]
 
@@ -121,14 +121,14 @@ def withdraw_portfolio(params, step, sL, s, inputs):
                 portfolio.withdraw_block_number[indexerID].append(event['blockNumber'])
             if indexerID in portfolio.withdraw_block_number:
                 investment_time = portfolio.withdraw_block_number[indexerID][-1] - portfolio.delegate_block_number[indexerID][0] 
-            if indexerID not in portfolio.indexer_ROI_time and investment_time != 0:
-                portfolio.indexer_ROI_time[indexerID] = 1/Decimal(investment_time) * (portfolio.indexer_revenues[indexerID] / portfolio.indexer_in_tokens[indexerID]) + 1
-            elif investment_time != 0:
-                portfolio.indexer_ROI_time[indexerID] = 1/Decimal(investment_time) * (portfolio.indexer_revenues[indexerID] / portfolio.indexer_in_tokens[indexerID]) + 1
-            portfolio.indexer_ROI[indexerID] = (portfolio.indexer_revenues[indexerID] / portfolio.indexer_in_tokens[indexerID]) + 1
+            # if indexerID not in portfolio.indexer_ROI_time and investment_time != 0:
+            #     portfolio.indexer_ROI_time[indexerID] = 1/Decimal(investment_time) * (portfolio.indexer_revenues[indexerID] / portfolio.indexer_in_tokens[indexerID]) + 1
+            # elif investment_time != 0:
+            #     portfolio.indexer_ROI_time[indexerID] = 1/Decimal(investment_time) * (portfolio.indexer_revenues[indexerID] / portfolio.indexer_in_tokens[indexerID]) + 1
+            # portfolio.indexer_ROI[indexerID] = (portfolio.indexer_revenues[indexerID] / portfolio.indexer_in_tokens[indexerID]) + 1
             portfolio.indexer_realized_price[indexerID] = portfolio.indexer_shares[indexerID] / portfolio.indexer_revenues[indexerID]
-            portfolio.ROI = sum(portfolio.indexer_ROI.values()) 
-            portfolio.ROI_time = sum(portfolio.indexer_ROI_time.values())
+            # portfolio.ROI = sum(portfolio.indexer_ROI.values())
+            # portfolio.ROI_time = sum(portfolio.indexer_ROI_time.values())
             portfolio.gas_spent += params['withdraw_gas_cost']
 
             portfolio.delegations[indexerID].undelegated_tokens = portfolio.indexer_locked_tokens[indexerID]
