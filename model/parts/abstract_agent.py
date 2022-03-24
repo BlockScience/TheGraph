@@ -19,6 +19,7 @@ class AbstractAgent(ABC):
         self._inputs = []
         self._beliefs = []
         self._strategies = []
+        self.epoch_of_last_action = 0
 
     @property
     def inputs(self):

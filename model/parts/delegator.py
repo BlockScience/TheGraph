@@ -1,16 +1,9 @@
-from model.parts.abstract_agent import AbstractAgent
-""" A Delegator is an actor who delegates native tokens to the revenue sharing pool
-for shares in the revenue stream. """
-
-
-class Delegator(AbstractAgent):
-    def __init__(self, delegator_id, shares=0, holdings=0):
-        super().__init__(delegator_id)
+# A Delegator is really a delegation now and not a delegator.  A portfolio is a delegator that can delegate to many delegations.
+class Delegator:
+    def __init__(self, delegator_id, shares=0):
+        # super().__init__(delegator_id)
 
         self.shares = shares
-
-        # Amount of free/withdrawn token the delegator is holding, h
-        self.holdings = holdings
 
         # Epoch at which undelegation is allowed
         self.locked_in_delegation_until = 0
@@ -21,7 +14,6 @@ class Delegator(AbstractAgent):
         # Epoch at which withdraw is allowed
         self.locked_in_undelegation_until = 0
 
-        self.epoch_of_last_action = 0
         self.has_rewards_assigned_since_delegation = False
 
     def __repr__(self):
@@ -41,27 +33,6 @@ class Delegator(AbstractAgent):
     def set_undelegated_tokens(self, until, undelegated_tokens):
         self.undelegated_tokens += undelegated_tokens
         self.locked_in_undelegation_until = until
-
-    def beliefs(self):
-        return None
-        
-    # def updateState(self): #, states : states, inputs : inputs):
-    #     pass
-    
-    def update_beliefs(self):
-        return None
-    
-    def generate_strategies(self):
-        return None
-    
-    def generate_plan(self):
-        pass
-    
-    def select_plan(self):
-        pass
-    
-    def generate_output(self, plan):
-        pass
 
     def is_delegated(self):
         return self.shares > 0

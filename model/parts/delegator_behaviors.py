@@ -23,7 +23,7 @@ def delegate(params, step, sL, s, inputs):
         if delegator_id == 1:
             print('agent delegation')
         if delegator_id not in delegators:
-            delegators[delegator_id] = Delegator(delegator_id, holdings=initial_holdings)
+            delegators[delegator_id] = Delegator(delegator_id)
         
         delegator = delegators[delegator_id]        
         delegation_tokens_quantity = event['tokens']
@@ -39,7 +39,7 @@ def delegate(params, step, sL, s, inputs):
                                            delegation_tax_rate, indexer.pool_delegated_stake, shares,
                                            indexer)
 
-        delegator.epoch_of_last_action = s['epoch']
+        # delegator.epoch_of_last_action = s['epoch']
         delegator.has_rewards_assigned_since_delegation = False
 
     key = 'indexers'
@@ -52,7 +52,7 @@ def process_delegation_event(delegation_tokens_quantity, delegator, delegation_t
     #     delegation_tokens_quantity = delegator.holdings        
 
     # event.tokens already has tax taken out, but holdings calculation has to account for it.
-    delegator.holdings -= delegation_tokens_quantity / (1 - delegation_tax_rate)
+    # delegator.holdings -= delegation_tokens_quantity / (1 - delegation_tax_rate)
     
     # 5 * (0.995) / 10 * 10 = 4.975
     print(f'BEFORE DELEGATION: {pool_delegated_stake=}, {shares=}, {delegation_tax_rate=}, {delegation_tokens_quantity=}')
@@ -101,7 +101,6 @@ def undelegate(params, step, sL, s, inputs):
         undelegation_shares_quantity = event['shares']
         print(f'''EVENT: UNDELEGATE (before)--
             {delegator_id=}, 
-            {delegator.holdings=}, 
             {delegator.undelegated_tokens=}, 
             {delegator.shares=}
             {undelegation_shares_quantity=}''')
@@ -131,12 +130,11 @@ def undelegate(params, step, sL, s, inputs):
             until = event['until']
             delegator.set_undelegated_tokens(until, undelegated_tokens)
             delegator.shares -= undelegation_shares_quantity
-            delegator.epoch_of_last_action = s['epoch']
+            # delegator.epoch_of_last_action = s['epoch']
             indexer.pool_delegated_stake -= undelegated_tokens
             indexer.shares -= undelegation_shares_quantity
             print(f'''  (after)--
                         {delegator_id=}, 
-                        {delegator.holdings=}, 
                         {undelegated_tokens=},
                         {delegator.undelegated_tokens=}, 
                         {delegator.shares=}
@@ -158,11 +156,10 @@ def withdraw(params, step, sL, s, inputs):
         if delegator_id == 1:
             print('agent withdraw')
         delegator = indexer.delegators[delegator_id]
-        delegator.epoch_of_last_action = s['epoch']
+        # delegator.epoch_of_last_action = s['epoch']
         tokens = event['tokens']
         print(f'''EVENT: WITHDRAW (before)--
                     {delegator_id=}, 
-                    {delegator.holdings=}, 
                     {delegator.undelegated_tokens=}, 
                     {delegator.shares=}
                     {tokens=}''')
@@ -176,7 +173,6 @@ def withdraw(params, step, sL, s, inputs):
 
         print(f'''EVENT: WITHDRAW (after)--
                     {delegator_id=}, 
-                    {delegator.holdings=}, 
                     {delegator.undelegated_tokens=}, 
                     {delegator.shares=}
                     {tokens=}

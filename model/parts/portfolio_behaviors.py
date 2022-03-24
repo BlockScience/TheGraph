@@ -1,4 +1,5 @@
 from .portfolio import Portfolio
+from .delegator import Delegator
 from decimal import Decimal
 
 
@@ -23,7 +24,7 @@ def delegate_portfolio(params, step, sL, s, inputs):
             if indexerID not in portfolio.indexer_in_tokens:
                 portfolio.indexer_in_tokens[indexerID] = event['tokens'] / (1 - delegation_tax_rate)
             else:
-                portfolio.indexer_in_tokens[indexerID] = event['tokens'] / (1 - delegation_tax_rate) # to calculate ROI, won't sum to pool delegated stake 
+                portfolio.indexer_in_tokens[indexerID] = event['tokens'] / (1 - delegation_tax_rate)  # to calculate ROI, won't sum to pool delegated stake
             if indexerID not in portfolio.indexer_shares:
                 portfolio.indexer_shares[indexerID] = event['tokens'] if pool_delegated_stake.is_zero() \
                                                      else (event['tokens'] / pool_delegated_stake) * shares
@@ -39,6 +40,14 @@ def delegate_portfolio(params, step, sL, s, inputs):
             portfolio.gas_spent += params['delegation_gas_cost']
 
             portfolio.epoch_of_last_action = s['epoch']
+
+            # TODO: replace portfolio.indexer_shares with this Delegator
+            if indexerID not in portfolio.delegations:
+                portfolio.delegations[indexerID] = Delegator(portfolio.indexer_shares[indexerID])
+            else:
+                portfolio.delegations[indexerID].shares = portfolio.indexer_shares[indexerID]
+
+            portfolio.delegations[indexerID].locked_in_delegation_until = s['epoch'] + params['minimum_delegation_period_epochs']
 
         key = 'delegator_portfolios'
         return key, s['delegator_portfolios']
@@ -76,6 +85,10 @@ def undelegate_portfolio(params, step, sL, s, inputs):
             portfolio.gas_spent += params['undelegate_gas_cost']
 
             portfolio.epoch_of_last_action = s['epoch']
+
+            portfolio.delegations[indexerID].shares = portfolio.indexer_shares[indexerID]
+            portfolio.delegations[indexerID].undelegated_tokens = portfolio.indexer_locked_tokens[indexerID]
+            portfolio.delegations[indexerID].locked_in_undelegation_until = s['epoch'] + params['delegation_unbonding_period_epochs']
 
         key = 'delegator_portfolios'
         return key, s['delegator_portfolios']
@@ -117,6 +130,8 @@ def withdraw_portfolio(params, step, sL, s, inputs):
             portfolio.ROI = sum(portfolio.indexer_ROI.values()) 
             portfolio.ROI_time = sum(portfolio.indexer_ROI_time.values())
             portfolio.gas_spent += params['withdraw_gas_cost']
+
+            portfolio.delegations[indexerID].undelegated_tokens = portfolio.indexer_locked_tokens[indexerID]
 
             portfolio.epoch_of_last_action = s['epoch']
 

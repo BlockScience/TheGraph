@@ -70,24 +70,23 @@ class UtilityDelegator(UtilityAgent):
         inpt = self._inputs[-1]
 
         # TODO: make this work with multiple indexers
-        # ---- should we withdraw?
-        if self.undelegated_tokens > 0:
-            if self.locked_in_undelegation_until <= inpt['current_period']:
-                strategy.append(
-                    dict(self._actions['withdraw'], **{'indexer': indexer_id,
-                                                       'delegator': self.id,
-                                                       'tokens': self.undelegated_tokens})
-                )
+        # ---- should we withdraw from each indexer?
+        for indexer_id in available_indexers:
+            if indexer_id in self.delegations and self.delegations[indexer_id].undelegated_tokens > 0:
+                if self.locked_in_undelegation_until <= inpt['current_period']:
+                    strategy.append(
+                        dict(self._actions['withdraw'], **{'indexer': indexer_id,
+                                                           'delegator': self.id,
+                                                           'tokens': self.undelegated_tokens})
+                    )
 
-        inpt['delegation_unbonding_period_epochs']
-
-        # ---- should we undelegate?
+        # ---- should we undelegate to each indexer?
         for indexer_id in available_indexers:
             # 2. If already delegated to this indexer, see if worth extending
-            if self.is_delegated():
+            if indexer_id in self.delegations and self.delegations[indexer_id].is_delegated():
                 if payoff[indexer_id] < 0:
-                    if self.has_rewards_assigned_since_delegation:                        # Not worth extending, so undelegate from this indexer
-
+                    # Not worth extending, so undelegate from this indexer
+                    if self.delegations[indexer_id].has_rewards_assigned_since_delegation:
                         current_period = inpt['current_period']
                         strategy.append(
                             dict(self._actions['undelegate'], **{'indexer': indexer_id,
@@ -103,7 +102,8 @@ class UtilityDelegator(UtilityAgent):
         # 4. If not delegating to best currently, delegate to best if profitable and affordable
         # if payoff[best_indexer] >= 0 and best_indexer not in self.is_delegated():
         # TODO: make sure we are not delegated to the indexer we chose, not just any indexer. (this works in single indexer scenario)
-        if payoff[best_indexer] >= 0 and not self.is_delegated():
+        delegated_to_best_indexer = best_indexer in self.delegations and self.delegations[best_indexer].is_delegated()
+        if payoff[best_indexer] >= 0 and not delegated_to_best_indexer:
             if self._attributes['delegation_amount'] <= self.holdings:
                 strategy.append(
                     dict(self._actions['delegate'],

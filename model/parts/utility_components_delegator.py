@@ -40,7 +40,7 @@ class UtilityComponentsDelegator(UtilityComponents):
     def utility(delegator, indexer, own_delegation=None,
                 p_opportunity_cost=0, reward_cycles=1):
         # if indexer in delegator.states()[-1]['delegated']:
-        if delegator.is_delegated():
+        if indexer.id in delegator.delegations and delegator.delegations[indexer.id].is_delegated():
             # own_delegation = delegator.states()[-1]['delegated'][indexer]['amount']
             # own_delegation = delegator.shares  # This should really be the amount of delegated tokens not shares
             own_delegation = own_delegation / indexer.shares * indexer.pool_delegated_stake  # this is in tokens
