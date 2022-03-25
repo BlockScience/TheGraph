@@ -18,10 +18,11 @@ GRT_conversion_rate = -18
 
 # TODO: check this tax rate out--0% passes tests, 0.005 does not.
 # delegation tax rate is 0.5% as documented here: https://thegraph.com/docs/delegating#delegation-risks
-# delegation_tax_rate = [Decimal(0), Decimal(0.005)]
 delegation_tax_rate = [Decimal(0.005)]
-slashing_percentage = [Decimal(0.03), Decimal(0.4), Decimal(0.5)]
-slashing_chance = [0.01, 0.05, 0.1]
+# delegation_tax_rate = [Decimal(0.005),Decimal(0.0025),Decimal(0.0075)] #,Decimal(0.005), Decimal(0.0025),Decimal(0.0075),Decimal(0.005), Decimal(0.0025),Decimal(0.0075)]
+slashing_percentage = [Decimal(0.025),Decimal(0.05),Decimal(0.075)]
+# slashing_percentage = [Decimal(0.05)]
+slashing_chance = [0.0]
 # delegation_tax_rate = [Decimal(0.20)]
 delegation_leverage = [16]
 

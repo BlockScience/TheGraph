@@ -9,7 +9,9 @@ from model import config
 sys.path.append("..")
 
 df = run.run()
-with open('index_spoofer_scen_3_slash_chance.p', 'wb') as f:
+with open('index_spoofer_scen_3_no_slash_slash_pct.p', 'wb') as f:
     pickle.dump(df, f)
 
-
+with open('index_spoofer_scen_3_no_slash_slash_pct_config.p', 'wb') as fp:
+    pickle.dump(config.simulation_config, fp)
+# scen_3_config = config.simulation_config

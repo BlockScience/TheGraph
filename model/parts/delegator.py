@@ -30,7 +30,7 @@ class Delegator(AbstractAgent):
         return self.shares > 0
 
     def getWithdrawableDelegatedTokens(self, timestep):
-        if timestep > self.locked_until:
+        if timestep >= self.locked_until:
             return self.undelegated_tokens
         else:
             return 0
