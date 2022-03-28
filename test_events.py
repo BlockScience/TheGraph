@@ -1,23 +1,16 @@
 import pandas as pd
 import numpy as np
 
-# import os
-# import sys
-# module_path = os.path.abspath(os.path.join('..'))
-# print(module_path)
-# sys.path.append(module_path)
-# from .model.parts.utils import *
-# import model.parts.utils
 from model.sys_params import *
 
-
-df = pd.read_pickle(r'experiment.p')
+df = pd.read_pickle(r'slashed_indexer.p')
 df.reset_index(inplace = True)
 pd.set_option('display.max_rows', None)
 max_timestep = len(df)
 
+
 def test_delegation(debug):
-    delegation_events_dict = {i:j for (i, j) in delegation_events.items() if i < max_timestep}
+    delegation_events_dict = {i: j for (i, j) in delegation_events.items() if i < max_timestep}
     if debug:        
         print("EXPECTED TRUTH FROM DELEGATION EVENTS:")
         for timestep, events in delegation_events_dict.items():
@@ -28,6 +21,8 @@ def test_delegation(debug):
         print("MODELED RESULTS")
     delegation_event_shares = {}
     for timestep, events in delegation_events_dict.items():
+        #print(f"{timestep}, {event['delegator']}")
+        event = delegation_events_dict[timestep]
         for event in events:
             # curTimestepShares = df.iloc[timestep-1].delegators[event['delegator']].shares
             curTimestepShares = df.iloc[timestep-1].indexers[event['indexer']].delegators[event['delegator']].shares
@@ -151,10 +146,15 @@ def test_withdraw(debug):
     if debug:
         print("EXPECTED TRUTH--Tokens withdrawn via withdraw events:")
         for timestep, withdraw_event in withdraw_events_dict.items():
+            if not withdraw_event: # there were no withdraw events
+                break
+            
             print(f"{timestep}, {withdraw_event[0]['delegator']}, {withdraw_event[0]['tokens']}")
     
         print("MODELED RESULTS--Tokens locked in undelegation.")
         for timestep, withdraw_event in withdraw_events_dict.items():
+            if not withdraw_event: # there were no withdraw events
+                break
             event = withdraw_event[0]
             new_tokens_withdrawn = df.iloc[timestep-1].indexers[event['indexer']].delegators[event['delegator']].holdings
             old_tokens_withdrawn = df.iloc[timestep-2].indexers[event['indexer']].delegators[event['delegator']].holdings
@@ -168,7 +168,10 @@ def test_withdraw(debug):
     cntClose = 0
     cnt = 0
     cntWrong = 0
-    for timestep, withdraw_event in withdraw_events_dict.items():
+
+    for timestep, withdraw_event in withdraw_events_dict.items():        
+        if not withdraw_event: # there were no withdraw events
+            break
         event = withdraw_event[0]
         new_tokens_withdrawn = df.iloc[timestep-1].indexers[event['indexer']].delegators[event['delegator']].holdings
         old_tokens_withdrawn = df.iloc[timestep-2].indexers[event['indexer']].delegators[event['delegator']].holdings
@@ -220,17 +223,24 @@ def test_rewards_assigned(debug):
     # indexer #1
     # indexer_revenue_cut = 0.89
     # indexer #2
-    indexer_revenue_cut = Decimal(0.8)
+    #indexer_revenue_cut = Decimal(0.8)
     # print(df.iloc[timestep])
     # is_first = True
     rewards_assigned_modeled = {}
     rewards_assigned_dict = {i:j for (i, j) in rewards_assigned_events.items() if i < max_timestep}
+    delegation_params_dict = {i:j for (i, j) in delegation_parameter_events.items() if i < max_timestep}
     for timestep, stake_deposited_event in rewards_assigned_dict.items():
         # back indexing rewards out from increase in pool_delegated_stake / 0.11 * 0.89
+        delegation_params_timesteps = list(delegation_params_dict.keys())
+        params_time = [i for i in delegation_params_timesteps if i <= timestep]
+        indexer_revenue_cut = delegation_params_dict[params_time[-1]][0]['indexingRewardCut']
         event = stake_deposited_event[0]
         new_rewards_assigned = df.iloc[timestep-1].indexers[event['indexer']].pool_delegated_stake
         old_rewards_assigned = df.iloc[timestep-2].indexers[event['indexer']].pool_delegated_stake
-        rewards_assigned =(new_rewards_assigned - old_rewards_assigned) / (1 - indexer_revenue_cut) 
+        if indexer_revenue_cut != Decimal(1):
+            rewards_assigned =(new_rewards_assigned - old_rewards_assigned) / (1 - indexer_revenue_cut)
+        else:
+            rewards_assigned = (new_rewards_assigned - old_rewards_assigned)
         rewards_assigned_modeled[timestep] = rewards_assigned
         if debug:
             print(f"{timestep}, {rewards_assigned=}")
@@ -293,6 +303,8 @@ def test_allocation_collecteds(debug):
     if debug:
         print("MODELED RESULTS")
         for timestep, allocation_collected_events_list in allocation_collected_events_dict.items():    
+            if not allocation_collected_events_list:
+                break
             event = allocation_collected_events_list[0]
             new_query_fee_amt = df.iloc[timestep-1].indexers[event['indexer']].cumulative_query_revenue
             old_query_fee_amt = df.iloc[timestep-2].indexers[event['indexer']].cumulative_query_revenue
@@ -311,6 +323,8 @@ def test_allocation_collecteds(debug):
             event_query_fee_amt = 0
         else:
             event_query_fee_amt = sum([e['tokens'] for e in allocation_collected_events_list])
+        if not allocation_collected_events_list:
+            break
         event = allocation_collected_events_list[0]
         new_query_fee_amt = df.iloc[timestep-1].indexers[event['indexer']].cumulative_query_revenue
         old_query_fee_amt = df.iloc[timestep-2].indexers[event['indexer']].cumulative_query_revenue
@@ -563,6 +577,10 @@ def test_stake_depositeds(debug):
             print()
     print(f"Deposited Stake | Exact: {cntExact}, ReallyClose: {cntReallyClose}, Close: {cntClose}, Wrong: {cntWrong}, Total Number: {cnt}")   
 
+def test_stake_slashed(debug):
+    events_dict = {i:j for (i, j) in stake_slashed_events.items() if i < max_timestep}
+
+
 
 if __name__ == '__main__':
     print("UNITTEST RESULTS")
@@ -572,10 +590,10 @@ if __name__ == '__main__':
     test_withdraw(debug=debug)
     
     # this is indexing rewards
-    test_rewards_assigned(debug=debug) 
+    test_rewards_assigned(debug=True) 
     
     # this is query fees
-    test_allocation_collecteds(debug=debug) 
+    #test_allocation_collecteds(debug=debug) 
     test_allocation_createds(debug=debug)
     
     # could be the same amount as created under assumption of no slashing 
