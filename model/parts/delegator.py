@@ -4,33 +4,35 @@ for shares in the revenue stream. """
 
 
 class Delegator(AbstractAgent):
-    def __init__(self, id, shares=0, holdings=0,
+    def __init__(self, delegator_id, shares=0, holdings=0,
                  minimum_shares=0):
-        super().__init__(id)
+        super().__init__(delegator_id)
 
         self.shares = shares
-
-        # Tokens locked in undelegation, l  
-        self.undelegated_tokens = 0
-
-        # Freeze time (measure in block time)
-        self.locked_until = 0
 
         # Amount of free/withdrawn token the delegator is holding, h
         self.holdings = holdings
 
+        # Epoch at which undelegation is allowed
+        self.locked_in_delegation_until = 0
+
+        # Tokens locked in undelegation, l
+        self.undelegated_tokens = 0
+
+        # Epoch at which withdraw is allowed
+        self.locked_in_undelegation_until = 0
+
         # Not allowed to sell below this amount
         self.minimum_shares = minimum_shares
 
+        self.epoch_of_last_action = 0
+        self.has_rewards_assigned_since_delegation = False
+
     def __repr__(self):
-        return f'{self.id=}, {self.shares=}, {self.holdings=}, {self.undelegated_tokens=}'
+        return f'{self.id=}, {self.shares=}, {self.holdings=}, {self.undelegated_tokens=}, {self.plan=}'
 
-    # member of the sharing pool (True/False)
-    def is_member(self):
-        return self.shares > 0
-
-    def getWithdrawableDelegatedTokens(self, timestep):
-        if timestep > self.locked_until:
+    def get_withdrawable_delegated_tokens(self, epoch):
+        if epoch >= self.locked_in_undelegation_until:
             return self.undelegated_tokens
         else:
             return 0
@@ -38,12 +40,11 @@ class Delegator(AbstractAgent):
     def withdraw(self, tokens):
         self.holdings += tokens
         self.undelegated_tokens -= tokens
-        self.locked_until = 0
+        self.locked_in_undelegation_until = 0
 
-
-    def set_undelegated_tokens(self, unbonding_timeblock, undelegated_tokens):
+    def set_undelegated_tokens(self, until, undelegated_tokens):
         self.undelegated_tokens += undelegated_tokens
-        self.locked_until = unbonding_timeblock
+        self.locked_in_undelegation_until = until
 
     def beliefs(self):
         return None
@@ -60,8 +61,14 @@ class Delegator(AbstractAgent):
     def generate_plan(self):
         pass
     
-    def selectPlan(self):
+    def select_plan(self):
         pass
     
     def generate_output(self, plan):
         pass
+
+    def is_delegated(self):
+        return self.shares > 0
+
+    def is_undelegated(self):
+        return self.undelegated_tokens > 0
